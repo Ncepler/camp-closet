@@ -66,10 +66,9 @@ export default function SchoolPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center">
-          <div className="text-6xl mb-4">🎓</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">School not found</h1>
           <p className="text-gray-500 mb-6">We couldn&apos;t find a school with that name.</p>
-          <Link href="/schools" className="px-6 py-3 rounded-xl text-white font-semibold bg-[#1e3a5f] hover:bg-[#2e5a8f] transition-colors">
+          <Link href="/schools" className="px-5 py-2.5 rounded-md text-white font-medium text-sm bg-[#1e3a5f] hover:opacity-90 transition-opacity">
             Back to Schools
           </Link>
         </div>
@@ -80,7 +79,7 @@ export default function SchoolPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--school-bg)" }}>
       {/* Hero */}
-      <div className="relative bg-gradient-to-br from-[#0f1e33] via-[#1e3a5f] to-[#2e5a8f] py-16 px-6">
+      <div className="relative py-16 px-6" style={{ background: "#0f1e33" }}>
         {school?.main_image && (
           <div className="absolute inset-0 opacity-20">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,7 +101,7 @@ export default function SchoolPage() {
           ) : (
             <>
               {school?.school_type && (
-                <span className="inline-block bg-[#4a90e2]/30 border border-[#4a90e2]/50 text-[#93c5fd] text-xs font-medium px-3 py-1 rounded-full mb-3">
+                <span className="inline-block bg-white/10 border border-white/20 text-white/70 text-xs font-medium px-3 py-1 rounded mb-3">
                   {schoolTypeLabels[school.school_type]}
                 </span>
               )}
@@ -138,7 +137,7 @@ export default function SchoolPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="sticky top-16 z-30 bg-white border-b border-[#c5d9ed] shadow-sm">
+      <div className="sticky top-14 z-30 bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
           <div className="relative flex-shrink-0">
             <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,12 +153,12 @@ export default function SchoolPage() {
           </div>
           <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
             <button onClick={() => setFilter("all")}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filter === "all" ? "bg-[#1e3a5f] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              className={`flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium transition-colors ${filter === "all" ? "bg-[#1e3a5f] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
               All
             </button>
             {usedTypes.map((type) => (
               <button key={type} onClick={() => setFilter(type)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filter === type ? "bg-[#1e3a5f] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                className={`flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium transition-colors ${filter === type ? "bg-[#1e3a5f] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                 {getItemTypeLabel(type)}
               </button>
             ))}
@@ -179,7 +178,7 @@ export default function SchoolPage() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="rounded-xl overflow-hidden border border-[#c5d9ed]">
+              <div key={i} className="rounded-lg overflow-hidden border border-gray-200">
                 <div className="skeleton aspect-square" />
                 <div className="p-3 space-y-2">
                   <div className="skeleton h-4 w-3/4" />
@@ -191,12 +190,11 @@ export default function SchoolPage() {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-5xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No items found</h3>
-            <p className="text-gray-500 mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No items found</h3>
+            <p className="text-gray-500 text-sm mb-6">
               {filter !== "all" || search ? "Try clearing your filters" : "This school has no items yet. Be the first to sell!"}
             </p>
-            <Link href="/submit" className="px-6 py-3 rounded-xl text-white font-semibold text-sm inline-block" style={{ background: "linear-gradient(135deg, #1e3a5f, #4a90e2)" }}>
+            <Link href="/submit" className="px-5 py-2.5 rounded-md text-white font-medium text-sm inline-block transition-opacity hover:opacity-90" style={{ background: "#1e3a5f" }}>
               Sell an Item
             </Link>
           </div>

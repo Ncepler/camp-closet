@@ -62,10 +62,9 @@ export default function CampPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center">
-          <div className="text-6xl mb-4">🏕️</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Camp not found</h1>
           <p className="text-gray-500 mb-6">We couldn&apos;t find a camp with that name.</p>
-          <Link href="/camps" className="px-6 py-3 rounded-xl text-white font-semibold bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors">
+          <Link href="/camps" className="px-5 py-2.5 rounded-md text-white font-medium text-sm bg-[#2d5016] hover:opacity-90 transition-opacity">
             Back to Camps
           </Link>
         </div>
@@ -76,7 +75,7 @@ export default function CampPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--camp-bg)" }}>
       {/* Hero */}
-      <div className="relative bg-gradient-to-br from-[#1a3310] via-[#2d5016] to-[#4a7c2c] py-16 px-6">
+      <div className="relative py-16 px-6" style={{ background: "#1a3310" }}>
         {camp?.main_image && (
           <div className="absolute inset-0 opacity-20">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -129,7 +128,7 @@ export default function CampPage() {
       </div>
 
       {/* Filter & Sort bar */}
-      <div className="sticky top-16 z-30 bg-white border-b border-[#d4e3cc] shadow-sm">
+      <div className="sticky top-14 z-30 bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
           {/* Search */}
           <div className="relative flex-shrink-0">
@@ -149,7 +148,7 @@ export default function CampPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
             <button
               onClick={() => setFilter("all")}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filter === "all" ? "bg-[#2d5016] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium transition-colors ${filter === "all" ? "bg-[#2d5016] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
             >
               All
             </button>
@@ -183,7 +182,7 @@ export default function CampPage() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="rounded-xl overflow-hidden border border-[#d4e3cc]">
+              <div key={i} className="rounded-lg overflow-hidden border border-gray-200">
                 <div className="skeleton aspect-square" />
                 <div className="p-3 space-y-2">
                   <div className="skeleton h-4 w-3/4" />
@@ -195,17 +194,16 @@ export default function CampPage() {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-5xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No items found</h3>
-            <p className="text-gray-500 mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No items found</h3>
+            <p className="text-gray-500 text-sm mb-6">
               {filter !== "all" || search
                 ? "Try clearing your filters"
                 : "This camp has no items yet. Be the first to sell!"}
             </p>
             <Link
               href="/submit"
-              className="px-6 py-3 rounded-xl text-white font-semibold text-sm inline-block"
-              style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}
+              className="px-5 py-2.5 rounded-md text-white font-medium text-sm inline-block transition-opacity hover:opacity-90"
+              style={{ background: "#2d5016" }}
             >
               Sell an Item
             </Link>
