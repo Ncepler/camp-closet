@@ -10,29 +10,26 @@ function CampCard({ camp, index }: { camp: Camp; index: number }) {
   return (
     <Link
       href={`/camps/${camp.slug}`}
-      className="group block bg-white rounded-2xl border border-[#d4e3cc] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-fade-in"
+      className="group block bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 animate-fade-in"
       style={{ animationDelay: `${index * 0.06}s`, opacity: 0, animationFillMode: "forwards" }}
     >
       {/* Camp image / placeholder */}
-      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-[#2d5016] to-[#7fb069]">
+      <div className="relative h-44 overflow-hidden" style={{ background: "#2d5016" }}>
         {camp.main_image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={camp.main_image} alt={camp.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <img src={camp.main_image} alt={camp.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center text-white">
-              <div className="text-5xl mb-2 opacity-60">🏕️</div>
-              <div className="text-sm font-medium opacity-50">No image yet</div>
-            </div>
+            <span className="text-white/30 text-sm font-medium">No image</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-white font-semibold text-base leading-tight" style={{ fontFamily: "var(--font-fraunces)" }}>
+          <h3 className="text-white font-semibold text-sm leading-tight" style={{ fontFamily: "var(--font-fraunces)" }}>
             {camp.name}
           </h3>
           {camp.location && (
-            <p className="text-white/75 text-xs mt-0.5 flex items-center gap-1">
+            <p className="text-white/70 text-xs mt-0.5 flex items-center gap-1">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -45,15 +42,15 @@ function CampCard({ camp, index }: { camp: Camp; index: number }) {
 
       <div className="p-4">
         {camp.description && (
-          <p className="text-xs text-[#556b4f] line-clamp-2 mb-3">{camp.description}</p>
+          <p className="text-xs text-gray-500 line-clamp-2 mb-3">{camp.description}</p>
         )}
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-400">
             {new Date(camp.created_at).getFullYear()}
           </span>
-          <span className="text-xs font-semibold text-[#2d5016] flex items-center gap-1 group-hover:gap-2 transition-all">
+          <span className="text-xs font-medium text-[#2d5016] flex items-center gap-1">
             View Items
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </span>
@@ -88,20 +85,20 @@ export default function CampsPage() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--camp-bg)" }}>
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#2d5016] to-[#4a7c2c] py-16 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="text-5xl mb-4">🏕️</div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
+      <div className="py-14 px-6 border-b border-gray-100" style={{ background: "#2d5016" }}>
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-3">Marketplace</p>
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3" style={{ fontFamily: "var(--font-fraunces)" }}>
             Camp Clothing
           </h1>
-          <p className="text-white/75 text-lg mb-8 max-w-xl mx-auto">
-            Browse gear from 13+ summer camps. Buy used, save money, and give clothing another summer.
+          <p className="text-white/60 text-sm mb-8 max-w-md">
+            Browse gear from {camps.length || "13"}+ summer camps. Buy used, save money, and give clothing another summer.
           </p>
           {/* Search */}
-          <div className="relative max-w-md mx-auto">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="relative max-w-md">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -109,7 +106,7 @@ export default function CampsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search camps by name or location…"
-              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/95 text-gray-900 text-sm outline-none focus:ring-2 focus:ring-[#7fb069] shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 rounded-md bg-white text-gray-900 text-sm outline-none focus:ring-2 focus:ring-[#7fb069] shadow-sm"
             />
           </div>
         </div>
@@ -118,9 +115,9 @@ export default function CampsPage() {
       {/* Grid */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden border border-[#d4e3cc]">
+              <div key={i} className="rounded-lg overflow-hidden border border-gray-200">
                 <div className="skeleton h-44" />
                 <div className="p-4 space-y-2">
                   <div className="skeleton h-4 w-3/4" />
@@ -131,15 +128,14 @@ export default function CampsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No camps found</h3>
-            <p className="text-gray-500 mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No camps found</h3>
+            <p className="text-gray-400 text-sm mb-6">
               {search ? `No results for "${search}"` : "No camps in the database yet."}
             </p>
             <button
               onClick={() => setShowRequest(true)}
-              className="px-6 py-3 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}
+              className="px-5 py-2.5 rounded-md text-white font-medium text-sm transition-opacity hover:opacity-90"
+              style={{ background: "#2d5016" }}
             >
               Request a Camp
             </button>
@@ -147,17 +143,17 @@ export default function CampsPage() {
         ) : (
           <>
             <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-[#556b4f]">
-                {filtered.length} camp{filtered.length !== 1 ? "s" : ""} {search && `for "${search}"`}
+              <p className="text-sm text-gray-500">
+                {filtered.length} camp{filtered.length !== 1 ? "s" : ""}{search && ` for "${search}"`}
               </p>
               <button
                 onClick={() => setShowRequest(true)}
-                className="text-sm px-4 py-2 rounded-lg border border-[#d4e3cc] text-[#2d5016] font-medium hover:bg-[#f0f7ec] transition-colors"
+                className="text-sm px-4 py-2 rounded border border-gray-200 text-[#2d5016] font-medium hover:bg-gray-50 transition-colors"
               >
                 + Request a Camp
               </button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filtered.map((camp, i) => (
                 <CampCard key={camp.id} camp={camp} index={i} />
               ))}

@@ -18,14 +18,11 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
   const [error, setError]   = useState("");
 
   const primaryColor = theme === "camp" ? "#2d5016" : "#1e3a5f";
-  const accentColor  = theme === "camp" ? "#7fb069" : "#4a90e2";
 
   useEffect(() => {
-    // Pre-fill email from logged-in user
     supabase.auth.getUser().then(({ data }) => {
       if (data.user?.email) setEmail(data.user.email);
     });
-    // Prevent background scroll
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
@@ -55,24 +52,25 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden animate-scale-in">
         {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between"
-          style={{ background: `linear-gradient(135deg, ${primaryColor}08, ${accentColor}15)` }}
-        >
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
+            <h2 className="font-semibold text-gray-900 text-sm" style={{ fontFamily: "var(--font-fraunces)" }}>
               Request to Buy
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-xs text-gray-400 mt-0.5">
               {getItemTypeLabel(item.item_type)} · Size {item.size} · ${item.price.toFixed(2)}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -80,29 +78,33 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
 
         <div className="p-5">
           {status === "success" ? (
-            <div className="text-center py-6">
-              <div className="text-5xl mb-3">🎉</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Request Submitted!</h3>
-              <p className="text-sm text-gray-500 mb-5">
+            <div className="text-center py-8">
+              <div className="w-10 h-10 rounded-lg border-2 border-[#2d5016] flex items-center justify-center mx-auto mb-4">
+                <svg className="w-5 h-5 text-[#2d5016]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm">Request Submitted</h3>
+              <p className="text-xs text-gray-500 mb-6 max-w-xs mx-auto leading-relaxed">
                 We&apos;ll be in touch at <strong>{email}</strong> to coordinate the purchase.
                 Your seller information is kept private — all communication goes through us.
               </p>
               <button
                 onClick={onClose}
-                className="px-6 py-2 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90"
-                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}
+                className="px-6 py-2 rounded text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                style={{ background: primaryColor }}
               >
                 Done
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <p className="text-sm text-gray-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
-                📋 We&apos;ll review your request and contact you to complete the purchase. Your info stays private.
+              <p className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded p-3 leading-relaxed">
+                We&apos;ll review your request and contact you to complete the purchase. Your info stays private.
               </p>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -110,42 +112,41 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:border-transparent outline-none transition"
-                  style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
+                  className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   Phone Number <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 outline-none transition"
+                  className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
                   placeholder="(555) 000-0000"
                 />
               </div>
 
               {error && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>
+                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-3">{error}</p>
               )}
 
               <div className="flex gap-3 pt-1">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex-1 py-2.5 border border-gray-200 rounded text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
-                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}
+                  className="flex-1 py-2.5 rounded text-white text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{ background: primaryColor }}
                 >
                   {status === "loading" ? "Submitting…" : "Submit Request"}
                 </button>

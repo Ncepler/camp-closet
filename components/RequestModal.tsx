@@ -17,7 +17,6 @@ export function RequestModal({ type, onClose }: RequestModalProps) {
   const [error, setError]         = useState("");
 
   const primaryColor = type === "camp" ? "#2d5016" : "#1e3a5f";
-  const accentColor  = type === "camp" ? "#7fb069" : "#4a90e2";
   const label        = type === "camp" ? "Camp" : "School";
 
   useEffect(() => {
@@ -52,18 +51,19 @@ export function RequestModal({ type, onClose }: RequestModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
-        <div className="p-5 border-b border-gray-100 flex items-center justify-between"
-          style={{ background: `linear-gradient(135deg, ${primaryColor}08, ${accentColor}15)` }}
-        >
-          <h2 className="font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden animate-scale-in">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="font-semibold text-gray-900 text-sm" style={{ fontFamily: "var(--font-fraunces)" }}>
             Request a New {label}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -71,35 +71,48 @@ export function RequestModal({ type, onClose }: RequestModalProps) {
 
         <div className="p-5">
           {status === "success" ? (
-            <div className="text-center py-6">
-              <div className="text-5xl mb-3">✨</div>
-              <h3 className="font-semibold text-gray-900 mb-2">Request submitted!</h3>
-              <p className="text-sm text-gray-500 mb-5">
+            <div className="text-center py-8">
+              <div className="w-10 h-10 rounded-lg border-2 flex items-center justify-center mx-auto mb-4" style={{ borderColor: primaryColor }}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm">Request Submitted</h3>
+              <p className="text-xs text-gray-500 mb-6 max-w-xs mx-auto leading-relaxed">
                 We&apos;ll review your request and add <strong>{name}</strong> to the platform soon.
               </p>
-              <button onClick={onClose}
-                className="px-6 py-2 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90"
-                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}>
+              <button
+                onClick={onClose}
+                className="px-6 py-2 rounded text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                style={{ background: primaryColor }}
+              >
                 Done
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   {label} Name <span className="text-red-500">*</span>
                 </label>
-                <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-[#7fb069] transition"
-                  placeholder={`e.g. Camp Friendship`}
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
+                  placeholder="e.g. Camp Friendship"
                 />
               </div>
 
               {type === "school" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">School Type</label>
-                  <select value={schoolType} onChange={(e) => setSchoolType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">School Type</label>
+                  <select
+                    value={schoolType}
+                    onChange={(e) => setSchoolType(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
+                  >
                     <option value="high_school">High School</option>
                     <option value="middle_school">Middle School</option>
                   </select>
@@ -107,33 +120,50 @@ export function RequestModal({ type, onClose }: RequestModalProps) {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location <span className="text-gray-400 font-normal">(optional)</span></label>
-                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none transition"
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Location <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
                   placeholder="City, State"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
                   Your Email <span className="text-red-500">*</span>
                 </label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none transition"
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
 
-              {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>}
+              {error && (
+                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-3">{error}</p>
+              )}
 
               <div className="flex gap-3 pt-1">
-                <button type="button" onClick={onClose}
-                  className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 py-2.5 border border-gray-200 rounded text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={status === "loading"}
-                  className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
-                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}>
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="flex-1 py-2.5 rounded text-white text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{ background: primaryColor }}
+                >
                   {status === "loading" ? "Sending…" : "Submit Request"}
                 </button>
               </div>

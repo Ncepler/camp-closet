@@ -11,9 +11,7 @@ export function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
-  // Detect if we're on camp or school pages to highlight theme
   const isCampPage = pathname?.startsWith("/camps");
   const isSchoolPage = pathname?.startsWith("/schools");
 
@@ -23,12 +21,6 @@ export function Navbar() {
       setUser(session?.user ?? null)
     );
     return () => listener.subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleSignOut = async () => {
@@ -45,54 +37,49 @@ export function Navbar() {
   ];
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200"
-          : "bg-white border-b border-gray-100"
-      }`}
-    >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 flex-shrink-0 group"
+          className="flex items-center gap-2 flex-shrink-0"
           onClick={() => setMenuOpen(false)}
         >
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold transition-transform group-hover:scale-105"
-            style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}
+          <div
+            className="w-7 h-7 rounded flex items-center justify-center text-white text-xs font-bold"
+            style={{ background: "#2d5016" }}
           >
             CC
           </div>
           <span
-            className="text-lg font-semibold hidden sm:block"
-            style={{ fontFamily: "var(--font-fraunces)", color: "#1a3310" }}
+            className="text-base font-semibold hidden sm:block text-gray-900"
+            style={{ fontFamily: "var(--font-fraunces)" }}
           >
             Camp Closet
           </span>
         </Link>
 
-        {/* Mode badges */}
-        <div className="hidden md:flex items-center gap-1 bg-gray-100 rounded-full p-1">
+        {/* Mode toggle */}
+        <div className="hidden md:flex items-center gap-0.5 border border-gray-200 rounded-md p-0.5">
           <Link
             href="/camps"
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               isCampPage
-                ? "bg-[#2d5016] text-white shadow-sm"
-                : "text-gray-600 hover:bg-white hover:shadow-sm"
+                ? "bg-[#2d5016] text-white"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            🏕️ Camps
+            Camps
           </Link>
           <Link
             href="/schools"
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               isSchoolPage
-                ? "bg-[#1e3a5f] text-white shadow-sm"
-                : "text-gray-600 hover:bg-white hover:shadow-sm"
+                ? "bg-[#1e3a5f] text-white"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            🎓 Schools
+            Schools
           </Link>
         </div>
 
@@ -102,10 +89,10 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                 pathname === link.href
-                  ? "text-[#2d5016] bg-[#f8faf6]"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  ? "text-gray-900 bg-gray-100"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               {link.label}
@@ -117,12 +104,12 @@ export function Navbar() {
         <div className="flex items-center gap-2 flex-shrink-0">
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="hidden sm:block text-sm text-gray-500 truncate max-w-[120px]">
+              <span className="hidden sm:block text-sm text-gray-500 truncate max-w-[140px]">
                 {user.email}
               </span>
               <button
                 onClick={handleSignOut}
-                className="text-sm px-3 py-1.5 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Sign Out
               </button>
@@ -130,8 +117,8 @@ export function Navbar() {
           ) : (
             <Link
               href="/auth"
-              className="text-sm px-4 py-1.5 rounded-md text-white font-medium transition-all hover:opacity-90 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #2d5016, #4a7c2c)" }}
+              className="text-sm px-4 py-1.5 rounded text-white font-medium transition-colors hover:opacity-90"
+              style={{ background: "#2d5016" }}
             >
               Sign In
             </Link>
@@ -139,7 +126,7 @@ export function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded text-gray-500 hover:bg-gray-100 transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -161,16 +148,20 @@ export function Navbar() {
             <Link
               href="/camps"
               onClick={() => setMenuOpen(false)}
-              className="flex-1 text-center py-2 rounded-lg text-sm font-semibold bg-[#f8faf6] text-[#2d5016] border border-[#d4e3cc]"
+              className={`flex-1 text-center py-2 rounded text-sm font-medium border transition-colors ${
+                isCampPage ? "bg-[#2d5016] text-white border-[#2d5016]" : "text-[#2d5016] border-gray-200 hover:bg-gray-50"
+              }`}
             >
-              🏕️ Camps
+              Camps
             </Link>
             <Link
               href="/schools"
               onClick={() => setMenuOpen(false)}
-              className="flex-1 text-center py-2 rounded-lg text-sm font-semibold bg-[#f6f9fc] text-[#1e3a5f] border border-[#c5d9ed]"
+              className={`flex-1 text-center py-2 rounded text-sm font-medium border transition-colors ${
+                isSchoolPage ? "bg-[#1e3a5f] text-white border-[#1e3a5f]" : "text-[#1e3a5f] border-gray-200 hover:bg-gray-50"
+              }`}
             >
-              🎓 Schools
+              Schools
             </Link>
           </div>
           {navLinks.map((link) => (
@@ -178,9 +169,9 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`block px-3 py-2 rounded text-sm font-medium transition-colors ${
                 pathname === link.href
-                  ? "text-[#2d5016] bg-[#f8faf6]"
+                  ? "text-gray-900 bg-gray-100"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
             >
