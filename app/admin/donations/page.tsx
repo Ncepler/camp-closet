@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
+import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
 import type { CampRequest, SchoolRequest } from "@/app/lib/supabaseClient";
 
@@ -17,28 +18,41 @@ const statusColors: Record<string, string> = {
 };
 
 export default function DonationsPage() {
-  const [donations, setDonations]   = useState<DonationWithMeta[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [donations, setDonations]       = useState<DonationWithMeta[]>([]);
+  const [loading, setLoading]           = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: camps }, { data: schools }, { data: campDons }, { data: schoolDons }] = await Promise.all([
+    const [
+      { data: campsData },
+      { data: schoolsData },
+      { data: campDons },
+      { data: schoolDons },
+    ] = await Promise.all([
       supabase.from("camps").select("id, name"),
       supabase.from("schools").select("id, name"),
-      supabase.from("camp_requests").select("*").eq("is_donation", true).order("created_at", { ascending: false }),
-      supabase.from("school_requests").select("*").eq("is_donation", true).order("created_at", { ascending: false }),
+      adminApi.select<CampRequest>("camp_requests", {
+        filters: [{ col: "is_donation", eq: true }],
+        orderBy: "created_at",
+        orderAsc: false,
+      }),
+      adminApi.select<SchoolRequest>("school_requests", {
+        filters: [{ col: "is_donation", eq: true }],
+        orderBy: "created_at",
+        orderAsc: false,
+      }),
     ]);
 
     const campMap: Record<string, string>   = {};
     const schoolMap: Record<string, string> = {};
-    camps?.forEach((c: { id: string; name: string }) => { campMap[c.id] = c.name; });
-    schools?.forEach((s: { id: string; name: string }) => { schoolMap[s.id] = s.name; });
+    (campsData as { id: string; name: string }[] | null)?.forEach((c) => { campMap[c.id] = c.name; });
+    (schoolsData as { id: string; name: string }[] | null)?.forEach((s) => { schoolMap[s.id] = s.name; });
 
     const all: DonationWithMeta[] = [
-      ...(campDons ?? []).map((r: CampRequest) => ({ ...r, mode: "camp" as const, institution: campMap[r.camp_id ?? ""] ?? "Unknown" })),
-      ...(schoolDons ?? []).map((r: SchoolRequest) => ({ ...r, mode: "school" as const, institution: schoolMap[r.school_id ?? ""] ?? "Unknown" })),
+      ...(campDons ?? []).map((r) => ({ ...r, mode: "camp" as const, institution: campMap[r.camp_id ?? ""] ?? "Unknown" })),
+      ...(schoolDons ?? []).map((r) => ({ ...r, mode: "school" as const, institution: schoolMap[r.school_id ?? ""] ?? "Unknown" })),
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     setDonations(all);
@@ -50,7 +64,10 @@ export default function DonationsPage() {
   const updateStatus = async (id: string, mode: "camp" | "school", newStatus: "approved" | "rejected") => {
     setActionLoading(id);
     const table = mode === "camp" ? "camp_requests" : "school_requests";
-    await supabase.from(table).update({ status: newStatus, approved_at: newStatus === "approved" ? new Date().toISOString() : null }).eq("id", id);
+    await adminApi.update(table, id, {
+      status:      newStatus,
+      approved_at: newStatus === "approved" ? new Date().toISOString() : null,
+    });
     await load();
     setActionLoading(null);
   };
@@ -78,7 +95,6 @@ export default function DonationsPage() {
           <div className="p-8 text-center text-gray-500">Loading donations…</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-4xl mb-3">💚</div>
             <p className="text-gray-500">No donations for these filters.</p>
           </div>
         ) : (
@@ -103,7 +119,7 @@ export default function DonationsPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={don.image_url} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center text-xl flex-shrink-0">💚</div>
+                          <div className="w-12 h-12 rounded-lg bg-gray-800 flex-shrink-0" />
                         )}
                         <div>
                           <div className="font-medium text-white">{getItemTypeLabel(don.item_type)}</div>
@@ -113,7 +129,7 @@ export default function DonationsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white">{don.institution}</div>
-                      <div className="text-xs text-gray-500">{don.mode === "camp" ? "🏕️" : "🎓"} {don.mode}</div>
+                      <div className="text-xs text-gray-500">{don.mode}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white text-xs">{don.seller_email}</div>

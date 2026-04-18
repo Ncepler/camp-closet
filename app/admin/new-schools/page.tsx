@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/app/lib/supabaseClient";
+import { adminApi } from "@/app/lib/adminApi";
 import type { NewSchoolRequest } from "@/app/lib/supabaseClient";
 
 const statusColors: Record<string, string> = {
@@ -16,14 +16,18 @@ const schoolTypeLabels: Record<string, string> = {
 };
 
 export default function NewSchoolsPage() {
-  const [requests, setRequests]     = useState<NewSchoolRequest[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [requests, setRequests]         = useState<NewSchoolRequest[]>([]);
+  const [loading, setLoading]           = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError]   = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("new_school_requests").select("*").order("created_at", { ascending: false });
+    const { data } = await adminApi.select<NewSchoolRequest>("new_school_requests", {
+      orderBy: "created_at",
+      orderAsc: false,
+    });
     setRequests(data ?? []);
     setLoading(false);
   }, []);
@@ -32,23 +36,17 @@ export default function NewSchoolsPage() {
 
   const approveRequest = async (req: NewSchoolRequest) => {
     setActionLoading(req.id);
-    const slug = req.school_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const { error: schoolError } = await supabase.from("schools").insert({
-      name:        req.school_name,
-      slug,
-      school_type: req.school_type ?? "high_school",
-      location:    req.location ?? null,
-    });
-    if (!schoolError) {
-      await supabase.from("new_school_requests").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", req.id);
-    }
+    setActionError(null);
+    const result = await adminApi.approveSchool(req.id, req.school_name, req.school_type, req.location);
+    if (result.error) setActionError(result.error);
     await load();
     setActionLoading(null);
   };
 
   const rejectRequest = async (id: string) => {
     setActionLoading(id);
-    await supabase.from("new_school_requests").update({ status: "rejected" }).eq("id", id);
+    setActionError(null);
+    await adminApi.update("new_school_requests", id, { status: "rejected" });
     await load();
     setActionLoading(null);
   };
@@ -61,6 +59,12 @@ export default function NewSchoolsPage() {
         <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-fraunces)" }}>New School Requests</h1>
         <p className="text-gray-500 text-sm mt-0.5">When approved, a new school is automatically created on the site.</p>
       </div>
+
+      {actionError && (
+        <div className="px-4 py-3 rounded-lg border border-red-800/50 bg-red-900/20 text-red-400 text-sm">
+          {actionError}
+        </div>
+      )}
 
       <div className="flex gap-1.5 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit">
         {(["all", "pending", "approved", "rejected"] as const).map((s) => (
@@ -76,7 +80,6 @@ export default function NewSchoolsPage() {
           <div className="p-8 text-center text-gray-500">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-4xl mb-3">🎓</div>
             <p className="text-gray-500">No school requests.</p>
           </div>
         ) : (
@@ -99,7 +102,7 @@ export default function NewSchoolsPage() {
                       <div className="font-medium text-white">{req.school_name}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs text-[#4a90e2] bg-[#4a90e2]/10 px-2 py-0.5 rounded-full">
+                      <span className="text-xs text-[#4a90e2] bg-[#4a90e2]/10 px-2 py-0.5 rounded">
                         {schoolTypeLabels[req.school_type ?? ""] ?? req.school_type ?? "—"}
                       </span>
                     </td>

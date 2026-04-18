@@ -26,12 +26,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     const stored = sessionStorage.getItem("admin_auth");
     if (stored === "true") setAuthenticated(true);
+    // admin_key is already in sessionStorage from login — no action needed
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       sessionStorage.setItem("admin_auth", "true");
+      sessionStorage.setItem("admin_key", password);
       setAuthenticated(true);
     } else {
       setError("Incorrect password");
@@ -40,6 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = () => {
     sessionStorage.removeItem("admin_auth");
+    sessionStorage.removeItem("admin_key");
     setAuthenticated(false);
     router.push("/");
   };

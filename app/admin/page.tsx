@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { adminApi } from "@/app/lib/adminApi";
 import { supabase } from "@/app/lib/supabaseClient";
 
 interface Stats {
@@ -50,34 +51,35 @@ export default function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       const [
-        { count: pendingSell },
-        { count: pendingBuy },
-        { count: pendingDonations },
-        { count: pendingNewCamps },
-        { count: pendingNewSchools },
+        pendingSell,
+        pendingBuy,
+        pendingDonations,
+        pendingNewCamps,
+        pendingNewSchools,
         { count: totalCamps },
         { count: totalSchools },
         { count: waitlistEntries },
       ] = await Promise.all([
-        supabase.from("camp_requests").select("*", { count: "exact", head: true }).eq("status", "pending").eq("is_donation", false),
-        supabase.from("buy_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("camp_requests").select("*", { count: "exact", head: true }).eq("status", "pending").eq("is_donation", true),
-        supabase.from("new_camp_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("new_school_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
+        adminApi.count("camp_requests",   [{ col: "status", eq: "pending" }, { col: "is_donation", eq: false }]),
+        adminApi.count("buy_requests",    [{ col: "status", eq: "pending" }]),
+        adminApi.count("camp_requests",   [{ col: "status", eq: "pending" }, { col: "is_donation", eq: true }]),
+        adminApi.count("new_camp_requests",  [{ col: "status", eq: "pending" }]),
+        adminApi.count("new_school_requests",[{ col: "status", eq: "pending" }]),
+        // camps/schools/waitlist have public read — can use anon client
         supabase.from("camps").select("*", { count: "exact", head: true }),
         supabase.from("schools").select("*", { count: "exact", head: true }),
         supabase.from("waitlist").select("*", { count: "exact", head: true }).eq("notified", false),
       ]);
 
       setStats({
-        pendingSell:      pendingSell ?? 0,
-        pendingBuy:       pendingBuy ?? 0,
-        pendingDonations: pendingDonations ?? 0,
-        pendingNewCamps:  pendingNewCamps ?? 0,
-        pendingNewSchools: pendingNewSchools ?? 0,
-        totalCamps:       totalCamps ?? 0,
-        totalSchools:     totalSchools ?? 0,
-        waitlistEntries:  waitlistEntries ?? 0,
+        pendingSell:       pendingSell.count   ?? 0,
+        pendingBuy:        pendingBuy.count    ?? 0,
+        pendingDonations:  pendingDonations.count ?? 0,
+        pendingNewCamps:   pendingNewCamps.count  ?? 0,
+        pendingNewSchools: pendingNewSchools.count ?? 0,
+        totalCamps:        totalCamps  ?? 0,
+        totalSchools:      totalSchools ?? 0,
+        waitlistEntries:   waitlistEntries ?? 0,
       });
       setLoading(false);
     };
@@ -95,7 +97,7 @@ export default function AdminDashboard() {
         <p className="text-gray-500 text-sm">
           {loading ? "Loading…" : totalPending > 0
             ? `${totalPending} item${totalPending !== 1 ? "s" : ""} need your attention`
-            : "Everything is up to date 🎉"}
+            : "Everything is up to date"}
         </p>
       </div>
 
@@ -103,11 +105,11 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pending Actions</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-          <StatCard label="Sell Submissions" value={stats.pendingSell}   href="/admin/sell-submissions" color="#7fb069" icon="📦" />
-          <StatCard label="Buy Requests"     value={stats.pendingBuy}    href="/admin/buy-requests"     color="#4a90e2" icon="🛒" />
-          <StatCard label="Donations"        value={stats.pendingDonations} href="/admin/donations"     color="#f59e0b" icon="💚" />
-          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/admin/new-camps"     color="#7fb069" icon="🏕️" />
-          <StatCard label="New Schools"      value={stats.pendingNewSchools} href="/admin/new-schools"  color="#4a90e2" icon="🎓" />
+          <StatCard label="Sell Submissions" value={stats.pendingSell}    href="/admin/sell-submissions" color="#7fb069" icon="📦" />
+          <StatCard label="Buy Requests"     value={stats.pendingBuy}     href="/admin/buy-requests"     color="#4a90e2" icon="🛒" />
+          <StatCard label="Donations"        value={stats.pendingDonations} href="/admin/donations"      color="#f59e0b" icon="💚" />
+          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/admin/new-camps"      color="#7fb069" icon="🏕️" />
+          <StatCard label="New Schools"      value={stats.pendingNewSchools} href="/admin/new-schools"   color="#4a90e2" icon="🎓" />
         </div>
       </div>
 
@@ -115,8 +117,8 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Platform Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <StatCard label="Total Camps"   value={stats.totalCamps}    href="/admin/inventory" color="#7fb069" icon="🏕️" />
-          <StatCard label="Total Schools" value={stats.totalSchools}  href="/admin/inventory" color="#4a90e2" icon="🎓" />
+          <StatCard label="Total Camps"   value={stats.totalCamps}     href="/admin/inventory" color="#7fb069" icon="🏕️" />
+          <StatCard label="Total Schools" value={stats.totalSchools}   href="/admin/inventory" color="#4a90e2" icon="🎓" />
           <StatCard label="Waitlist"      value={stats.waitlistEntries} href="/admin/waitlist" color="#a78bfa" icon="🔔" />
         </div>
       </div>

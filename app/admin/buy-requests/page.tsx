@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
+import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel } from "@/app/lib/supabaseClient";
 import type { BuyRequest, Item } from "@/app/lib/supabaseClient";
 
@@ -14,27 +15,28 @@ const statusColors: Record<string, string> = {
 };
 
 export default function BuyRequestsPage() {
-  const [requests, setRequests]       = useState<RequestWithItem[]>([]);
-  const [loading, setLoading]         = useState(true);
+  const [requests, setRequests]         = useState<RequestWithItem[]>([]);
+  const [loading, setLoading]           = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data: reqs } = await supabase
-      .from("buy_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data: reqs } = await adminApi.select<BuyRequest>("buy_requests", {
+      orderBy: "created_at",
+      orderAsc: false,
+    });
 
     if (!reqs) { setLoading(false); return; }
 
-    const itemIds = [...new Set(reqs.map((r: BuyRequest) => r.item_id))];
+    const itemIds = [...new Set(reqs.map((r) => r.item_id))];
+    // items has public read — anon client is fine
     const { data: items } = await supabase.from("items").select("*").in("id", itemIds);
 
     const itemMap: Record<string, Item> = {};
     items?.forEach((item: Item) => { itemMap[item.id] = item; });
 
-    setRequests(reqs.map((r: BuyRequest) => ({ ...r, item: itemMap[r.item_id] })));
+    setRequests(reqs.map((r) => ({ ...r, item: itemMap[r.item_id] })));
     setLoading(false);
   }, []);
 
@@ -42,10 +44,10 @@ export default function BuyRequestsPage() {
 
   const updateStatus = async (id: string, newStatus: "approved" | "rejected") => {
     setActionLoading(id);
-    await supabase.from("buy_requests").update({
+    await adminApi.update("buy_requests", id, {
       status:      newStatus,
       approved_at: newStatus === "approved" ? new Date().toISOString() : null,
-    }).eq("id", id);
+    });
     await load();
     setActionLoading(null);
   };
@@ -73,7 +75,6 @@ export default function BuyRequestsPage() {
           <div className="p-8 text-center text-gray-500">Loading requests…</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-4xl mb-3">🛒</div>
             <p className="text-gray-500">No buy requests.</p>
           </div>
         ) : (
@@ -98,7 +99,7 @@ export default function BuyRequestsPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={req.item.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-lg flex-shrink-0">👕</div>
+                          <div className="w-10 h-10 rounded-lg bg-gray-800 flex-shrink-0" />
                         )}
                         <div>
                           <div className="font-medium text-white text-sm">{getItemTypeLabel(req.item?.item_type ?? "")}</div>

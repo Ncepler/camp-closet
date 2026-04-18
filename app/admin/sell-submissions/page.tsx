@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
+import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
-import type { CampRequest, SchoolRequest, Camp, School } from "@/app/lib/supabaseClient";
+import type { CampRequest, SchoolRequest } from "@/app/lib/supabaseClient";
 
 type RequestWithMeta = (CampRequest | SchoolRequest) & {
   institution?: string;
@@ -19,34 +20,49 @@ const statusColors: Record<string, string> = {
 };
 
 export default function SellSubmissionsPage() {
-  const [requests, setRequests]     = useState<RequestWithMeta[]>([]);
-  const [camps, setCamps]           = useState<Record<string, string>>({});
-  const [schools, setSchools]       = useState<Record<string, string>>({});
-  const [loading, setLoading]       = useState(true);
+  const [requests, setRequests]         = useState<RequestWithMeta[]>([]);
+  const [camps, setCamps]               = useState<Record<string, string>>({});
+  const [schools, setSchools]           = useState<Record<string, string>>({});
+  const [loading, setLoading]           = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
-  const [modeFilter, setModeFilter] = useState<"all" | "camp" | "school">("all");
-  const [selected, setSelected]     = useState<Set<string>>(new Set());
+  const [modeFilter, setModeFilter]     = useState<"all" | "camp" | "school">("all");
+  const [selected, setSelected]         = useState<Set<string>>(new Set());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: campsData }, { data: schoolsData }, { data: campReqs }, { data: schoolReqs }] = await Promise.all([
+    const [
+      { data: campsData },
+      { data: schoolsData },
+      { data: campReqs },
+      { data: schoolReqs },
+    ] = await Promise.all([
+      // camps/schools have public read — anon client is fine
       supabase.from("camps").select("id, name"),
       supabase.from("schools").select("id, name"),
-      supabase.from("camp_requests").select("*").eq("is_donation", false).order("created_at", { ascending: false }),
-      supabase.from("school_requests").select("*").eq("is_donation", false).order("created_at", { ascending: false }),
+      // camp_requests / school_requests require service role
+      adminApi.select<CampRequest>("camp_requests", {
+        filters: [{ col: "is_donation", eq: false }],
+        orderBy: "created_at",
+        orderAsc: false,
+      }),
+      adminApi.select<SchoolRequest>("school_requests", {
+        filters: [{ col: "is_donation", eq: false }],
+        orderBy: "created_at",
+        orderAsc: false,
+      }),
     ]);
 
     const campMap: Record<string, string>   = {};
     const schoolMap: Record<string, string> = {};
-    campsData?.forEach((c: { id: string; name: string }) => { campMap[c.id] = c.name; });
-    schoolsData?.forEach((s: { id: string; name: string }) => { schoolMap[s.id] = s.name; });
+    (campsData as { id: string; name: string }[] | null)?.forEach((c) => { campMap[c.id] = c.name; });
+    (schoolsData as { id: string; name: string }[] | null)?.forEach((s) => { schoolMap[s.id] = s.name; });
     setCamps(campMap);
     setSchools(schoolMap);
 
     const all: RequestWithMeta[] = [
-      ...(campReqs ?? []).map((r: CampRequest) => ({ ...r, mode: "camp" as const, institution: campMap[r.camp_id ?? ""] ?? "Unknown Camp" })),
-      ...(schoolReqs ?? []).map((r: SchoolRequest) => ({ ...r, mode: "school" as const, institution: schoolMap[r.school_id ?? ""] ?? "Unknown School" })),
+      ...(campReqs ?? []).map((r) => ({ ...r, mode: "camp" as const, institution: campMap[r.camp_id ?? ""] ?? "Unknown Camp" })),
+      ...(schoolReqs ?? []).map((r) => ({ ...r, mode: "school" as const, institution: schoolMap[r.school_id ?? ""] ?? "Unknown School" })),
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     setRequests(all);
@@ -58,7 +74,10 @@ export default function SellSubmissionsPage() {
   const updateStatus = async (id: string, mode: "camp" | "school", newStatus: "approved" | "rejected") => {
     setActionLoading(id);
     const table = mode === "camp" ? "camp_requests" : "school_requests";
-    await supabase.from(table).update({ status: newStatus, approved_at: newStatus === "approved" ? new Date().toISOString() : null }).eq("id", id);
+    await adminApi.update(table, id, {
+      status:      newStatus,
+      approved_at: newStatus === "approved" ? new Date().toISOString() : null,
+    });
     await load();
     setActionLoading(null);
   };
@@ -70,7 +89,10 @@ export default function SellSubmissionsPage() {
       const req = requests.find((r) => r.id === id);
       if (req) {
         const table = req.mode === "camp" ? "camp_requests" : "school_requests";
-        await supabase.from(table).update({ status: newStatus, approved_at: newStatus === "approved" ? new Date().toISOString() : null }).eq("id", id);
+        await adminApi.update(table, id, {
+          status:      newStatus,
+          approved_at: newStatus === "approved" ? new Date().toISOString() : null,
+        });
       }
     }
     setSelected(new Set());
@@ -80,7 +102,7 @@ export default function SellSubmissionsPage() {
 
   const filtered = requests.filter((r) => {
     const matchStatus = statusFilter === "all" || r.status === statusFilter;
-    const matchMode   = modeFilter === "all" || r.mode === modeFilter;
+    const matchMode   = modeFilter   === "all" || r.mode   === modeFilter;
     return matchStatus && matchMode;
   });
 
@@ -119,7 +141,7 @@ export default function SellSubmissionsPage() {
           {(["all", "camp", "school"] as const).map((m) => (
             <button key={m} onClick={() => setModeFilter(m)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${modeFilter === m ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}>
-              {m === "all" ? "All" : m === "camp" ? "🏕️ Camps" : "🎓 Schools"}
+              {m === "all" ? "All" : m === "camp" ? "Camps" : "Schools"}
             </button>
           ))}
         </div>
@@ -131,7 +153,6 @@ export default function SellSubmissionsPage() {
           <div className="p-8 text-center text-gray-500">Loading submissions…</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-4xl mb-3">📦</div>
             <p className="text-gray-500">No submissions for these filters.</p>
           </div>
         ) : (
@@ -182,7 +203,7 @@ export default function SellSubmissionsPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={req.image_url} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center text-xl flex-shrink-0">👕</div>
+                          <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center text-xl flex-shrink-0 text-gray-600">—</div>
                         )}
                         <div>
                           <div className="font-medium text-white">{getItemTypeLabel(req.item_type)}</div>
@@ -192,7 +213,7 @@ export default function SellSubmissionsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white">{req.institution}</div>
-                      <div className="text-xs text-gray-500">{req.mode === "camp" ? "🏕️" : "🎓"} {req.mode}</div>
+                      <div className="text-xs text-gray-500">{req.mode}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white text-xs">{req.seller_email}</div>

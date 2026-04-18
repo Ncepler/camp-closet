@@ -9,6 +9,7 @@ function AuthForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const redirect     = searchParams.get("redirect") ?? "/";
+  const hasError     = searchParams.get("error") === "callback_failed";
 
   const [mode, setMode]         = useState<"login" | "signup">("login");
   const [email, setEmail]       = useState("");
@@ -17,7 +18,6 @@ function AuthForm() {
   const [message, setMessage]   = useState("");
 
   useEffect(() => {
-    // If already logged in, redirect
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) router.push(redirect);
     });
@@ -37,44 +37,58 @@ function AuthForm() {
         router.push(redirect);
       }
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
       if (error) {
         setStatus("error");
         setMessage(error.message);
       } else {
         setStatus("success");
-        setMessage("Check your email for a confirmation link, then sign in.");
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: "linear-gradient(135deg, #f8faf6 0%, #f6f9fc 100%)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 py-16 bg-gray-50">
       <div className="w-full max-w-sm">
+
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
-              style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}>
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div
+              className="w-8 h-8 rounded flex items-center justify-center text-white text-xs font-bold"
+              style={{ background: "#2d5016" }}
+            >
               CC
             </div>
-            <span className="text-xl font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
+            <span className="text-lg font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
               Camp Closet
             </span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        {hasError && (
+          <div className="mb-4 px-4 py-3 rounded border border-red-200 bg-red-50 text-xs text-red-700">
+            The sign-in link expired or was already used. Request a new one below.
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
           {/* Tab toggle */}
           <div className="flex border-b border-gray-100">
             {(["login", "signup"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => { setMode(tab); setMessage(""); setStatus("idle"); }}
-                className={`flex-1 py-4 text-sm font-semibold transition-colors ${
+                className={`flex-1 py-3.5 text-sm font-medium transition-colors ${
                   mode === tab
-                    ? "text-[#2d5016] border-b-2 border-[#2d5016]"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "text-gray-900 border-b-2 border-[#2d5016]"
+                    : "text-gray-400 hover:text-gray-600"
                 }`}
               >
                 {tab === "login" ? "Sign In" : "Create Account"}
@@ -85,12 +99,21 @@ function AuthForm() {
           <div className="p-6">
             {status === "success" ? (
               <div className="text-center py-4">
-                <div className="text-5xl mb-4">📧</div>
-                <h3 className="font-semibold text-gray-900 mb-2">Check your email!</h3>
-                <p className="text-sm text-gray-500 mb-4">{message}</p>
+                <div className="w-10 h-10 rounded-lg border-2 border-[#2d5016] flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-5 h-5 text-[#2d5016]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm">Check your email</h3>
+                <p className="text-xs text-gray-500 mb-1 leading-relaxed">
+                  We sent a confirmation link to <strong>{email}</strong>.
+                </p>
+                <p className="text-xs text-gray-400 mb-5 leading-relaxed">
+                  Check your spam folder if it doesn&apos;t arrive within a minute.
+                </p>
                 <button
                   onClick={() => { setMode("login"); setStatus("idle"); setMessage(""); }}
-                  className="text-sm text-[#2d5016] font-medium hover:underline"
+                  className="text-xs text-[#2d5016] font-medium hover:underline"
                 >
                   Back to sign in
                 </button>
@@ -98,19 +121,19 @@ function AuthForm() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Email</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-[#7fb069] focus:ring-2 focus:ring-[#7fb069]/20 transition"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
                     placeholder="you@example.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Password</label>
                   <input
                     type="password"
                     required
@@ -118,20 +141,20 @@ function AuthForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete={mode === "login" ? "current-password" : "new-password"}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-[#7fb069] focus:ring-2 focus:ring-[#7fb069]/20 transition"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
                     placeholder={mode === "signup" ? "At least 6 characters" : "••••••••"}
                   />
                 </div>
 
                 {message && status === "error" && (
-                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{message}</p>
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-3">{message}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-60 mt-1"
-                  style={{ background: "linear-gradient(135deg, #2d5016, #4a7c2c)" }}
+                  className="w-full py-2.5 rounded text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 mt-1"
+                  style={{ background: "#2d5016" }}
                 >
                   {status === "loading"
                     ? "Please wait…"
@@ -140,8 +163,8 @@ function AuthForm() {
                     : "Create Account"}
                 </button>
 
-                <p className="text-center text-xs text-gray-500 pt-1">
-                  {mode === "login" ? "Don't have an account? " : "Already have an account? "}
+                <p className="text-center text-xs text-gray-400 pt-1">
+                  {mode === "login" ? "No account? " : "Already have one? "}
                   <button
                     type="button"
                     onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); setStatus("idle"); }}
@@ -155,8 +178,11 @@ function AuthForm() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
-          By signing up you agree to our terms of service.
+        <p className="text-center text-xs text-gray-400 mt-5">
+          Sellers need an account to list items.{" "}
+          <Link href="/camps" className="hover:text-gray-600 transition-colors">
+            Browse without signing in →
+          </Link>
         </p>
       </div>
     </div>

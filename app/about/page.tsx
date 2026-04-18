@@ -55,8 +55,8 @@ export default function AboutPage() {
           About Camp Closet
         </h1>
         <p className="text-white/50 text-base max-w-xl mx-auto leading-relaxed">
-          A community marketplace built by parents, for parents. Trusted, safe, and focused
-          on giving clothing a second life.
+          A marketplace built by a student who got tired of paying full price for gear that only
+          gets worn one summer. Trusted, safe, and focused on giving clothing a second life.
         </p>
       </section>
 
@@ -69,18 +69,18 @@ export default function AboutPage() {
           <div className="space-y-5 text-gray-600 leading-relaxed text-sm">
             <p>
               Camp Closet started with a simple frustration: buying branded camp gear is expensive,
-              and kids outgrow it in one summer. The same goes for school uniforms — parents spend
+              and you outgrow it in one summer. The same goes for school uniforms — families spend
               hundreds of dollars on clothes that barely get worn.
             </p>
             <p>
-              We built Camp Closet to solve this. A focused, trusted marketplace where families
+              I built Camp Closet at 15 to solve this. A focused, trusted marketplace where families
               can buy and sell used camp clothing and school uniforms — organized by institution,
-              curated by real humans.
+              curated by a real human.
             </p>
             <p>
-              Unlike general resale platforms, we review every submission before it goes live.
-              We set fair prices. We keep buyer and seller info private — all communication runs
-              through us. It&apos;s not just a marketplace; it&apos;s a community.
+              Unlike general resale platforms, every submission is reviewed before it goes live.
+              Prices are set fairly. Buyer and seller info stays private — all communication runs
+              through us. It&apos;s not just a marketplace; it&apos;s a community built on trust.
             </p>
           </div>
         </div>

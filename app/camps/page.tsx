@@ -78,11 +78,16 @@ export default function CampsPage() {
     fetchCamps();
   }, []);
 
-  const filtered = camps.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      (c.location ?? "").toLowerCase().includes(search.toLowerCase())
-  );
+  const sortKey = (name: string) =>
+    name.replace(/^camp\s+/i, "").toLowerCase();
+
+  const filtered = camps
+    .filter(
+      (c) =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.location ?? "").toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name)));
 
   return (
     <div className="min-h-screen bg-white">

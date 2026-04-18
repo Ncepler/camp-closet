@@ -12,9 +12,6 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const isCampPage = pathname?.startsWith("/camps");
-  const isSchoolPage = pathname?.startsWith("/schools");
-
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     const { data: listener } = supabase.auth.onAuthStateChange((_ev, session) =>
@@ -58,30 +55,6 @@ export function Navbar() {
             Camp Closet
           </span>
         </Link>
-
-        {/* Mode toggle */}
-        <div className="hidden md:flex items-center gap-0.5 border border-gray-200 rounded-md p-0.5">
-          <Link
-            href="/camps"
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              isCampPage
-                ? "bg-[#2d5016] text-white"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            Camps
-          </Link>
-          <Link
-            href="/schools"
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              isSchoolPage
-                ? "bg-[#1e3a5f] text-white"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            Schools
-          </Link>
-        </div>
 
         {/* Main nav links */}
         <div className="hidden md:flex items-center gap-1">
@@ -144,26 +117,6 @@ export function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1 animate-fade-in">
-          <div className="flex gap-2 mb-3">
-            <Link
-              href="/camps"
-              onClick={() => setMenuOpen(false)}
-              className={`flex-1 text-center py-2 rounded text-sm font-medium border transition-colors ${
-                isCampPage ? "bg-[#2d5016] text-white border-[#2d5016]" : "text-[#2d5016] border-gray-200 hover:bg-gray-50"
-              }`}
-            >
-              Camps
-            </Link>
-            <Link
-              href="/schools"
-              onClick={() => setMenuOpen(false)}
-              className={`flex-1 text-center py-2 rounded text-sm font-medium border transition-colors ${
-                isSchoolPage ? "bg-[#1e3a5f] text-white border-[#1e3a5f]" : "text-[#1e3a5f] border-gray-200 hover:bg-gray-50"
-              }`}
-            >
-              Schools
-            </Link>
-          </div>
           {navLinks.map((link) => (
             <Link
               key={link.href}

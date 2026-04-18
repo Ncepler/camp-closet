@@ -34,16 +34,21 @@ export function RequestModal({ type, onClose }: RequestModalProps) {
 
     const { data: userData } = await supabase.auth.getUser();
 
-    const table = type === "camp" ? "new_camp_requests" : "new_school_requests";
     const payload =
       type === "camp"
-        ? { camp_name: name, location: location || null, requester_email: email, requested_by: userData.user?.id ?? null, status: "pending" }
-        : { school_name: name, school_type: schoolType, location: location || null, requester_email: email, requested_by: userData.user?.id ?? null, status: "pending" };
+        ? { type, camp_name: name, location: location || null, requester_email: email, requested_by: userData.user?.id ?? null }
+        : { type, school_name: name, school_type: schoolType, location: location || null, requester_email: email, requested_by: userData.user?.id ?? null };
 
-    const { error: insertError } = await supabase.from(table).insert(payload);
-    if (insertError) {
+    const res = await fetch("/api/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
       setStatus("error");
-      setError(insertError.message);
+      setError(data.error ?? "Something went wrong. Please try again.");
     } else {
       setStatus("success");
     }
@@ -101,7 +106,7 @@ export function RequestModal({ type, onClose }: RequestModalProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors"
-                  placeholder="e.g. Camp Friendship"
+                  placeholder={type === "camp" ? "e.g. Camp Friendship" : "e.g. Lincoln High School"}
                 />
               </div>
 

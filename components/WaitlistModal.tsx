@@ -5,6 +5,7 @@ import { supabase } from "@/app/lib/supabaseClient";
 import type { Item } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel } from "@/app/lib/supabaseClient";
 
+
 interface WaitlistModalProps {
   item: Item;
   theme: "camp" | "school";
@@ -33,20 +34,20 @@ export function WaitlistModal({ item, theme, onClose }: WaitlistModalProps) {
 
     const { data: userData } = await supabase.auth.getUser();
 
-    const { error: insertError } = await supabase.from("waitlist").insert({
-      user_id:  userData.user?.id ?? null,
-      item_id:  item.id,
-      email,
-      notified: false,
+    const res = await fetch("/api/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        item_id: item.id,
+        email,
+        user_id: userData.user?.id ?? null,
+      }),
     });
 
-    if (insertError) {
-      if (insertError.code === "23505") {
-        setStatus("success");
-      } else {
-        setStatus("error");
-        setError(insertError.message);
-      }
+    if (!res.ok) {
+      const data = await res.json();
+      setStatus("error");
+      setError(data.error ?? "Something went wrong. Please try again.");
     } else {
       setStatus("success");
     }
@@ -80,8 +81,8 @@ export function WaitlistModal({ item, theme, onClose }: WaitlistModalProps) {
         <div className="p-5">
           {status === "success" ? (
             <div className="text-center py-8">
-              <div className="w-10 h-10 rounded-lg border-2 border-[#2d5016] flex items-center justify-center mx-auto mb-4">
-                <svg className="w-5 h-5 text-[#2d5016]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 rounded-lg border-2 flex items-center justify-center mx-auto mb-4" style={{ borderColor: primaryColor }}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>

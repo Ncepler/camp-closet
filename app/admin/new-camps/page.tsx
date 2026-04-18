@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/app/lib/supabaseClient";
+import { adminApi } from "@/app/lib/adminApi";
 import type { NewCampRequest } from "@/app/lib/supabaseClient";
 
 const statusColors: Record<string, string> = {
@@ -11,17 +11,18 @@ const statusColors: Record<string, string> = {
 };
 
 export default function NewCampsPage() {
-  const [requests, setRequests]     = useState<NewCampRequest[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [requests, setRequests]         = useState<NewCampRequest[]>([]);
+  const [loading, setLoading]           = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError]   = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("new_camp_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data } = await adminApi.select<NewCampRequest>("new_camp_requests", {
+      orderBy: "created_at",
+      orderAsc: false,
+    });
     setRequests(data ?? []);
     setLoading(false);
   }, []);
@@ -30,23 +31,17 @@ export default function NewCampsPage() {
 
   const approveRequest = async (req: NewCampRequest) => {
     setActionLoading(req.id);
-    // Create the camp
-    const slug = req.camp_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const { error: campError } = await supabase.from("camps").insert({
-      name:     req.camp_name,
-      slug,
-      location: req.location ?? null,
-    });
-    if (!campError) {
-      await supabase.from("new_camp_requests").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", req.id);
-    }
+    setActionError(null);
+    const result = await adminApi.approveCamp(req.id, req.camp_name, req.location);
+    if (result.error) setActionError(result.error);
     await load();
     setActionLoading(null);
   };
 
   const rejectRequest = async (id: string) => {
     setActionLoading(id);
-    await supabase.from("new_camp_requests").update({ status: "rejected" }).eq("id", id);
+    setActionError(null);
+    await adminApi.update("new_camp_requests", id, { status: "rejected" });
     await load();
     setActionLoading(null);
   };
@@ -60,11 +55,20 @@ export default function NewCampsPage() {
         <p className="text-gray-500 text-sm mt-0.5">When approved, a new camp is automatically created on the site.</p>
       </div>
 
+      {actionError && (
+        <div className="px-4 py-3 rounded-lg border border-red-800/50 bg-red-900/20 text-red-400 text-sm">
+          {actionError}
+        </div>
+      )}
+
       <div className="flex gap-1.5 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit">
         {(["all", "pending", "approved", "rejected"] as const).map((s) => (
           <button key={s} onClick={() => setStatusFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}>
-            {s.charAt(0).toUpperCase() + s.slice(1)} {statusFilter !== s && requests.filter((r) => r.status === s).length > 0 ? `(${requests.filter((r) => r.status === s).length})` : ""}
+            {s.charAt(0).toUpperCase() + s.slice(1)}{" "}
+            {statusFilter !== s && requests.filter((r) => r.status === s).length > 0
+              ? `(${requests.filter((r) => r.status === s).length})`
+              : ""}
           </button>
         ))}
       </div>
@@ -74,7 +78,6 @@ export default function NewCampsPage() {
           <div className="p-8 text-center text-gray-500">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-4xl mb-3">🏕️</div>
             <p className="text-gray-500">No camp requests.</p>
           </div>
         ) : (

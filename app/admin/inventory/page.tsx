@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
+import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
 import type { Item, Camp, School } from "@/app/lib/supabaseClient";
 
@@ -42,7 +43,7 @@ export default function InventoryPage() {
 
   const saveStock = async (id: string) => {
     setSaving(true);
-    await supabase.from("items").update({ available_count: stockValue }).eq("id", id);
+    await adminApi.update("items", id, { available_count: stockValue });
     setEditingStock(null);
     await load();
     setSaving(false);
