@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl     = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
 // Lazy singleton — avoids crashing during build when env vars are placeholders
 let _client: SupabaseClient | null = null;
@@ -110,6 +110,35 @@ export interface BuyRequest {
   buyer_phone: string | null;
   status: "pending" | "approved" | "rejected";
   approved_at: string | null;
+  tracking_number: string | null;
+  shipped_at: string | null;
+}
+
+export interface Order {
+  id: string;
+  created_at: string;
+  buyer_user_id: string | null;
+  seller_user_id: string | null;
+  seller_email: string | null;
+  item_id: string;
+  item_type: string;
+  item_price: number;
+  shipping_fee: number;
+  total_amount: number;
+  platform_fee: number;
+  seller_payout: number;
+  paypal_order_id: string | null;
+  paypal_capture_id: string | null;
+  buyer_email: string;
+  buyer_name: string | null;
+  buyer_address: string | null;
+  status: "paid" | "shipped" | "delivered" | "refunded" | "cancelled";
+  tracking_number: string | null;
+  shipped_at: string | null;
+  payout_status: "pending" | "released" | "issued";
+  refund_status: "none" | "requested" | "approved" | "issued" | "rejected";
+  refund_reason: string | null;
+  seller_flagged: boolean;
 }
 
 export interface WaitlistEntry {
@@ -145,20 +174,11 @@ export interface NewSchoolRequest {
 }
 
 // ─── Item Type Constants ──────────────────────────────────────────────────
+// Only two item types are supported: t-shirts and sweatshirts.
 
 export const ITEM_TYPES = [
   { value: "tshirt",     label: "T-Shirt" },
-  { value: "shorts",     label: "Shorts" },
-  { value: "jersey",     label: "Jersey" },
-  { value: "sweatshirt", label: "Sweatshirt" },
-  { value: "sweatpants", label: "Sweatpants" },
-  { value: "hat",        label: "Hat / Cap" },
-  { value: "jacket",     label: "Jacket" },
-  { value: "polo",       label: "Polo Shirt" },
-  { value: "dress",      label: "Dress / Skirt" },
-  { value: "pants",      label: "Pants / Trousers" },
-  { value: "vest",       label: "Vest" },
-  { value: "other",      label: "Other" },
+  { value: "sweatshirt", label: "Sweatshirt / Hoodie" },
 ] as const;
 
 export const CONDITIONS = [
@@ -169,10 +189,8 @@ export const CONDITIONS = [
 ] as const;
 
 export const SIZES_CLOTHING = ["XS", "S", "M", "L", "XL", "XXL", "Youth XS", "Youth S", "Youth M", "Youth L", "Youth XL"];
-export const SIZES_HAT      = ["Youth", "S/M", "L/XL", "One Size"];
 
-export function getSizesForItemType(itemType: string): string[] {
-  if (itemType === "hat") return SIZES_HAT;
+export function getSizesForItemType(_itemType: string): string[] {
   return SIZES_CLOTHING;
 }
 

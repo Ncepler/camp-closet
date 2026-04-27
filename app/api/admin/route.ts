@@ -9,12 +9,14 @@ import { isAdminAuthorized } from "@/app/lib/adminAuth";
  * All requests must include x-admin-key header matching NEXT_PUBLIC_ADMIN_PASSWORD.
  *
  * Supported operations:
- *   select  — list rows from a table
- *   count   — count rows matching filters
- *   update  — update a single row by id
- *   insert  — insert a single row
+ *   select         — list rows from a table
+ *   count          — count rows matching filters
+ *   update         — update a single row by id
+ *   insert         — insert a single row
  *   approve_camp   — insert into camps + update new_camp_requests status
  *   approve_school — insert into schools + update new_school_requests status
+ *   orders         — list orders with optional filters
+ *   update_order   — update an order row by id
  */
 
 type Filter = { col: string; eq: string | boolean | null };
@@ -69,6 +71,30 @@ export async function POST(req: NextRequest) {
         .single();
       if (error) return NextResponse.json({ error: error.message }, { status: 400 });
       return NextResponse.json({ data });
+    }
+
+    case "orders": {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let q: any = db.from("orders").select("*");
+      for (const f of (body.filters ?? []) as Filter[]) {
+        q = q.eq(f.col, f.eq);
+      }
+      if (body.refund_requested) {
+        q = q.neq("refund_status", "none");
+      }
+      q = q.order("created_at", { ascending: false });
+      const { data, error } = await q;
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ data });
+    }
+
+    case "update_order": {
+      const { error } = await db
+        .from("orders")
+        .update(body.data)
+        .eq("id", body.id);
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ success: true });
     }
 
     case "approve_camp": {

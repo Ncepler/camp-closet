@@ -96,7 +96,7 @@ export default function InventoryPage() {
           {(["all", "camp", "school"] as const).map((m) => (
             <button key={m} onClick={() => setModeFilter(m)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${modeFilter === m ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}>
-              {m === "all" ? "All" : m === "camp" ? "🏕️ Camps" : "🎓 Schools"}
+              {m === "all" ? "All" : m === "camp" ? "Camps" : "Schools"}
             </button>
           ))}
         </div>
@@ -107,7 +107,6 @@ export default function InventoryPage() {
           <div className="p-8 text-center text-gray-500">Loading inventory…</div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="text-4xl mb-3">📋</div>
             <p className="text-gray-500">No items found.</p>
           </div>
         ) : (
@@ -133,14 +132,14 @@ export default function InventoryPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={item.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-base flex-shrink-0">👕</div>
+                          <div className="w-10 h-10 rounded-lg bg-gray-800 flex-shrink-0" />
                         )}
                         <span className="font-medium text-white">{getItemTypeLabel(item.item_type)}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-gray-300 text-xs">{item.institution}</div>
-                      <div className="text-gray-600 text-xs">{item.mode === "camp" ? "🏕️" : "🎓"}</div>
+                      <div className="text-gray-600 text-xs">{item.mode}</div>
                     </td>
                     <td className="px-4 py-3 text-gray-300 text-xs">{item.size}</td>
                     <td className="px-4 py-3 text-gray-300 text-xs">{getConditionLabel(item.condition)}</td>

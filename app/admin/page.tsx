@@ -16,20 +16,18 @@ interface Stats {
   waitlistEntries: number;
 }
 
-function StatCard({ label, value, href, color, icon }: {
+function StatCard({ label, value, href, color }: {
   label: string;
   value: number | string;
   href: string;
   color: string;
-  icon: string;
 }) {
   return (
     <Link
       href={href}
       className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-colors group"
     >
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-2xl">{icon}</span>
+      <div className="flex items-start justify-end mb-3">
         <svg className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -105,11 +103,11 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pending Actions</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-          <StatCard label="Sell Submissions" value={stats.pendingSell}    href="/admin/sell-submissions" color="#7fb069" icon="📦" />
-          <StatCard label="Buy Requests"     value={stats.pendingBuy}     href="/admin/buy-requests"     color="#4a90e2" icon="🛒" />
-          <StatCard label="Donations"        value={stats.pendingDonations} href="/admin/donations"      color="#f59e0b" icon="💚" />
-          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/admin/new-camps"      color="#7fb069" icon="🏕️" />
-          <StatCard label="New Schools"      value={stats.pendingNewSchools} href="/admin/new-schools"   color="#4a90e2" icon="🎓" />
+          <StatCard label="Sell Submissions" value={stats.pendingSell}      href="/admin/sell-submissions" color="#7fb069" />
+          <StatCard label="Buy Requests"     value={stats.pendingBuy}       href="/admin/buy-requests"     color="#4a90e2" />
+          <StatCard label="Donations"        value={stats.pendingDonations} href="/admin/donations"        color="#f59e0b" />
+          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/admin/new-camps"        color="#7fb069" />
+          <StatCard label="New Schools"      value={stats.pendingNewSchools} href="/admin/new-schools"     color="#4a90e2" />
         </div>
       </div>
 
@@ -117,9 +115,9 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Platform Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <StatCard label="Total Camps"   value={stats.totalCamps}     href="/admin/inventory" color="#7fb069" icon="🏕️" />
-          <StatCard label="Total Schools" value={stats.totalSchools}   href="/admin/inventory" color="#4a90e2" icon="🎓" />
-          <StatCard label="Waitlist"      value={stats.waitlistEntries} href="/admin/waitlist" color="#a78bfa" icon="🔔" />
+          <StatCard label="Total Camps"   value={stats.totalCamps}      href="/admin/inventory" color="#7fb069" />
+          <StatCard label="Total Schools" value={stats.totalSchools}    href="/admin/inventory" color="#4a90e2" />
+          <StatCard label="Waitlist"      value={stats.waitlistEntries} href="/admin/waitlist"  color="#a78bfa" />
         </div>
       </div>
 

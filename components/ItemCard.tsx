@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Item } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
+import { getImpact } from "@/app/lib/impact";
 import { BuyModal } from "./BuyModal";
 import { WaitlistModal } from "./WaitlistModal";
 
@@ -22,16 +23,24 @@ const conditionColors: Record<string, string> = {
   fair:     "bg-orange-50 text-orange-700 border border-orange-200",
 };
 
+function BoltIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3" aria-hidden="true">
+      <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
+    </svg>
+  );
+}
+
 export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
   const router = useRouter();
-  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [showBuyModal, setShowBuyModal]           = useState(false);
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [imgError, setImgError]                   = useState(false);
 
   const primaryColor = theme === "camp" ? "#2d5016" : "#1e3a5f";
   const bgColor      = theme === "camp" ? "#f8faf6" : "#f6f9fc";
-
-  const isAvailable = item.available_count > 0;
+  const isAvailable  = item.available_count > 0;
+  const impact       = getImpact(item.item_type);
 
   const handleBuyClick = async () => {
     const { data } = await supabase.auth.getUser();
@@ -45,7 +54,7 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
   return (
     <>
       <div
-        className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 animate-fade-in"
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 animate-fade-in flex flex-col"
         style={{
           animationDelay: `${animationDelay}ms`,
           opacity: 0,
@@ -68,6 +77,7 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
               <span className="text-xs text-gray-400">{getItemTypeLabel(item.item_type)}</span>
             </div>
           )}
+
           {/* Out of stock overlay */}
           {!isAvailable && (
             <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
@@ -76,16 +86,28 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
               </span>
             </div>
           )}
+
           {/* Condition badge */}
           <div className="absolute top-2 left-2">
             <span className={`text-xs font-medium px-2 py-0.5 rounded ${conditionColors[item.condition] ?? "bg-gray-100 text-gray-600 border border-gray-200"}`}>
               {getConditionLabel(item.condition)}
             </span>
           </div>
+
+          {/* Sustainability impact tag */}
+          {impact && (
+            <div
+              className="absolute bottom-2 right-2 flex items-center gap-1 text-white px-2 py-0.5 rounded text-xs font-medium"
+              style={{ background: primaryColor + "cc" }}
+            >
+              <BoltIcon />
+              {impact.energyDisplay} saved
+            </div>
+          )}
         </div>
 
         {/* Info */}
-        <div className="p-3">
+        <div className="p-3 flex flex-col flex-1">
           <div className="flex items-start justify-between gap-2 mb-1">
             <h3 className="font-medium text-gray-900 text-sm leading-tight">
               {getItemTypeLabel(item.item_type)}
@@ -104,23 +126,25 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
           )}
 
           {/* CTA */}
-          {isAvailable ? (
-            <button
-              onClick={handleBuyClick}
-              className="w-full py-2 rounded text-white text-xs font-semibold transition-opacity hover:opacity-90"
-              style={{ background: primaryColor }}
-            >
-              Buy Now
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowWaitlistModal(true)}
-              className="w-full py-2 rounded text-xs font-semibold border transition-colors hover:bg-gray-50"
-              style={{ borderColor: primaryColor, color: primaryColor }}
-            >
-              Join Waitlist
-            </button>
-          )}
+          <div className="mt-auto">
+            {isAvailable ? (
+              <button
+                onClick={handleBuyClick}
+                className="w-full py-2 rounded text-white text-xs font-semibold transition-opacity hover:opacity-90"
+                style={{ background: primaryColor }}
+              >
+                Buy Now
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowWaitlistModal(true)}
+                className="w-full py-2 rounded text-xs font-semibold border transition-colors hover:bg-gray-50"
+                style={{ borderColor: primaryColor, color: primaryColor }}
+              >
+                Join Waitlist
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

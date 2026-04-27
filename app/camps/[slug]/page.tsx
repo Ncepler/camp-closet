@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp, Item } from "@/app/lib/supabaseClient";
-import { getItemTypeLabel, ITEM_TYPES } from "@/app/lib/supabaseClient";
+import { getItemTypeLabel } from "@/app/lib/supabaseClient";
+import { calcTotalImpact } from "@/app/lib/impact";
 import { ItemCard } from "@/components/ItemCard";
 
 export default function CampPage() {
@@ -121,6 +122,17 @@ export default function CampPage() {
                   </div>
                   <div className="text-white/60 text-xs mt-0.5">Available</div>
                 </div>
+                {(() => {
+                  const impact = calcTotalImpact(
+                    items.flatMap((i) => Array.from({ length: i.available_count }, () => ({ item_type: i.item_type })))
+                  );
+                  return impact.energy > 0 ? (
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-white">{impact.energy} kWh</div>
+                      <div className="text-white/60 text-xs mt-0.5">energy in stock to save</div>
+                    </div>
+                  ) : null;
+                })()}
               </div>
             </>
           )}

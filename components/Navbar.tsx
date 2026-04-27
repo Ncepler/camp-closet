@@ -77,9 +77,16 @@ export function Navbar() {
         <div className="flex items-center gap-2 flex-shrink-0">
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="hidden sm:block text-sm text-gray-500 truncate max-w-[140px]">
-                {user.email}
-              </span>
+              <Link
+                href="/seller"
+                className={`hidden sm:block text-sm px-3 py-1.5 rounded font-medium transition-colors ${
+                  pathname === "/seller"
+                    ? "text-gray-900 bg-gray-100"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                My Sales
+              </Link>
               <button
                 onClick={handleSignOut}
                 className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"

@@ -35,31 +35,10 @@ const CarIcon = (props: IconProps) => (
   </svg>
 );
 
-const PhoneIcon = (props: IconProps) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-    <rect x="5" y="2" width="14" height="20" rx="2" />
-    <circle cx="12" cy="18" r="1" fill="currentColor" stroke="none" />
-  </svg>
-);
-
-const LaptopIcon = (props: IconProps) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-    <rect x="2" y="3" width="20" height="14" rx="2" />
-    <path d="M2 20h20" />
-  </svg>
-);
-
 const HomeIcon = (props: IconProps) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     <polyline points="9 22 9 12 15 12 15 22" />
-  </svg>
-);
-
-const BulbIcon = (props: IconProps) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
-    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
-    <path d="M9 18h6M10 22h4" />
   </svg>
 );
 
@@ -153,28 +132,6 @@ const ITEM_DATA = [
       { Icon: BathtubIcon, headline: '34 bathtubs', detail: 'filled completely to the brim' },
       { Icon: FridgeIcon, headline: '2 weeks', detail: 'running a refrigerator nonstop' },
       { Icon: CarIcon, headline: '18 miles', detail: 'driven in an average gas car' },
-    ],
-  },
-  {
-    id: 'jersey',
-    name: 'Polyester Jersey',
-    detail: '180g polyester — literal crude oil',
-    leadStatDisplay: '~5 kg CO2',
-    leadStatValue: 5,
-    leadLabel: 'CO2 avoided',
-    leadUnit: ' kg',
-    accentColor: '#22C55E',
-    bgTint: '#F0FDF4',
-    allStats: [
-      { label: 'CO2', value: '~5 kg', icon: LeafIcon },
-      { label: 'Energy', value: '35 kWh', icon: BoltIcon },
-      { label: 'Water', value: '50 L', icon: WaterIcon },
-    ],
-    comparisons: [
-      { Icon: LaptopIcon, headline: '3,500 hours', detail: 'of laptop use — nearly 5 months straight' },
-      { Icon: PhoneIcon, headline: '3,000+ charges', detail: 'for a smartphone' },
-      { Icon: BulbIcon, headline: '4 years', detail: 'burning an LED light nonstop' },
-      { Icon: CarIcon, headline: '22 miles', detail: 'driven in an average gas car' },
     ],
   },
   {
@@ -377,12 +334,10 @@ export default function HomePage() {
   // Item sections inView refs
   const item0Ref = useRef<HTMLDivElement>(null);
   const item1Ref = useRef<HTMLDivElement>(null);
-  const item2Ref = useRef<HTMLDivElement>(null);
   const item0InView = useInView(item0Ref, { once: true, margin: '-60px' });
   const item1InView = useInView(item1Ref, { once: true, margin: '-60px' });
-  const item2InView = useInView(item2Ref, { once: true, margin: '-60px' });
-  const itemInViews = [item0InView, item1InView, item2InView];
-  const itemRefs = [item0Ref, item1Ref, item2Ref];
+  const itemInViews = [item0InView, item1InView];
+  const itemRefs = [item0Ref, item1Ref];
 
   // Platform counter values
   const waterCount = useCountUp(PLATFORM_STATS[0].value, counterInView, reducedMotion, 2.2);
@@ -442,7 +397,7 @@ export default function HomePage() {
 
           {/* Stat Cards */}
           <div
-            className="grid sm:grid-cols-3 gap-4 mb-12 text-left"
+            className="grid sm:grid-cols-2 gap-4 mb-12 text-left max-w-2xl mx-auto w-full"
           >
             {ITEM_DATA.map((item, i) => (
               <HeroStatCard
@@ -665,10 +620,9 @@ export default function HomePage() {
             <RevealSection>
               <div className="space-y-6 text-gray-600 leading-relaxed">
                 <p>
-                  Every jersey that gets passed down instead of manufactured new is crude oil that
-                  stays in the ground. Every sweatshirt that gets worn a second summer instead of
-                  landfilled is 6,000 liters of water that didn't have to be used. That's not
-                  abstract — that's real.
+                  Every t-shirt that gets a second summer instead of a landfill is 2,500 liters of
+                  water that didn&apos;t have to be used. Every sweatshirt re-worn instead of replaced
+                  is 6,000 liters. That&apos;s not abstract — that&apos;s real.
                 </p>
                 <p>
                   We use the word <em>reloved</em> because it's accurate. These aren't throwaway
@@ -772,7 +726,7 @@ export default function HomePage() {
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
               style={{ fontFamily: 'var(--font-fraunces)' }}
             >
-              Your kid&apos;s old jersey
+              Your kid&apos;s old camp tee
               <br />
               has another summer in it.
             </h2>
@@ -798,7 +752,7 @@ export default function HomePage() {
                   Browse Camps
                 </h3>
                 <p className="text-white/60 text-sm mb-6 leading-relaxed">
-                  T-shirts, sweatshirts, jerseys, and more from 13+ summer camps.
+                  T-shirts and sweatshirts from 13+ summer camps.
                   Find gear for your camper or sell what they&apos;ve outgrown.
                 </p>
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-white/70 group-hover:text-white transition-colors">

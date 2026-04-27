@@ -5,14 +5,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/admin",                label: "Dashboard",        icon: "📊" },
-  { href: "/admin/sell-submissions", label: "Sell Submissions",  icon: "📦" },
-  { href: "/admin/buy-requests",   label: "Buy Requests",     icon: "🛒" },
-  { href: "/admin/donations",      label: "Donations",        icon: "💚" },
-  { href: "/admin/inventory",      label: "Inventory",        icon: "📋" },
-  { href: "/admin/new-camps",      label: "New Camp Requests", icon: "🏕️" },
-  { href: "/admin/new-schools",    label: "New School Requests", icon: "🎓" },
-  { href: "/admin/waitlist",       label: "Waitlist",         icon: "🔔" },
+  { href: "/admin",                   label: "Dashboard"          },
+  { href: "/admin/sell-submissions",  label: "Sell Submissions"   },
+  { href: "/admin/buy-requests",      label: "Buy Requests"       },
+  { href: "/admin/disputes",          label: "Disputes & Refunds" },
+  { href: "/admin/donations",         label: "Donations"          },
+  { href: "/admin/inventory",         label: "Inventory"          },
+  { href: "/admin/new-camps",         label: "New Camp Requests"  },
+  { href: "/admin/new-schools",       label: "New School Requests"},
+  { href: "/admin/waitlist",          label: "Waitlist"           },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -124,7 +125,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
                 }`}
               >
-                <span className="text-base">{item.icon}</span>
                 {item.label}
               </Link>
             );
