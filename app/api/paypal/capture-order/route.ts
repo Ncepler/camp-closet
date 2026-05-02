@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/app/lib/supabaseClient";
 import { capturePayPalOrder } from "@/app/lib/paypal";
-import { getShippingFee, PLATFORM_FEE_RATE, SELLER_RATE } from "@/app/lib/impact";
+import { calcSellerPayout } from "@/app/lib/impact";
 
 // NOTE: The 'orders' table requires these columns (run migration if not present):
 // buyer_user_id, seller_user_id, seller_email, item_type, item_price, shipping_fee,
@@ -45,9 +45,7 @@ export async function POST(req: NextRequest) {
   }
 
   const captureDetail = captureData.purchase_units?.[0]?.payments?.captures?.[0];
-  const shippingFee = getShippingFee(item.item_type);
-  const platformFee = parseFloat((item.price * PLATFORM_FEE_RATE).toFixed(2));
-  const sellerPayout = parseFloat((item.price * SELLER_RATE).toFixed(2));
+  const { platformFee, sellerPayout } = calcSellerPayout(item.price);
 
   // Find seller: oldest approved sell request for this item type + institution
   const sellTable = item.camp_id ? "camp_requests" : "school_requests";
@@ -74,8 +72,8 @@ export async function POST(req: NextRequest) {
       item_id,
       item_type: item.item_type,
       item_price: item.price,
-      shipping_fee: shippingFee,
-      total_amount: item.price + shippingFee,
+      shipping_fee: 0,
+      total_amount: item.price,
       platform_fee: platformFee,
       seller_payout: sellerPayout,
       paypal_order_id,

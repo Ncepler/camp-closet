@@ -37,6 +37,12 @@ export async function createPayPalOrder(
 ): Promise<string> {
   const accessToken = await getPayPalAccessToken();
   const totalAmount = (itemPrice + shippingFee).toFixed(2);
+  const breakdown: Record<string, { currency_code: string; value: string }> = {
+    item_total: { currency_code: 'USD', value: itemPrice.toFixed(2) },
+  };
+  if (shippingFee > 0) {
+    breakdown.shipping = { currency_code: 'USD', value: shippingFee.toFixed(2) };
+  }
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${accessToken}`,
@@ -58,10 +64,7 @@ export async function createPayPalOrder(
           amount: {
             currency_code: 'USD',
             value: totalAmount,
-            breakdown: {
-              item_total: { currency_code: 'USD', value: itemPrice.toFixed(2) },
-              shipping: { currency_code: 'USD', value: shippingFee.toFixed(2) },
-            },
+            breakdown,
           },
           items: [
             {

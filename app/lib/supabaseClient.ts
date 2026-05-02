@@ -1,7 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl     = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+// Fall back to a non-empty placeholder so createClient doesn't throw when the
+// env var is missing — all queries will just return 401 errors instead of crashing.
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "missing-anon-key";
 
 // Lazy singleton — avoids crashing during build when env vars are placeholders
 let _client: SupabaseClient | null = null;
@@ -174,11 +176,12 @@ export interface NewSchoolRequest {
 }
 
 // ─── Item Type Constants ──────────────────────────────────────────────────
-// Only two item types are supported: t-shirts and sweatshirts.
+// UI supports three item types. Legacy DB rows may still have 'sweatshirt'.
 
 export const ITEM_TYPES = [
-  { value: "tshirt",     label: "T-Shirt" },
-  { value: "sweatshirt", label: "Sweatshirt / Hoodie" },
+  { value: "tshirt",  label: "T-Shirt" },
+  { value: "hat",     label: "Hat" },
+  { value: "hoodie",  label: "Hoodie" },
 ] as const;
 
 export const CONDITIONS = [
@@ -194,8 +197,14 @@ export function getSizesForItemType(_itemType: string): string[] {
   return SIZES_CLOTHING;
 }
 
+const LEGACY_TYPE_LABELS: Record<string, string> = {
+  sweatshirt: "Sweatshirt / Hoodie",
+};
+
 export function getItemTypeLabel(value: string): string {
-  return ITEM_TYPES.find((t) => t.value === value)?.label ?? value;
+  return ITEM_TYPES.find((t) => t.value === value)?.label
+    ?? LEGACY_TYPE_LABELS[value]
+    ?? value;
 }
 
 export function getConditionLabel(value: string): string {

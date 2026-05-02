@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Item } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
-import { getShippingFee, getImpact } from "@/app/lib/impact";
+import { getImpact } from "@/app/lib/impact";
 
 declare global {
   interface Window {
@@ -49,9 +49,7 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
   const paypalLoaded  = useRef(false);
   const paypalMounted = useRef(false);
 
-  const shippingFee = getShippingFee(item.item_type);
-  const total       = item.price + shippingFee;
-  const impact      = getImpact(item.item_type);
+  const impact = getImpact(item.item_type);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -244,12 +242,12 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
                   <span className="font-medium">${item.price.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm mb-3">
-                  <span className="text-gray-600">Shipping (USPS Ground)</span>
-                  <span className="font-medium">${shippingFee.toFixed(2)}</span>
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="text-gray-500">Included</span>
                 </div>
                 <div className="border-t border-gray-200 pt-2 flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>${item.price.toFixed(2)}</span>
                 </div>
               </div>
 

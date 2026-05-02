@@ -177,7 +177,7 @@ export default function SellerDashboard() {
             </div>
             <p className="text-white/40 text-xs text-center mt-4">
               Based on {approvedSubmissions.length} approved listing{approvedSubmissions.length !== 1 ? "s" : ""}.
-              PayPal will deduct ~3% from each payout as their processing fee — your effective take is ~62% of item price.
+              PayPal deducts ~3% + $0.49 per transaction, then the platform takes 15% of the remainder. Your effective payout is ~80% of the listed price, before your shipping cost.
             </p>
           </div>
         )}
@@ -207,7 +207,7 @@ export default function SellerDashboard() {
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
                         <div className="font-semibold text-gray-900 text-sm">
-                          {getItemTypeLabel(order.item_type)} · Size {order.item_type}
+                          {getItemTypeLabel(order.item_type)}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5">
                           Sold {new Date(order.created_at).toLocaleDateString()} · Ship by {deadline.toLocaleDateString()}
