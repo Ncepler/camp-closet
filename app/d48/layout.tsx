@@ -5,14 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/admin",                   label: "Dashboard"          },
-  { href: "/admin/sell-submissions",  label: "Sell Submissions"   },
-  { href: "/admin/buy-requests",      label: "Buy Requests"       },
-  { href: "/admin/disputes",          label: "Disputes & Refunds" },
-  { href: "/admin/donations",         label: "Donations"          },
-  { href: "/admin/inventory",         label: "Inventory"          },
-  { href: "/admin/new-camps",         label: "New Camp Requests"  },
-  { href: "/admin/waitlist",          label: "Waitlist"           },
+  { href: "/d48",                   label: "Dashboard"          },
+  { href: "/d48/sell-submissions",  label: "Sell Submissions"   },
+  { href: "/d48/buy-requests",      label: "Buy Requests"       },
+  { href: "/d48/disputes",          label: "Disputes & Refunds" },
+  { href: "/d48/donations",         label: "Donations"          },
+  { href: "/d48/inventory",         label: "Inventory"          },
+  { href: "/d48/new-camps",         label: "New Camp Requests"  },
+  { href: "/d48/waitlist",          label: "Waitlist"           },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -21,36 +21,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword]           = useState("");
   const [error, setError]                 = useState("");
-  const [loginLoading, setLoginLoading]   = useState(false);
   const [sidebarOpen, setSidebarOpen]     = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("admin_auth");
     if (stored === "true") setAuthenticated(true);
-    // admin_key is already in sessionStorage from login — no action needed
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/admin/verify-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (res.ok) {
-        sessionStorage.setItem("admin_auth", "true");
-        sessionStorage.setItem("admin_key", password);
-        setAuthenticated(true);
-      } else {
-        setError("Incorrect password");
-      }
-    } catch {
-      setError("Connection error. Try again.");
-    } finally {
-      setLoginLoading(false);
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+      sessionStorage.setItem("admin_auth", "true");
+      sessionStorage.setItem("admin_key", password);
+      setAuthenticated(true);
+    } else {
+      setError("Wrong password");
     }
   };
 
@@ -63,41 +48,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-bold mx-auto mb-3"
-              style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}>
-              CC
-            </div>
-            <h1 className="text-xl font-semibold text-white" style={{ fontFamily: "var(--font-fraunces)" }}>
-              Admin Panel
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">Camp Closet Marketplace</p>
-          </div>
-          <form onSubmit={handleLogin} className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1.5">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm outline-none focus:border-[#7fb069] transition"
-                placeholder="Enter admin password"
-                autoFocus
-              />
-            </div>
-            {error && <p className="text-sm text-red-400">{error}</p>}
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-2.5 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}
-            >
-              {loginLoading ? "Checking…" : "Sign In"}
-            </button>
-          </form>
-        </div>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+        <form onSubmit={handleLogin} className="flex items-center gap-3">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setError(""); }}
+            className="px-4 py-2.5 bg-gray-900 border border-gray-800 rounded-lg text-white text-sm outline-none focus:border-gray-600 transition w-56 placeholder:text-gray-700"
+            placeholder="••••••••••••"
+            autoFocus
+            autoComplete="off"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition-colors border border-gray-800"
+          >
+            →
+          </button>
+          {error && <span className="text-xs text-red-500">{error}</span>}
+        </form>
       </div>
     );
   }
@@ -125,8 +94,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
           {NAV_ITEMS.map((item) => {
-            const isActive = item.href === "/admin"
-              ? pathname === "/admin"
+            const isActive = item.href === "/d48"
+              ? pathname === "/d48"
               : pathname.startsWith(item.href);
             return (
               <Link
@@ -184,7 +153,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
           <div className="flex-1" />
           <span className="text-xs text-gray-500">
-            {NAV_ITEMS.find((n) => n.href === pathname || (n.href !== "/admin" && pathname.startsWith(n.href)))?.label ?? "Dashboard"}
+            {NAV_ITEMS.find((n) => n.href === pathname || (n.href !== "/d48" && pathname.startsWith(n.href)))?.label ?? "Dashboard"}
           </span>
         </header>
 

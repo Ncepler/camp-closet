@@ -99,10 +99,10 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pending Actions</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard label="Sell Submissions" value={stats.pendingSell}      href="/admin/sell-submissions" color="#7fb069" />
-          <StatCard label="Buy Requests"     value={stats.pendingBuy}       href="/admin/buy-requests"     color="#4a90e2" />
-          <StatCard label="Donations"        value={stats.pendingDonations} href="/admin/donations"        color="#f59e0b" />
-          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/admin/new-camps"        color="#7fb069" />
+          <StatCard label="Sell Submissions" value={stats.pendingSell}      href="/d48/sell-submissions" color="#7fb069" />
+          <StatCard label="Buy Requests"     value={stats.pendingBuy}       href="/d48/buy-requests"     color="#4a90e2" />
+          <StatCard label="Donations"        value={stats.pendingDonations} href="/d48/donations"        color="#f59e0b" />
+          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/d48/new-camps"        color="#7fb069" />
         </div>
       </div>
 
@@ -110,8 +110,8 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Platform Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <StatCard label="Total Camps" value={stats.totalCamps}      href="/admin/inventory" color="#7fb069" />
-          <StatCard label="Waitlist"    value={stats.waitlistEntries} href="/admin/waitlist"  color="#a78bfa" />
+          <StatCard label="Total Camps" value={stats.totalCamps}      href="/d48/inventory" color="#7fb069" />
+          <StatCard label="Waitlist"    value={stats.waitlistEntries} href="/d48/waitlist"  color="#a78bfa" />
         </div>
       </div>
 
@@ -152,13 +152,13 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
-          <Link href="/admin/sell-submissions" className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors">
+          <Link href="/d48/sell-submissions" className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors">
             Review Submissions
           </Link>
-          <Link href="/admin/buy-requests" className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#1e3a5f] hover:bg-[#2e5a8f] transition-colors">
+          <Link href="/d48/buy-requests" className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#1e3a5f] hover:bg-[#2e5a8f] transition-colors">
             Process Buy Requests
           </Link>
-          <Link href="/admin/inventory" className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">
+          <Link href="/d48/inventory" className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">
             View Inventory
           </Link>
         </div>
