@@ -67,6 +67,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
           {error && <span className="text-xs text-red-500">{error}</span>}
         </form>
+        <p className="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-700">
+          env: {process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "undefined"}
+        </p>
       </div>
     );
   }
