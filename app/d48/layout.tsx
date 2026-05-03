@@ -28,9 +28,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (stored === "true") setAuthenticated(true);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    setError("");
+    const res = await fetch("/api/admin/verify-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    if (res.ok) {
       sessionStorage.setItem("admin_auth", "true");
       sessionStorage.setItem("admin_key", password);
       setAuthenticated(true);
@@ -67,9 +73,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
           {error && <span className="text-xs text-red-500">{error}</span>}
         </form>
-        <p className="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-700">
-          env: {process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "undefined"}
-        </p>
       </div>
     );
   }
