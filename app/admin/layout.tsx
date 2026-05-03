@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { href: "/admin/donations",         label: "Donations"          },
   { href: "/admin/inventory",         label: "Inventory"          },
   { href: "/admin/new-camps",         label: "New Camp Requests"  },
-  { href: "/admin/new-schools",       label: "New School Requests"},
   { href: "/admin/waitlist",          label: "Waitlist"           },
 ];
 
@@ -22,6 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword]           = useState("");
   const [error, setError]                 = useState("");
+  const [loginLoading, setLoginLoading]   = useState(false);
   const [sidebarOpen, setSidebarOpen]     = useState(false);
 
   useEffect(() => {
@@ -30,14 +30,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // admin_key is already in sessionStorage from login — no action needed
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      sessionStorage.setItem("admin_auth", "true");
-      sessionStorage.setItem("admin_key", password);
-      setAuthenticated(true);
-    } else {
-      setError("Incorrect password");
+    setLoginLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/verify-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        sessionStorage.setItem("admin_auth", "true");
+        sessionStorage.setItem("admin_key", password);
+        setAuthenticated(true);
+      } else {
+        setError("Incorrect password");
+      }
+    } catch {
+      setError("Connection error. Try again.");
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -77,10 +90,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {error && <p className="text-sm text-red-400">{error}</p>}
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90"
+              disabled={loginLoading}
+              className="w-full py-2.5 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}
             >
-              Sign In
+              {loginLoading ? "Checking…" : "Sign In"}
             </button>
           </form>
         </div>

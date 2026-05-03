@@ -425,13 +425,6 @@ export default function HomePage() {
               Browse Camps
             </Link>
             <Link
-              href="/schools"
-              className="px-8 py-3.5 rounded text-sm font-semibold text-white transition-opacity hover:opacity-90 w-full sm:w-auto text-center"
-              style={{ background: '#1e3a5f' }}
-            >
-              Browse Schools
-            </Link>
-            <Link
               href="/submit"
               className="px-8 py-3.5 rounded border border-white/20 text-white text-sm font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto text-center"
             >
@@ -731,7 +724,7 @@ export default function HomePage() {
               has another summer in it.
             </h2>
             <p className="text-white/50 max-w-lg mx-auto text-sm leading-relaxed">
-              Browse camps and schools to find what you need — or list what you&apos;ve outgrown.
+              Browse camps to find what you need — or list what your kid has outgrown.
               Every transaction saves water, energy, and CO2.
             </p>
           </RevealSection>
@@ -764,26 +757,26 @@ export default function HomePage() {
               </Link>
             </motion.div>
 
-            {/* Schools card */}
+            {/* Sell card */}
             <motion.div whileHover={!reducedMotion ? { scale: 1.02 } : {}} transition={{ duration: 0.2 }}>
               <Link
-                href="/schools"
+                href="/submit"
                 className="group relative overflow-hidden rounded-lg p-8 text-white block transition-shadow hover:shadow-xl"
-                style={{ background: '#1e3a5f' }}
+                style={{ background: '#3a2a1a' }}
               >
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">School Uniforms</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Sell Your Gear</p>
                 <h3
                   className="text-2xl font-bold mb-3"
                   style={{ fontFamily: 'var(--font-fraunces)' }}
                 >
-                  Browse Schools
+                  List an Item
                 </h3>
                 <p className="text-white/60 text-sm mb-6 leading-relaxed">
-                  Polo shirts, khakis, dress shirts, and uniform staples from 20+ schools.
-                  Uniform season doesn&apos;t have to mean buying new.
+                  Got a camp tee or hoodie collecting dust? List it in under two minutes.
+                  Listing is free — you only pay shipping when it sells.
                 </p>
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-white/70 group-hover:text-white transition-colors">
-                  Explore schools
+                  Start selling
                   <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>

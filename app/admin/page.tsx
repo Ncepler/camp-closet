@@ -10,11 +10,15 @@ interface Stats {
   pendingBuy: number;
   pendingDonations: number;
   pendingNewCamps: number;
-  pendingNewSchools: number;
   totalCamps: number;
-  totalSchools: number;
   waitlistEntries: number;
 }
+
+const PAYOUTS = [
+  { item: "T-Shirt",  price: 22, paypal: 1.15, platform: 3.13, seller: 17.72 },
+  { item: "Hat",      price: 12, paypal: 0.85, platform: 1.67, seller: 9.48  },
+  { item: "Hoodie",   price: 30, paypal: 1.39, platform: 4.29, seller: 24.32 },
+];
 
 function StatCard({ label, value, href, color }: {
   label: string;
@@ -41,8 +45,7 @@ function StatCard({ label, value, href, color }: {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({
     pendingSell: 0, pendingBuy: 0, pendingDonations: 0,
-    pendingNewCamps: 0, pendingNewSchools: 0,
-    totalCamps: 0, totalSchools: 0, waitlistEntries: 0,
+    pendingNewCamps: 0, totalCamps: 0, waitlistEntries: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -53,38 +56,31 @@ export default function AdminDashboard() {
         pendingBuy,
         pendingDonations,
         pendingNewCamps,
-        pendingNewSchools,
         { count: totalCamps },
-        { count: totalSchools },
         { count: waitlistEntries },
       ] = await Promise.all([
-        adminApi.count("camp_requests",   [{ col: "status", eq: "pending" }, { col: "is_donation", eq: false }]),
-        adminApi.count("buy_requests",    [{ col: "status", eq: "pending" }]),
-        adminApi.count("camp_requests",   [{ col: "status", eq: "pending" }, { col: "is_donation", eq: true }]),
-        adminApi.count("new_camp_requests",  [{ col: "status", eq: "pending" }]),
-        adminApi.count("new_school_requests",[{ col: "status", eq: "pending" }]),
-        // camps/schools/waitlist have public read — can use anon client
+        adminApi.count("camp_requests",  [{ col: "status", eq: "pending" }, { col: "is_donation", eq: false }]),
+        adminApi.count("buy_requests",   [{ col: "status", eq: "pending" }]),
+        adminApi.count("camp_requests",  [{ col: "status", eq: "pending" }, { col: "is_donation", eq: true }]),
+        adminApi.count("new_camp_requests", [{ col: "status", eq: "pending" }]),
         supabase.from("camps").select("*", { count: "exact", head: true }),
-        supabase.from("schools").select("*", { count: "exact", head: true }),
         supabase.from("waitlist").select("*", { count: "exact", head: true }).eq("notified", false),
       ]);
 
       setStats({
-        pendingSell:       pendingSell.count   ?? 0,
-        pendingBuy:        pendingBuy.count    ?? 0,
-        pendingDonations:  pendingDonations.count ?? 0,
-        pendingNewCamps:   pendingNewCamps.count  ?? 0,
-        pendingNewSchools: pendingNewSchools.count ?? 0,
-        totalCamps:        totalCamps  ?? 0,
-        totalSchools:      totalSchools ?? 0,
-        waitlistEntries:   waitlistEntries ?? 0,
+        pendingSell:      pendingSell.count      ?? 0,
+        pendingBuy:       pendingBuy.count       ?? 0,
+        pendingDonations: pendingDonations.count ?? 0,
+        pendingNewCamps:  pendingNewCamps.count  ?? 0,
+        totalCamps:       totalCamps             ?? 0,
+        waitlistEntries:  waitlistEntries        ?? 0,
       });
       setLoading(false);
     };
     load();
   }, []);
 
-  const totalPending = stats.pendingSell + stats.pendingBuy + stats.pendingDonations + stats.pendingNewCamps + stats.pendingNewSchools;
+  const totalPending = stats.pendingSell + stats.pendingBuy + stats.pendingDonations + stats.pendingNewCamps;
 
   return (
     <div className="space-y-8">
@@ -102,12 +98,11 @@ export default function AdminDashboard() {
       {/* Pending actions */}
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pending Actions</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard label="Sell Submissions" value={stats.pendingSell}      href="/admin/sell-submissions" color="#7fb069" />
           <StatCard label="Buy Requests"     value={stats.pendingBuy}       href="/admin/buy-requests"     color="#4a90e2" />
           <StatCard label="Donations"        value={stats.pendingDonations} href="/admin/donations"        color="#f59e0b" />
           <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/admin/new-camps"        color="#7fb069" />
-          <StatCard label="New Schools"      value={stats.pendingNewSchools} href="/admin/new-schools"     color="#4a90e2" />
         </div>
       </div>
 
@@ -115,9 +110,41 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Platform Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <StatCard label="Total Camps"   value={stats.totalCamps}      href="/admin/inventory" color="#7fb069" />
-          <StatCard label="Total Schools" value={stats.totalSchools}    href="/admin/inventory" color="#4a90e2" />
-          <StatCard label="Waitlist"      value={stats.waitlistEntries} href="/admin/waitlist"  color="#a78bfa" />
+          <StatCard label="Total Camps" value={stats.totalCamps}      href="/admin/inventory" color="#7fb069" />
+          <StatCard label="Waitlist"    value={stats.waitlistEntries} href="/admin/waitlist"  color="#a78bfa" />
+        </div>
+      </div>
+
+      {/* Payout breakdown */}
+      <div>
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Payout Breakdown</h2>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">PayPal Fee</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Platform 15%</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Seller Gets</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {PAYOUTS.map((p) => (
+                <tr key={p.item}>
+                  <td className="px-4 py-3 text-white font-medium">{p.item}</td>
+                  <td className="px-4 py-3 text-right text-gray-300">${p.price.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right text-red-400">-${p.paypal.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right text-yellow-400">-${p.platform.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right text-[#7fb069] font-semibold">${p.seller.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="px-4 py-3 border-t border-gray-800 text-xs text-gray-500">
+            PayPal rate: 2.99% + $0.49 per transaction. Platform fee: 15% of item price.
+            Seller net is before their shipping cost (~$4 hat, ~$5 tee, ~$7 hoodie via USPS).
+          </div>
         </div>
       </div>
 

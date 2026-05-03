@@ -4,12 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
-import type { CampRequest, SchoolRequest } from "@/app/lib/supabaseClient";
+import type { CampRequest } from "@/app/lib/supabaseClient";
 
-type DonationWithMeta = (CampRequest | SchoolRequest) & {
-  institution?: string;
-  mode: "camp" | "school";
-};
+type DonationWithMeta = CampRequest & { institution: string };
 
 const statusColors: Record<string, string> = {
   pending:  "bg-yellow-900/30 text-yellow-400 border border-yellow-800/50",
@@ -27,33 +24,23 @@ export default function DonationsPage() {
     setLoading(true);
     const [
       { data: campsData },
-      { data: schoolsData },
       { data: campDons },
-      { data: schoolDons },
     ] = await Promise.all([
       supabase.from("camps").select("id, name"),
-      supabase.from("schools").select("id, name"),
       adminApi.select<CampRequest>("camp_requests", {
-        filters: [{ col: "is_donation", eq: true }],
-        orderBy: "created_at",
-        orderAsc: false,
-      }),
-      adminApi.select<SchoolRequest>("school_requests", {
         filters: [{ col: "is_donation", eq: true }],
         orderBy: "created_at",
         orderAsc: false,
       }),
     ]);
 
-    const campMap: Record<string, string>   = {};
-    const schoolMap: Record<string, string> = {};
+    const campMap: Record<string, string> = {};
     (campsData as { id: string; name: string }[] | null)?.forEach((c) => { campMap[c.id] = c.name; });
-    (schoolsData as { id: string; name: string }[] | null)?.forEach((s) => { schoolMap[s.id] = s.name; });
 
-    const all: DonationWithMeta[] = [
-      ...(campDons ?? []).map((r) => ({ ...r, mode: "camp" as const, institution: campMap[r.camp_id ?? ""] ?? "Unknown" })),
-      ...(schoolDons ?? []).map((r) => ({ ...r, mode: "school" as const, institution: schoolMap[r.school_id ?? ""] ?? "Unknown" })),
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const all: DonationWithMeta[] = (campDons ?? []).map((r) => ({
+      ...r,
+      institution: campMap[r.camp_id ?? ""] ?? "Unknown Camp",
+    }));
 
     setDonations(all);
     setLoading(false);
@@ -61,10 +48,9 @@ export default function DonationsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id: string, mode: "camp" | "school", newStatus: "approved" | "rejected") => {
+  const updateStatus = async (id: string, newStatus: "approved" | "rejected") => {
     setActionLoading(id);
-    const table = mode === "camp" ? "camp_requests" : "school_requests";
-    await adminApi.update(table, id, {
+    await adminApi.update("camp_requests", id, {
       status:      newStatus,
       approved_at: newStatus === "approved" ? new Date().toISOString() : null,
     });
@@ -129,7 +115,6 @@ export default function DonationsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white">{don.institution}</div>
-                      <div className="text-xs text-gray-500">{don.mode}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white text-xs">{don.seller_email}</div>
@@ -142,11 +127,11 @@ export default function DonationsPage() {
                     <td className="px-4 py-3 pr-4">
                       {don.status === "pending" && (
                         <div className="flex gap-2 justify-end">
-                          <button onClick={() => updateStatus(don.id, don.mode, "approved")} disabled={actionLoading === don.id}
+                          <button onClick={() => updateStatus(don.id, "approved")} disabled={actionLoading === don.id}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors disabled:opacity-50">
                             {actionLoading === don.id ? "…" : "Approve"}
                           </button>
-                          <button onClick={() => updateStatus(don.id, don.mode, "rejected")} disabled={actionLoading === don.id}
+                          <button onClick={() => updateStatus(don.id, "rejected")} disabled={actionLoading === don.id}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 transition-colors">
                             Reject
                           </button>

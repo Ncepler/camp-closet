@@ -12,7 +12,7 @@ import { WaitlistModal } from "./WaitlistModal";
 
 interface ItemCardProps {
   item: Item;
-  theme: "camp" | "school";
+  theme?: "camp";
   animationDelay?: number;
 }
 
@@ -37,8 +37,8 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [imgError, setImgError]                   = useState(false);
 
-  const primaryColor = theme === "camp" ? "#2d5016" : "#1e3a5f";
-  const bgColor      = theme === "camp" ? "#f8faf6" : "#f6f9fc";
+  const primaryColor = "#2d5016";
+  const bgColor      = "#f8faf6";
   const isAvailable  = item.available_count > 0;
   const impact       = getImpact(item.item_type);
 
@@ -151,7 +151,6 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
       {showBuyModal && (
         <BuyModal
           item={item}
-          theme={theme}
           onClose={() => setShowBuyModal(false)}
         />
       )}

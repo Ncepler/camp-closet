@@ -3,21 +3,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient";
-import type { Camp, School } from "@/app/lib/supabaseClient";
+import type { Camp } from "@/app/lib/supabaseClient";
 import { ITEM_TYPES, CONDITIONS, getSizesForItemType } from "@/app/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
-
-type Mode = "camp" | "school";
 
 export default function DonatePage() {
   const router  = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [user, setUser]   = useState<User | null>(null);
-  const [mode, setMode]   = useState<Mode>("camp");
 
-  const [camps, setCamps]     = useState<Camp[]>([]);
-  const [schools, setSchools] = useState<School[]>([]);
+  const [camps, setCamps]           = useState<Camp[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [itemType, setItemType]     = useState("");
   const [size, setSize]             = useState("");
@@ -35,12 +31,8 @@ export default function DonatePage() {
       const { data } = await supabase.auth.getUser();
       if (!data.user) { router.push("/auth?redirect=/donate"); return; }
       setUser(data.user);
-      const [{ data: campsData }, { data: schoolsData }] = await Promise.all([
-        supabase.from("camps").select("*").order("name"),
-        supabase.from("schools").select("*").order("name"),
-      ]);
+      const { data: campsData } = await supabase.from("camps").select("*").order("name");
       setCamps(campsData ?? []);
-      setSchools(schoolsData ?? []);
     };
     load();
   }, [router]);
@@ -71,12 +63,9 @@ export default function DonatePage() {
         imageUrl = urlData.publicUrl;
       }
 
-      const table   = mode === "camp" ? "camp_requests" : "school_requests";
-      const idField = mode === "camp" ? "camp_id" : "school_id";
-
-      const { error: insertError } = await supabase.from(table).insert({
+      const { error: insertError } = await supabase.from("camp_requests").insert({
         user_id:      user.id,
-        [idField]:    selectedId,
+        camp_id:      selectedId,
         item_type:    itemType,
         size,
         condition,
@@ -95,27 +84,26 @@ export default function DonatePage() {
     }
   };
 
-  const primaryColor = mode === "camp" ? "#2d5016" : "#1e3a5f";
-  const accentColor  = mode === "camp" ? "#7fb069" : "#4a90e2";
-  const entities     = mode === "camp" ? camps : schools;
-  const isValid      = !!selectedId && !!itemType && !!size && !!condition;
+  const isValid = !!selectedId && !!itemType && !!size && !!condition;
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: mode === "camp" ? "var(--camp-bg)" : "var(--school-bg)" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 bg-white">
         <div className="text-center max-w-md">
-          <div className="text-7xl mb-6">💚</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
-            Thank You for Donating!
+          <div className="w-12 h-12 rounded-lg border-2 border-[#2d5016] flex items-center justify-center mx-auto mb-6">
+            <svg className="w-6 h-6 text-[#2d5016]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3" style={{ fontFamily: "var(--font-fraunces)" }}>
+            Donation submitted
           </h1>
-          <p className="text-gray-600 mb-8 leading-relaxed">
-            Your generosity helps families access quality clothing at little or no cost.
-            We&apos;ll review your donation and be in touch at <strong>{user?.email}</strong>.
+          <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+            Thank you. We&apos;ll review it and reach out at <strong>{user?.email}</strong> if we have questions.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="px-8 py-3 rounded-xl text-white font-semibold transition-all hover:opacity-90"
-            style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}
+            className="px-8 py-2.5 rounded text-white font-semibold transition-opacity hover:opacity-90 bg-[#2d5016]"
           >
             Back to Home
           </button>
@@ -125,47 +113,37 @@ export default function DonatePage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: mode === "camp" ? "var(--camp-bg)" : "var(--school-bg)" }}>
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="py-12 px-6 text-center" style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}>
-        <div className="text-4xl mb-3">💚</div>
-        <h1 className="text-4xl font-bold text-white mb-2" style={{ fontFamily: "var(--font-fraunces)" }}>
-          Donate Clothing
-        </h1>
-        <p className="text-white/75 max-w-md mx-auto">
-          Help another family by donating clothing your child has outgrown. Every item makes a difference.
-        </p>
+      <div className="py-12 px-6 bg-[#2d5016]">
+        <div className="max-w-xl mx-auto">
+          <h1 className="text-3xl font-bold text-white mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
+            Donate Clothing
+          </h1>
+          <p className="text-white/60 text-sm">
+            Help another family by donating gear your kid has outgrown.
+          </p>
+        </div>
       </div>
 
       <div className="max-w-xl mx-auto px-4 sm:px-6 py-10">
-        {/* Mode toggle */}
-        <div className="flex bg-white rounded-xl border border-gray-200 p-1 mb-8 shadow-sm">
-          {(["camp", "school"] as Mode[]).map((m) => (
-            <button key={m} onClick={() => { setMode(m); setSelectedId(""); }}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === m ? "text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-              style={mode === m ? { background: `linear-gradient(135deg, ${m === "camp" ? "#2d5016" : "#1e3a5f"}, ${m === "camp" ? "#7fb069" : "#4a90e2"})` } : {}}>
-              {m === "camp" ? "🏕️ Camp Clothing" : "🎓 School Uniforms"}
-            </button>
-          ))}
-        </div>
-
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
           <p className="text-sm text-amber-800">
-            <strong>How donations work:</strong> Your donated items are reviewed by us and added to the platform for families in need. You&apos;re giving your clothing a second life where it&apos;ll be used and appreciated.
+            Donated items are reviewed by us and listed for families in need. We&apos;ll let you know once it&apos;s live.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
-          {/* Institution */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+          {/* Camp */}
           <div>
             <label className="block text-sm font-semibold text-gray-800 mb-2">
-              Select {mode === "camp" ? "Camp" : "School"} <span className="text-red-500">*</span>
+              Which camp? <span className="text-red-500">*</span>
             </label>
             <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}
               required
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-[#7fb069] transition bg-white">
-              <option value="">Choose a {mode === "camp" ? "camp" : "school"}…</option>
-              {entities.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+              className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition bg-white">
+              <option value="">Pick a camp…</option>
+              {camps.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
@@ -176,7 +154,7 @@ export default function DonatePage() {
             </label>
             <select value={itemType} onChange={(e) => { setItemType(e.target.value); setSize(""); }}
               required
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none bg-white">
+              className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition bg-white">
               <option value="">Select type…</option>
               {ITEM_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
@@ -191,8 +169,11 @@ export default function DonatePage() {
               <div className="flex flex-wrap gap-2">
                 {getSizesForItemType(itemType).map((s) => (
                   <button key={s} type="button" onClick={() => setSize(s)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-all ${size === s ? "text-white border-transparent" : "border-gray-200 text-gray-700 hover:border-gray-300"}`}
-                    style={size === s ? { background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` } : {}}>
+                    className={`px-3 py-1.5 rounded text-sm font-medium border-2 transition-all ${
+                      size === s
+                        ? "text-white border-transparent bg-[#2d5016]"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300"
+                    }`}>
                     {s}
                   </button>
                 ))}
@@ -208,10 +189,13 @@ export default function DonatePage() {
             <div className="grid grid-cols-2 gap-2">
               {CONDITIONS.map((c) => (
                 <button key={c.value} type="button" onClick={() => setCondition(c.value)}
-                  className={`text-left px-4 py-3 rounded-xl border-2 transition-all ${condition === c.value ? "text-white border-transparent" : "border-gray-200 text-gray-700 hover:border-gray-300"}`}
-                  style={condition === c.value ? { background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` } : {}}>
+                  className={`text-left px-4 py-3 rounded border-2 transition-all ${
+                    condition === c.value
+                      ? "text-white border-transparent bg-[#2d5016]"
+                      : "border-gray-200 text-gray-700 hover:border-gray-300"
+                  }`}>
                   <div className="font-medium text-sm">{c.label}</div>
-                  <div className={`text-xs mt-0.5 ${condition === c.value ? "opacity-75" : "text-gray-500"}`}>{c.description}</div>
+                  <div className={`text-xs mt-0.5 ${condition === c.value ? "opacity-70" : "text-gray-500"}`}>{c.description}</div>
                 </button>
               ))}
             </div>
@@ -220,21 +204,25 @@ export default function DonatePage() {
           {/* Photo */}
           <div>
             <label className="block text-sm font-semibold text-gray-800 mb-2">
-              Photo <span className="text-gray-400 font-normal">(optional but helpful)</span>
+              Photo <span className="text-gray-400 font-normal text-xs">(optional but helpful)</span>
             </label>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
             {imagePreview ? (
-              <div className="relative rounded-xl overflow-hidden aspect-video max-w-xs">
+              <div className="relative rounded-lg overflow-hidden aspect-video max-w-xs border border-gray-200">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                 <button type="button" onClick={() => { setImageFile(null); setImagePreview(null); }}
-                  className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/70 transition-colors">✕</button>
+                  className="absolute top-2 right-2 bg-black/50 text-white rounded w-7 h-7 flex items-center justify-center text-xs hover:bg-black/70 transition-colors font-bold">
+                  ✕
+                </button>
               </div>
             ) : (
               <button type="button" onClick={() => fileRef.current?.click()}
-                className="w-full border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-gray-400 transition-colors">
-                <div className="text-3xl mb-2">📸</div>
-                <div className="text-sm font-medium text-gray-700">Upload a photo</div>
+                className="w-full border-2 border-dashed border-gray-200 rounded-lg p-8 text-center hover:border-gray-300 transition-colors">
+                <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <div className="text-sm font-medium text-gray-600">Upload a photo</div>
                 <div className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP</div>
               </button>
             )}
@@ -246,17 +234,16 @@ export default function DonatePage() {
               Phone <span className="text-gray-400 font-normal">(optional)</span>
             </label>
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none transition"
+              className="w-full px-3 py-2 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition"
               placeholder="(555) 000-0000"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>}
+          {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">{error}</p>}
 
           <button type="submit" disabled={submitting || !isValid}
-            className="w-full py-3 rounded-xl text-white font-semibold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` }}>
-            {submitting ? "Submitting Donation…" : "Donate This Item"}
+            className="w-full py-2.5 rounded text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed bg-[#2d5016]">
+            {submitting ? "Submitting…" : "Donate This Item"}
           </button>
         </form>
       </div>

@@ -156,13 +156,6 @@ export default function AboutPage() {
           >
             Browse Camps
           </Link>
-          <Link
-            href="/schools"
-            className="px-7 py-3 rounded-md text-white font-semibold text-sm transition-opacity hover:opacity-90"
-            style={{ background: "#1e3a5f" }}
-          >
-            Browse Schools
-          </Link>
         </div>
       </section>
     </div>

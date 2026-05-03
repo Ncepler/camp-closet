@@ -68,13 +68,4 @@ export const adminApi = {
   ): Promise<{ success?: boolean; error?: string }> {
     return post({ op: "approve_camp", id, camp_name, location }) as Promise<{ success?: boolean; error?: string }>;
   },
-
-  approveSchool(
-    id: string,
-    school_name: string,
-    school_type: string | null,
-    location: string | null
-  ): Promise<{ success?: boolean; error?: string }> {
-    return post({ op: "approve_school", id, school_name, school_type, location }) as Promise<{ success?: boolean; error?: string }>;
-  },
 };

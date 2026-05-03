@@ -6,7 +6,7 @@ import { isAdminAuthorized } from "@/app/lib/adminAuth";
  * POST /api/admin
  *
  * Generic admin proxy using the Supabase service role key (bypasses RLS).
- * All requests must include x-admin-key header matching NEXT_PUBLIC_ADMIN_PASSWORD.
+ * All requests must include x-admin-key header matching ADMIN_PASSWORD env var.
  *
  * Supported operations:
  *   select         — list rows from a table
@@ -110,25 +110,6 @@ export async function POST(req: NextRequest) {
       if (campError) return NextResponse.json({ error: campError.message }, { status: 400 });
       await db
         .from("new_camp_requests")
-        .update({ status: "approved", approved_at: new Date().toISOString() })
-        .eq("id", body.id);
-      return NextResponse.json({ success: true });
-    }
-
-    case "approve_school": {
-      const slug = (body.school_name as string)
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-      const { error: schoolError } = await db.from("schools").insert({
-        name: body.school_name,
-        slug,
-        school_type: body.school_type ?? "high_school",
-        location: body.location ?? null,
-      });
-      if (schoolError) return NextResponse.json({ error: schoolError.message }, { status: 400 });
-      await db
-        .from("new_school_requests")
         .update({ status: "approved", approved_at: new Date().toISOString() })
         .eq("id", body.id);
       return NextResponse.json({ success: true });

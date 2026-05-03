@@ -46,17 +46,6 @@ export interface Camp {
   main_image: string | null;
 }
 
-export interface School {
-  id: string;
-  created_at: string;
-  name: string;
-  slug: string;
-  school_type: "high_school" | "middle_school";
-  location: string | null;
-  description: string | null;
-  main_image: string | null;
-}
-
 export interface Item {
   id: string;
   created_at: string;
@@ -76,22 +65,6 @@ export interface CampRequest {
   created_at: string;
   user_id: string | null;
   camp_id: string | null;
-  item_type: string;
-  size: string;
-  condition: string;
-  image_url: string | null;
-  seller_email: string;
-  seller_phone: string | null;
-  status: "pending" | "approved" | "rejected";
-  is_donation: boolean;
-  approved_at: string | null;
-}
-
-export interface SchoolRequest {
-  id: string;
-  created_at: string;
-  user_id: string | null;
-  school_id: string | null;
   item_type: string;
   size: string;
   condition: string;
@@ -157,18 +130,6 @@ export interface NewCampRequest {
   created_at: string;
   requested_by: string | null;
   camp_name: string;
-  location: string | null;
-  requester_email: string;
-  status: "pending" | "approved" | "rejected";
-  approved_at: string | null;
-}
-
-export interface NewSchoolRequest {
-  id: string;
-  created_at: string;
-  requested_by: string | null;
-  school_name: string;
-  school_type: string | null;
   location: string | null;
   requester_email: string;
   status: "pending" | "approved" | "rejected";

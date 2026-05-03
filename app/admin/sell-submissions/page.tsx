@@ -4,12 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
-import type { CampRequest, SchoolRequest } from "@/app/lib/supabaseClient";
+import type { CampRequest } from "@/app/lib/supabaseClient";
 
-type RequestWithMeta = (CampRequest | SchoolRequest) & {
-  institution?: string;
-  mode: "camp" | "school";
-};
+type RequestWithMeta = CampRequest & { institution: string };
 
 type StatusFilter = "all" | "pending" | "approved" | "rejected";
 
@@ -21,11 +18,8 @@ const statusColors: Record<string, string> = {
 
 export default function SellSubmissionsPage() {
   const [requests, setRequests]         = useState<RequestWithMeta[]>([]);
-  const [camps, setCamps]               = useState<Record<string, string>>({});
-  const [schools, setSchools]           = useState<Record<string, string>>({});
   const [loading, setLoading]           = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
-  const [modeFilter, setModeFilter]     = useState<"all" | "camp" | "school">("all");
   const [selected, setSelected]         = useState<Set<string>>(new Set());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -33,37 +27,23 @@ export default function SellSubmissionsPage() {
     setLoading(true);
     const [
       { data: campsData },
-      { data: schoolsData },
       { data: campReqs },
-      { data: schoolReqs },
     ] = await Promise.all([
-      // camps/schools have public read — anon client is fine
       supabase.from("camps").select("id, name"),
-      supabase.from("schools").select("id, name"),
-      // camp_requests / school_requests require service role
       adminApi.select<CampRequest>("camp_requests", {
-        filters: [{ col: "is_donation", eq: false }],
-        orderBy: "created_at",
-        orderAsc: false,
-      }),
-      adminApi.select<SchoolRequest>("school_requests", {
         filters: [{ col: "is_donation", eq: false }],
         orderBy: "created_at",
         orderAsc: false,
       }),
     ]);
 
-    const campMap: Record<string, string>   = {};
-    const schoolMap: Record<string, string> = {};
+    const campMap: Record<string, string> = {};
     (campsData as { id: string; name: string }[] | null)?.forEach((c) => { campMap[c.id] = c.name; });
-    (schoolsData as { id: string; name: string }[] | null)?.forEach((s) => { schoolMap[s.id] = s.name; });
-    setCamps(campMap);
-    setSchools(schoolMap);
 
-    const all: RequestWithMeta[] = [
-      ...(campReqs ?? []).map((r) => ({ ...r, mode: "camp" as const, institution: campMap[r.camp_id ?? ""] ?? "Unknown Camp" })),
-      ...(schoolReqs ?? []).map((r) => ({ ...r, mode: "school" as const, institution: schoolMap[r.school_id ?? ""] ?? "Unknown School" })),
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const all: RequestWithMeta[] = (campReqs ?? []).map((r) => ({
+      ...r,
+      institution: campMap[r.camp_id ?? ""] ?? "Unknown Camp",
+    }));
 
     setRequests(all);
     setLoading(false);
@@ -71,10 +51,9 @@ export default function SellSubmissionsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id: string, mode: "camp" | "school", newStatus: "approved" | "rejected") => {
+  const updateStatus = async (id: string, newStatus: "approved" | "rejected") => {
     setActionLoading(id);
-    const table = mode === "camp" ? "camp_requests" : "school_requests";
-    await adminApi.update(table, id, {
+    await adminApi.update("camp_requests", id, {
       status:      newStatus,
       approved_at: newStatus === "approved" ? new Date().toISOString() : null,
     });
@@ -86,25 +65,17 @@ export default function SellSubmissionsPage() {
     setActionLoading("bulk");
     const selectedArr = Array.from(selected);
     for (const id of selectedArr) {
-      const req = requests.find((r) => r.id === id);
-      if (req) {
-        const table = req.mode === "camp" ? "camp_requests" : "school_requests";
-        await adminApi.update(table, id, {
-          status:      newStatus,
-          approved_at: newStatus === "approved" ? new Date().toISOString() : null,
-        });
-      }
+      await adminApi.update("camp_requests", id, {
+        status:      newStatus,
+        approved_at: newStatus === "approved" ? new Date().toISOString() : null,
+      });
     }
     setSelected(new Set());
     await load();
     setActionLoading(null);
   };
 
-  const filtered = requests.filter((r) => {
-    const matchStatus = statusFilter === "all" || r.status === statusFilter;
-    const matchMode   = modeFilter   === "all" || r.mode   === modeFilter;
-    return matchStatus && matchMode;
-  });
+  const filtered = requests.filter((r) => statusFilter === "all" || r.status === statusFilter);
 
   return (
     <div className="space-y-6">
@@ -134,14 +105,6 @@ export default function SellSubmissionsPage() {
             <button key={s} onClick={() => setStatusFilter(s)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}>
               {s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-1.5 bg-gray-900 border border-gray-800 rounded-xl p-1">
-          {(["all", "camp", "school"] as const).map((m) => (
-            <button key={m} onClick={() => setModeFilter(m)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${modeFilter === m ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}>
-              {m === "all" ? "All" : m === "camp" ? "Camps" : "Schools"}
             </button>
           ))}
         </div>
@@ -213,7 +176,6 @@ export default function SellSubmissionsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white">{req.institution}</div>
-                      <div className="text-xs text-gray-500">{req.mode}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-white text-xs">{req.seller_email}</div>
@@ -231,14 +193,14 @@ export default function SellSubmissionsPage() {
                       {req.status === "pending" && (
                         <div className="flex gap-2 justify-end">
                           <button
-                            onClick={() => updateStatus(req.id, req.mode, "approved")}
+                            onClick={() => updateStatus(req.id, "approved")}
                             disabled={actionLoading === req.id}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors disabled:opacity-50"
                           >
                             {actionLoading === req.id ? "…" : "Approve"}
                           </button>
                           <button
-                            onClick={() => updateStatus(req.id, req.mode, "rejected")}
+                            onClick={() => updateStatus(req.id, "rejected")}
                             disabled={actionLoading === req.id}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 transition-colors"
                           >

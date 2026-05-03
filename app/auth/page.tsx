@@ -104,12 +104,12 @@ function AuthForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2 text-sm">Check your email</h3>
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm">Check your inbox</h3>
                 <p className="text-xs text-gray-500 mb-1 leading-relaxed">
                   We sent a confirmation link to <strong>{email}</strong>.
                 </p>
                 <p className="text-xs text-gray-400 mb-5 leading-relaxed">
-                  Check your spam folder if it doesn&apos;t arrive within a minute.
+                  Click the link to finish setting up your account. Check spam if you don&apos;t see it.
                 </p>
                 <button
                   onClick={() => { setMode("login"); setStatus("idle"); setMessage(""); }}
@@ -142,7 +142,7 @@ function AuthForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete={mode === "login" ? "current-password" : "new-password"}
                     className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                    placeholder={mode === "signup" ? "At least 6 characters" : "••••••••"}
+                    placeholder={mode === "signup" ? "6 characters minimum" : "••••••••"}
                   />
                 </div>
 
@@ -179,9 +179,9 @@ function AuthForm() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-5">
-          Sellers need an account to list items.{" "}
+          You need an account to sell. Browsing is free.{" "}
           <Link href="/camps" className="hover:text-gray-600 transition-colors">
-            Browse without signing in →
+            Browse camps →
           </Link>
         </p>
       </div>

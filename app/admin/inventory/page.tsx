@@ -4,36 +4,31 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { adminApi } from "@/app/lib/adminApi";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
-import type { Item, Camp, School } from "@/app/lib/supabaseClient";
+import type { Item, Camp } from "@/app/lib/supabaseClient";
 
-type ItemWithMeta = Item & { institution?: string; mode: "camp" | "school" };
+type ItemWithMeta = Item & { institution?: string };
 
 export default function InventoryPage() {
   const [items, setItems]       = useState<ItemWithMeta[]>([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState("");
-  const [modeFilter, setModeFilter] = useState<"all" | "camp" | "school">("all");
   const [editingStock, setEditingStock] = useState<string | null>(null);
   const [stockValue, setStockValue]     = useState<number>(0);
   const [saving, setSaving]     = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: camps }, { data: schools }, { data: allItems }] = await Promise.all([
+    const [{ data: camps }, { data: allItems }] = await Promise.all([
       supabase.from("camps").select("id, name"),
-      supabase.from("schools").select("id, name"),
       supabase.from("items").select("*").order("created_at", { ascending: false }),
     ]);
 
-    const campMap: Record<string, string>   = {};
-    const schoolMap: Record<string, string> = {};
+    const campMap: Record<string, string> = {};
     camps?.forEach((c: { id: string; name: string }) => { campMap[c.id] = c.name; });
-    schools?.forEach((s: { id: string; name: string }) => { schoolMap[s.id] = s.name; });
 
     const withMeta: ItemWithMeta[] = (allItems ?? []).map((item: Item) => ({
       ...item,
-      mode:        item.camp_id ? "camp" : "school",
-      institution: item.camp_id ? campMap[item.camp_id] : schoolMap[item.school_id ?? ""],
+      institution: item.camp_id ? campMap[item.camp_id] : undefined,
     }));
     setItems(withMeta);
     setLoading(false);
@@ -50,13 +45,12 @@ export default function InventoryPage() {
   };
 
   const filtered = items.filter((item) => {
-    const matchMode = modeFilter === "all" || item.mode === modeFilter;
-    const matchSearch =
+    return (
       search === "" ||
       getItemTypeLabel(item.item_type).toLowerCase().includes(search.toLowerCase()) ||
       (item.institution ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      item.size.toLowerCase().includes(search.toLowerCase());
-    return matchMode && matchSearch;
+      item.size.toLowerCase().includes(search.toLowerCase())
+    );
   });
 
   const totalItems     = items.length;
@@ -92,14 +86,6 @@ export default function InventoryPage() {
           placeholder="Search items, institution, size…"
           className="px-3 py-2 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white outline-none focus:border-gray-600 transition w-64"
         />
-        <div className="flex gap-1.5 bg-gray-900 border border-gray-800 rounded-xl p-1">
-          {(["all", "camp", "school"] as const).map((m) => (
-            <button key={m} onClick={() => setModeFilter(m)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${modeFilter === m ? "bg-gray-700 text-white" : "text-gray-500 hover:text-gray-300"}`}>
-              {m === "all" ? "All" : m === "camp" ? "Camps" : "Schools"}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
@@ -139,7 +125,6 @@ export default function InventoryPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-gray-300 text-xs">{item.institution}</div>
-                      <div className="text-gray-600 text-xs">{item.mode}</div>
                     </td>
                     <td className="px-4 py-3 text-gray-300 text-xs">{item.size}</td>
                     <td className="px-4 py-3 text-gray-300 text-xs">{getConditionLabel(item.condition)}</td>

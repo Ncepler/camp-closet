@@ -21,7 +21,6 @@ declare global {
 
 interface BuyModalProps {
   item: Item;
-  theme: "camp" | "school";
   onClose: () => void;
 }
 
@@ -35,9 +34,9 @@ interface Address {
   zip: string;
 }
 
-export function BuyModal({ item, theme, onClose }: BuyModalProps) {
+export function BuyModal({ item, onClose }: BuyModalProps) {
   const router = useRouter();
-  const primaryColor = theme === "camp" ? "#2d5016" : "#1e3a5f";
+  const primaryColor = "#2d5016";
 
   const [step, setStep]       = useState<ModalStep>("form");
   const [email, setEmail]     = useState("");
@@ -174,8 +173,7 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
                 Payment successful
               </h3>
               <p className="text-xs text-gray-500 mb-5 leading-relaxed max-w-xs mx-auto">
-                Your seller has been notified and will ship within 5 business days via USPS.
-                You&apos;ll receive tracking info by email once it ships.
+                The seller has been notified and has 7 days to ship. You&apos;ll get an email with a USPS tracking number when it&apos;s on the way.
               </p>
               {impact && (
                 <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 mb-5 text-left">
@@ -254,8 +252,7 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
               {step === "form" && (
                 <>
                   <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                    We need your shipping address so the seller can mail your item.
-                    This is shared only with your seller — never displayed publicly.
+                    Enter where you want this shipped. We pass it to the seller so they can send it — it&apos;s not shown anywhere public.
                   </p>
                   <div className="space-y-3">
                     <div>
@@ -363,8 +360,7 @@ export function BuyModal({ item, theme, onClose }: BuyModalProps) {
                   <div id="paypal-button-container" className="min-h-[50px]" />
 
                   <p className="text-xs text-gray-400 text-center mt-4 leading-relaxed">
-                    All sales final except for items not as described or not delivered.
-                    Processed securely by PayPal.
+                    All sales are final. Full refund if the seller doesn&apos;t ship or the item is significantly different from the listing. Secured by PayPal.
                   </p>
                 </>
               )}

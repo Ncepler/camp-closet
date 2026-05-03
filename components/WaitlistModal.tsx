@@ -8,16 +8,16 @@ import { getItemTypeLabel } from "@/app/lib/supabaseClient";
 
 interface WaitlistModalProps {
   item: Item;
-  theme: "camp" | "school";
+  theme?: "camp";
   onClose: () => void;
 }
 
-export function WaitlistModal({ item, theme, onClose }: WaitlistModalProps) {
+export function WaitlistModal({ item, onClose }: WaitlistModalProps) {
   const [email, setEmail]   = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError]   = useState("");
 
-  const primaryColor = theme === "camp" ? "#2d5016" : "#1e3a5f";
+  const primaryColor = "#2d5016";
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {

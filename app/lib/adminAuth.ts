@@ -6,5 +6,5 @@ import { NextRequest } from "next/server";
  */
 export function isAdminAuthorized(req: NextRequest): boolean {
   const key = req.headers.get("x-admin-key");
-  return !!key && key === process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+  return !!key && key === process.env.ADMIN_PASSWORD;
 }

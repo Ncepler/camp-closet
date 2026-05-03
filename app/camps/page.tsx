@@ -168,7 +168,7 @@ export default function CampsPage() {
       </div>
 
       {showRequest && (
-        <RequestModal type="camp" onClose={() => setShowRequest(false)} />
+        <RequestModal onClose={() => setShowRequest(false)} />
       )}
     </div>
   );

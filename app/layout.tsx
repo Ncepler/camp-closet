@@ -58,7 +58,6 @@ export default function RootLayout({
                 <h4 className="text-white text-sm font-semibold mb-3">Marketplace</h4>
                 <ul className="space-y-2 text-sm">
                   <li><a href="/camps" className="hover:text-white transition-colors">Browse Camps</a></li>
-                  <li><a href="/schools" className="hover:text-white transition-colors">Browse Schools</a></li>
                   <li><a href="/submit" className="hover:text-white transition-colors">Sell Items</a></li>
                   <li><a href="/donate" className="hover:text-white transition-colors">Donate</a></li>
                 </ul>
@@ -68,6 +67,7 @@ export default function RootLayout({
                 <ul className="space-y-2 text-sm">
                   <li><a href="/about" className="hover:text-white transition-colors">About</a></li>
                   <li><a href="/auth" className="hover:text-white transition-colors">Sign In</a></li>
+                  <li><a href="/policy" className="hover:text-white transition-colors">Policies</a></li>
                 </ul>
               </div>
             </div>

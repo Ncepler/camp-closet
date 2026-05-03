@@ -7,9 +7,9 @@ import { supabase } from "@/app/lib/supabaseClient";
 import type { Order } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
 import { getImpact, calcTotalImpact } from "@/app/lib/impact";
-import type { CampRequest, SchoolRequest } from "@/app/lib/supabaseClient";
+import type { CampRequest } from "@/app/lib/supabaseClient";
 
-type SellRequest = (CampRequest | SchoolRequest) & { mode: "camp" | "school"; institution?: string };
+type SellRequest = CampRequest & { institution: string };
 
 function LeafIcon() {
   return (
@@ -50,33 +50,21 @@ export default function SellerDashboard() {
   const load = useCallback(async (token: string, userId: string, email: string) => {
     setLoading(true);
 
-    const [ordersRes, campReqs, schoolReqs, camps, schools] = await Promise.all([
+    const [ordersRes, campReqs, camps] = await Promise.all([
       fetch("/api/seller/orders", { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
       supabase.from("camp_requests").select("*").or(`user_id.eq.${userId},seller_email.eq.${email}`).order("created_at", { ascending: false }),
-      supabase.from("school_requests").select("*").or(`user_id.eq.${userId},seller_email.eq.${email}`).order("created_at", { ascending: false }),
       supabase.from("camps").select("id, name"),
-      supabase.from("schools").select("id, name"),
     ]);
 
     setOrders(ordersRes.orders ?? []);
 
     const campMap: Record<string, string> = {};
-    const schoolMap: Record<string, string> = {};
     camps.data?.forEach((c: { id: string; name: string }) => { campMap[c.id] = c.name; });
-    schools.data?.forEach((s: { id: string; name: string }) => { schoolMap[s.id] = s.name; });
 
-    const allSubmissions: SellRequest[] = [
-      ...(campReqs.data ?? []).map((r: CampRequest) => ({
-        ...r,
-        mode: "camp" as const,
-        institution: campMap[(r as CampRequest).camp_id ?? ""] ?? "Unknown Camp",
-      })),
-      ...(schoolReqs.data ?? []).map((r: SchoolRequest) => ({
-        ...r,
-        mode: "school" as const,
-        institution: schoolMap[(r as SchoolRequest).school_id ?? ""] ?? "Unknown School",
-      })),
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const allSubmissions: SellRequest[] = (campReqs.data ?? []).map((r: CampRequest) => ({
+      ...r,
+      institution: campMap[r.camp_id ?? ""] ?? "Unknown Camp",
+    }));
 
     setSubmissions(allSubmissions);
     setLoading(false);

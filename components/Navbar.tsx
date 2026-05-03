@@ -26,11 +26,10 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { href: "/camps",   label: "Camps"   },
-    { href: "/schools", label: "Schools" },
-    { href: "/submit",  label: "Sell"    },
-    { href: "/donate",  label: "Donate"  },
-    { href: "/about",   label: "About"   },
+    { href: "/camps",  label: "Camps"  },
+    { href: "/submit", label: "Sell"   },
+    { href: "/donate", label: "Donate" },
+    { href: "/about",  label: "About"  },
   ];
 
   return (
