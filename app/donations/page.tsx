@@ -133,7 +133,7 @@ export default function DonationsPage() {
                       {item.camp_id && camps[item.camp_id] && (
                         <>
                           <span className="text-gray-300">·</span>
-                          <span className="truncate">{camps[item.camp_id].replace(/^camp\s+/i, "")}</span>
+                          <span className="truncate">{camps[item.camp_id]}</span>
                         </>
                       )}
                     </div>

@@ -110,7 +110,7 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Platform Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <StatCard label="Total Camps" value={stats.totalCamps}      href="/d48/inventory" color="#7fb069" />
+          <StatCard label="Total Camps" value={stats.totalCamps}      href="/d48/camps"     color="#7fb069" />
           <StatCard label="Waitlist"    value={stats.waitlistEntries} href="/d48/waitlist"  color="#a78bfa" />
         </div>
       </div>

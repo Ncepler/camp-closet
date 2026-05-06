@@ -105,7 +105,6 @@ export default function SubmitPage() {
         image_url:    urlData.publicUrl,
         seller_email: user.email,
         seller_phone: sellerPhone || null,
-        seller_name:  sellerName || null,
         status:       "pending",
         is_donation:  false,
       });
@@ -243,7 +242,7 @@ export default function SubmitPage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-1.5 left-2 right-2">
                         <p className="text-white text-xs font-semibold leading-tight" style={{ fontFamily: "var(--font-fraunces)" }}>
-                          {camp.name.replace(/^camp\s+/i, "")}
+                          {camp.name}
                         </p>
                         {camp.location && (
                           <p className="text-white/60 text-[10px] truncate">{camp.location}</p>
