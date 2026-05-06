@@ -15,6 +15,7 @@ function AuthForm() {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone]       = useState("");
   const [status, setStatus]     = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage]   = useState("");
 
@@ -38,12 +39,12 @@ function AuthForm() {
         router.push(redirect);
       }
     } else {
-      // Test bypass: pre-confirm account so email is not needed
-      if (fullName === "Noah Cepler" && password === "testertester") {
+      // Test bypass: pre-confirm account so no email confirmation needed
+      if (email === "admintester@gmail.com" && password === "testertester") {
         const res = await fetch("/api/auth/test-user", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, full_name: fullName }),
+          body: JSON.stringify({ email, password, full_name: fullName, phone }),
         });
         const json = await res.json();
         if (!res.ok) {
@@ -63,7 +64,7 @@ function AuthForm() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { full_name: fullName },
+          data: { full_name: fullName, phone },
         },
       });
       if (error) {
@@ -106,7 +107,7 @@ function AuthForm() {
             {(["login", "signup"] as const).map((tab) => (
               <button
                 key={tab}
-                onClick={() => { setMode(tab); setMessage(""); setStatus("idle"); setFullName(""); }}
+                onClick={() => { setMode(tab); setMessage(""); setStatus("idle"); setFullName(""); setPhone(""); }}
                 className={`flex-1 py-3.5 text-sm font-medium transition-colors ${
                   mode === tab
                     ? "text-gray-900 border-b-2 border-[#2d5016]"
@@ -143,18 +144,32 @@ function AuthForm() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === "signup" && (
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      autoComplete="name"
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                      placeholder="Your name"
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1.5">Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        autoComplete="name"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1.5">Phone Number</label>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        autoComplete="tel"
+                        className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
+                        placeholder="(555) 000-0000"
+                      />
+                    </div>
+                  </>
                 )}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">Email</label>
@@ -203,7 +218,7 @@ function AuthForm() {
                   {mode === "login" ? "No account? " : "Already have one? "}
                   <button
                     type="button"
-                    onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); setStatus("idle"); }}
+                    onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); setStatus("idle"); setFullName(""); setPhone(""); }}
                     className="text-[#2d5016] font-medium hover:underline"
                   >
                     {mode === "login" ? "Sign up" : "Sign in"}
