@@ -14,6 +14,8 @@ export default function InventoryPage() {
   const [search, setSearch]     = useState("");
   const [editingStock, setEditingStock] = useState<string | null>(null);
   const [stockValue, setStockValue]     = useState<number>(0);
+  const [editingPrice, setEditingPrice] = useState<string | null>(null);
+  const [priceValue, setPriceValue]     = useState<number>(0);
   const [saving, setSaving]     = useState(false);
 
   const load = useCallback(async () => {
@@ -40,6 +42,14 @@ export default function InventoryPage() {
     setSaving(true);
     await adminApi.update("items", id, { available_count: stockValue });
     setEditingStock(null);
+    await load();
+    setSaving(false);
+  };
+
+  const savePrice = async (id: string) => {
+    setSaving(true);
+    await adminApi.update("items", id, { price: priceValue });
+    setEditingPrice(null);
     await load();
     setSaving(false);
   };
@@ -128,7 +138,36 @@ export default function InventoryPage() {
                     </td>
                     <td className="px-4 py-3 text-gray-300 text-xs">{item.size}</td>
                     <td className="px-4 py-3 text-gray-300 text-xs">{getConditionLabel(item.condition)}</td>
-                    <td className="px-4 py-3 text-[#7fb069] font-medium text-sm">${item.price.toFixed(2)}</td>
+                    <td className="px-4 py-3">
+                      {editingPrice === item.id ? (
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-400 text-xs">$</span>
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            value={priceValue}
+                            onChange={(e) => setPriceValue(Number(e.target.value))}
+                            className="w-16 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-xs outline-none"
+                          />
+                          <button onClick={() => savePrice(item.id)} disabled={saving}
+                            className="px-2 py-1 rounded bg-[#2d5016] text-white text-xs disabled:opacity-50">
+                            {saving ? "…" : "✓"}
+                          </button>
+                          <button onClick={() => setEditingPrice(null)}
+                            className="px-2 py-1 rounded bg-gray-700 text-gray-300 text-xs">
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => { setEditingPrice(item.id); setPriceValue(item.price); }}
+                          className={`font-medium text-sm hover:opacity-70 transition-opacity ${item.price === 0 ? "text-red-400" : "text-[#7fb069]"}`}
+                        >
+                          ${item.price.toFixed(2)}
+                        </button>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       {editingStock === item.id ? (
                         <div className="flex items-center gap-1">

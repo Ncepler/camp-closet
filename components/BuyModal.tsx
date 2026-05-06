@@ -38,12 +38,13 @@ export function BuyModal({ item, onClose }: BuyModalProps) {
   const router = useRouter();
   const primaryColor = "#2d5016";
 
-  const [step, setStep]       = useState<ModalStep>("form");
-  const [email, setEmail]     = useState("");
-  const [userId, setUserId]   = useState<string | null>(null);
-  const [address, setAddress] = useState<Address>({ name: "", street: "", city: "", state: "", zip: "" });
-  const [error, setError]     = useState("");
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [step, setStep]         = useState<ModalStep>("form");
+  const [email, setEmail]       = useState("");
+  const [isTestUser, setIsTestUser] = useState(false);
+  const [userId, setUserId]     = useState<string | null>(null);
+  const [address, setAddress]   = useState<Address>({ name: "", street: "", city: "", state: "", zip: "" });
+  const [error, setError]       = useState("");
+  const [orderId, setOrderId]   = useState<string | null>(null);
 
   const paypalLoaded  = useRef(false);
   const paypalMounted = useRef(false);
@@ -52,7 +53,10 @@ export function BuyModal({ item, onClose }: BuyModalProps) {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) setEmail(data.user.email);
+      if (data.user?.email) {
+        setEmail(data.user.email);
+        setIsTestUser(data.user.email === "admintester@gmail.com");
+      }
       if (data.user?.id) setUserId(data.user.id);
     });
     document.body.style.overflow = "hidden";
@@ -357,7 +361,39 @@ export function BuyModal({ item, onClose }: BuyModalProps) {
                     <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-3 mb-4">{error}</p>
                   )}
 
-                  <div id="paypal-button-container" className="min-h-[50px]" />
+                  {isTestUser ? (
+                    <button
+                      onClick={async () => {
+                        setStep("capturing");
+                        setError("");
+                        const res = await fetch("/api/paypal/test-purchase", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            item_id: item.id,
+                            buyer_user_id: userId,
+                            buyer_email: email,
+                            buyer_name: address.name,
+                            buyer_address: JSON.stringify(address),
+                          }),
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                          setOrderId(result.order_id);
+                          setStep("success");
+                        } else {
+                          setError(result.error ?? "Test purchase failed.");
+                          setStep("payment");
+                        }
+                      }}
+                      className="w-full py-3 rounded text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                      style={{ background: primaryColor }}
+                    >
+                      Complete Test Purchase (no payment)
+                    </button>
+                  ) : (
+                    <div id="paypal-button-container" className="min-h-[50px]" />
+                  )}
 
                   <p className="text-xs text-gray-400 text-center mt-4 leading-relaxed">
                     All sales are final. Full refund if the seller doesn&apos;t ship or the item is significantly different from the listing. Secured by PayPal.

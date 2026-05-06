@@ -5,22 +5,19 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp, Item } from "@/app/lib/supabaseClient";
-import { ItemCard } from "@/components/ItemCard";
-import { WaitlistModal } from "@/components/WaitlistModal";
 
 const TYPE_SECTIONS = [
-  { value: "tshirt",  label: "T-Shirt", price: 22 },
-  { value: "hat",     label: "Hat",     price: 12 },
-  { value: "hoodie",  label: "Hoodie",  price: 30 },
+  { value: "tshirt", label: "T-Shirt", price: 22 },
+  { value: "hat",    label: "Hat",     price: 12 },
+  { value: "hoodie", label: "Hoodie",  price: 30 },
 ] as const;
 
 export default function CampPage() {
   const { slug } = useParams() as { slug: string };
-  const [camp, setCamp]         = useState<Camp | null>(null);
-  const [items, setItems]       = useState<Item[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [camp, setCamp]       = useState<Camp | null>(null);
+  const [items, setItems]     = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [waitlistItem, setWaitlistItem] = useState<Item | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -36,8 +33,7 @@ export default function CampPage() {
       const { data: itemData } = await supabase
         .from("items")
         .select("*")
-        .eq("camp_id", campData.id)
-        .order("item_type");
+        .eq("camp_id", campData.id);
       setItems(itemData ?? []);
       setLoading(false);
     };
@@ -101,99 +97,73 @@ export default function CampPage() {
         </div>
       </div>
 
-      {/* 3 Type Sections */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      {/* Type tiles */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {TYPE_SECTIONS.map((t) => (
-              <div key={t.value} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100">
-                  <div className="h-5 w-24 bg-gray-100 rounded animate-pulse mb-1" />
-                  <div className="h-4 w-12 bg-gray-100 rounded animate-pulse" />
-                </div>
-                <div className="p-4 space-y-3">
-                  {[1, 2].map((i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="w-16 h-16 rounded bg-gray-100 animate-pulse flex-shrink-0" />
-                      <div className="flex-1 space-y-2 py-1">
-                        <div className="h-3 w-3/4 bg-gray-100 rounded animate-pulse" />
-                        <div className="h-3 w-1/2 bg-gray-100 rounded animate-pulse" />
-                      </div>
-                    </div>
-                  ))}
+              <div key={t.value} className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-lg bg-gray-100 animate-pulse flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-20 bg-gray-100 rounded animate-pulse" />
+                  <div className="h-3 w-14 bg-gray-100 rounded animate-pulse" />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {TYPE_SECTIONS.map((type) => {
-              const typeItems = items.filter((i) => i.item_type === type.value);
-              const available = typeItems.filter((i) => i.available_count > 0);
-              const hasStock  = available.length > 0;
+              const typeItems  = items.filter((i) => i.item_type === type.value);
+              const totalStock = typeItems.reduce((s, i) => s + i.available_count, 0);
+              const hasStock   = totalStock > 0;
+              const preview    = typeItems.find((i) => i.image_url);
 
               return (
-                <div key={type.value} className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
-                  {/* Section header */}
-                  <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <div>
-                      <h2 className="font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
-                        {type.label}
-                      </h2>
-                      <p className="text-xs text-gray-400 mt-0.5">${type.price} · shipping included</p>
-                    </div>
-                    {hasStock ? (
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {available.reduce((s, i) => s + i.available_count, 0)} in stock
-                      </span>
+                <Link
+                  key={type.value}
+                  href={`/camps/${slug}/${type.value}`}
+                  className={`group bg-white rounded-lg border overflow-hidden flex items-center gap-4 p-4 transition-all ${
+                    hasStock
+                      ? "border-gray-200 hover:border-[#2d5016]/40 hover:shadow-md"
+                      : "border-gray-200 opacity-60"
+                  }`}
+                >
+                  {/* Small preview image */}
+                  <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                    {preview?.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={preview.image_url}
+                        alt={type.label}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
-                        Out of stock
-                      </span>
+                      <div className="w-full h-full flex items-center justify-center" style={{ background: "#f0f4ee" }}>
+                        <span className="text-[10px] text-gray-400 font-medium">{type.label[0]}</span>
+                      </div>
                     )}
                   </div>
 
-                  {hasStock ? (
-                    /* Item cards */
-                    <div className="p-4 grid gap-4 flex-1">
-                      {available.map((item, i) => (
-                        <ItemCard key={item.id} item={item} theme="camp" animationDelay={i * 60} />
-                      ))}
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-gray-900 text-sm" style={{ fontFamily: "var(--font-fraunces)" }}>
+                      {type.label}
                     </div>
-                  ) : (
-                    /* Out-of-stock skeleton placeholder */
-                    <div className="p-5 flex-1 flex flex-col items-center justify-center gap-4">
-                      <div className="w-full space-y-2 opacity-40">
-                        <div className="flex gap-3">
-                          <div className="w-14 h-14 rounded bg-gray-200 flex-shrink-0" />
-                          <div className="flex-1 space-y-2 py-1">
-                            <div className="h-3 w-3/4 bg-gray-200 rounded" />
-                            <div className="h-3 w-1/2 bg-gray-200 rounded" />
-                            <div className="h-6 w-full bg-gray-200 rounded mt-1" />
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-400 text-center">
-                        No {type.label.toLowerCase()}s available right now.
-                      </p>
-                      {typeItems.length > 0 ? (
-                        <button
-                          onClick={() => setWaitlistItem(typeItems[0])}
-                          className="text-xs font-medium text-[#2d5016] border border-[#2d5016]/40 px-4 py-1.5 rounded hover:bg-[#2d5016]/5 transition-colors"
-                        >
-                          Join Waitlist
-                        </button>
-                      ) : (
-                        <Link
-                          href="/submit"
-                          className="text-xs font-medium text-[#2d5016] border border-[#2d5016]/40 px-4 py-1.5 rounded hover:bg-[#2d5016]/5 transition-colors"
-                        >
-                          Sell one here
-                        </Link>
-                      )}
+                    <div className="text-xs text-gray-400 mt-0.5">${type.price} · incl. shipping</div>
+                    <div className={`text-xs font-medium mt-1 ${hasStock ? "text-emerald-600" : "text-gray-400"}`}>
+                      {hasStock ? `${totalStock} in stock` : "None available"}
                     </div>
-                  )}
-                </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <svg
+                    className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 ${hasStock ? "text-gray-400" : "text-gray-300"}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               );
             })}
           </div>
@@ -211,14 +181,6 @@ export default function CampPage() {
           </Link>
         </div>
       </div>
-
-      {waitlistItem && (
-        <WaitlistModal
-          item={waitlistItem}
-          theme="camp"
-          onClose={() => setWaitlistItem(null)}
-        />
-      )}
     </div>
   );
 }
