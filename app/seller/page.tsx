@@ -188,7 +188,7 @@ export default function SellerDashboard() {
 
                 const impact = getImpact(order.item_type);
                 const deadline = new Date(order.created_at);
-                deadline.setDate(deadline.getDate() + 7); // approx 5 business days
+                deadline.setDate(deadline.getDate() + 7); // 7 calendar days
 
                 return (
                   <div key={order.id} className="bg-white border border-gray-200 rounded-lg p-5">

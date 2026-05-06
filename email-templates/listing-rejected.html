@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+  TEMPLATE: listing-rejected
+  TRIGGER: Admin rejects a sell submission in /d48/sell-submissions
+
+  Variables to replace before sending via Resend:
+    {{seller_name}}      — seller's name or "there" if unknown
+    {{item_type}}        — e.g. "T-Shirt"
+    {{camp_name}}        — e.g. "Camp Ramah"
+    {{rejection_reason}} — text entered by admin in the rejection modal; use a
+                           fallback like "The item did not meet our listing standards."
+                           if the admin left it blank
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,7 +23,6 @@
     <tr>
       <td align="center" style="padding: 40px 16px;">
 
-        <!-- Card -->
         <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0ddd6; border-radius: 8px; overflow: hidden;">
 
           <!-- Header -->
@@ -34,7 +45,7 @@
                 Thank you for submitting your <strong>{{item_type}}</strong> from <strong>{{camp_name}}</strong>. After reviewing it, we weren't able to approve this listing.
               </p>
 
-              <!-- Reason box -->
+              <!-- Reason box — filled in from rejection modal -->
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-left: 3px solid #C17A5A; background-color: #fdf8f5; border-radius: 0 6px 6px 0; margin-bottom: 28px;">
                 <tr>
                   <td style="padding: 20px 24px;">
@@ -57,11 +68,11 @@
                 We set a high bar so buyers can trust what they're getting. If you have a question about this decision, just reply to this email.
               </p>
 
-              <!-- CTA -->
+              <!-- CTA — links to /submit -->
               <table cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td style="background-color: #1F4E33; border-radius: 6px;">
-                    <a href="{{submit_url}}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">Submit another item</a>
+                    <a href="https://campcloset.com/submit" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">Submit another item</a>
                   </td>
                 </tr>
               </table>
@@ -82,7 +93,6 @@
           </tr>
 
         </table>
-        <!-- /Card -->
 
       </td>
     </tr>

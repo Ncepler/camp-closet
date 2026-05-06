@@ -67,7 +67,8 @@ export default function PolicyPage() {
                 <li>
                   <strong>The item is significantly not as described.</strong> If what arrives
                   is materially different from what was listed — wrong item, undisclosed damage,
-                  that sort of thing — contact us and we&apos;ll sort it out.
+                  that sort of thing — reply to your shipping confirmation email within 48 hours
+                  of delivery and we&apos;ll sort it out.
                 </li>
               </ul>
               <p>

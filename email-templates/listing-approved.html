@@ -1,9 +1,21 @@
 <!DOCTYPE html>
+<!--
+  TEMPLATE: listing-approved
+  TRIGGER: Admin approves a sell submission in /d48/sell-submissions
+
+  Variables to replace before sending via Resend:
+    {{seller_name}}   — seller's name or "there" if unknown
+    {{item_type}}     — e.g. "T-Shirt"
+    {{camp_name}}     — e.g. "Camp Ramah"
+    {{item_price}}    — e.g. "22.00"
+    {{seller_payout}} — e.g. "17.72"
+    {{shop_url}}      — e.g. "https://campcloset.com/camps/camp-ramah"
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your listing has been approved — Camp Closet</title>
+  <title>Your listing is live — Camp Closet</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #F5F1EA; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a;">
 
@@ -11,7 +23,6 @@
     <tr>
       <td align="center" style="padding: 40px 16px;">
 
-        <!-- Card -->
         <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0ddd6; border-radius: 8px; overflow: hidden;">
 
           <!-- Header -->
@@ -70,11 +81,11 @@
                 Thanks for giving this item a second life. Every relisted piece keeps one more garment out of a landfill.
               </p>
 
-              <!-- CTA -->
+              <!-- CTA — href replaced with {{shop_url}} at send time -->
               <table cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td style="background-color: #1F4E33; border-radius: 6px;">
-                    <a href="{{shop_url}}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">View the shop page</a>
+                    <a href="https://campcloset.com/camps/camp-slug" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">View the shop page</a>
                   </td>
                 </tr>
               </table>
@@ -95,7 +106,6 @@
           </tr>
 
         </table>
-        <!-- /Card -->
 
       </td>
     </tr>

@@ -1,4 +1,24 @@
 <!DOCTYPE html>
+<!--
+  TEMPLATE: purchase-confirmation-buyer
+  TRIGGER: Buyer completes PayPal checkout — send immediately on payment capture
+
+  Variables to replace before sending via Resend:
+    {{buyer_name}}             — buyer's name or "there" if unknown
+    {{item_type}}              — e.g. "T-Shirt"
+    {{camp_name}}              — e.g. "Camp Ramah"
+    {{item_size}}              — e.g. "Medium"
+    {{item_condition}}         — e.g. "Good"
+    {{order_total}}            — e.g. "22.00"
+    {{shipping_address_line1}} — e.g. "123 Main St"
+    {{shipping_address_line2}} — e.g. "Apt 4B" (omit line if blank)
+    {{shipping_city}}          — e.g. "Brooklyn"
+    {{shipping_state}}         — e.g. "NY"
+    {{shipping_zip}}           — e.g. "11201"
+    {{water_saved}}            — liters saved vs buying new (from clothing_impact_data.md)
+    {{co2_saved}}              — kg CO2 avoided (from clothing_impact_data.md)
+    {{order_id}}               — UUID from orders table
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,7 +31,6 @@
     <tr>
       <td align="center" style="padding: 40px 16px;">
 
-        <!-- Card -->
         <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0ddd6; border-radius: 8px; overflow: hidden;">
 
           <!-- Header -->
@@ -34,7 +53,7 @@
                 Your payment went through. The seller has been notified and has 7 days to ship your item.
               </p>
 
-              <!-- Order summary box -->
+              <!-- Order summary -->
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #F5F1EA; border-radius: 6px; margin-bottom: 28px;">
                 <tr>
                   <td style="padding: 20px 24px;">
@@ -48,6 +67,10 @@
                       <tr>
                         <td style="padding-bottom: 8px; font-size: 14px; color: #555;">Condition</td>
                         <td style="padding-bottom: 8px; font-size: 14px; color: #1a1a1a; text-align: right; font-weight: 500;">{{item_condition}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding-bottom: 8px; font-size: 14px; color: #555;">Shipping</td>
+                        <td style="padding-bottom: 8px; font-size: 14px; color: #1a1a1a; text-align: right; font-weight: 500;">Included</td>
                       </tr>
                       <tr>
                         <td style="padding-top: 8px; border-top: 1px solid #e0ddd6; font-size: 15px; font-weight: 600; color: #1a1a1a;">Total paid</td>
@@ -66,7 +89,6 @@
                     <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #333;">
                       {{buyer_name}}<br/>
                       {{shipping_address_line1}}<br/>
-                      {{#shipping_address_line2}}{{shipping_address_line2}}<br/>{{/shipping_address_line2}}
                       {{shipping_city}}, {{shipping_state}} {{shipping_zip}}
                     </p>
                   </td>
@@ -91,7 +113,7 @@
               <ul style="margin: 0 0 28px; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #333;">
                 <li>The seller has up to 7 days to ship your item.</li>
                 <li>You'll get a separate email with the tracking number once it ships.</li>
-                <li>All sales are final — see our <a href="{{policy_url}}" style="color: #1F4E33;">return policy</a> for details.</li>
+                <li>All sales are final — see our <a href="https://campcloset.com/policy" style="color: #1F4E33;">return policy</a> for details.</li>
               </ul>
 
               <p style="margin: 0 0 6px; font-size: 14px; color: #777;">Order ID: <span style="font-family: monospace; color: #555;">{{order_id}}</span></p>
@@ -112,7 +134,6 @@
           </tr>
 
         </table>
-        <!-- /Card -->
 
       </td>
     </tr>

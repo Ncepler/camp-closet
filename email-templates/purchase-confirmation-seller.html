@@ -1,4 +1,25 @@
 <!DOCTYPE html>
+<!--
+  TEMPLATE: purchase-confirmation-seller
+  TRIGGER: Buyer completes PayPal checkout — send simultaneously with buyer confirmation
+
+  Variables to replace before sending via Resend:
+    {{seller_name}}            — seller's name or "there" if unknown
+    {{item_type}}              — e.g. "T-Shirt"
+    {{camp_name}}              — e.g. "Camp Ramah"
+    {{item_price}}             — e.g. "22.00"
+    {{platform_fee}}           — e.g. "3.13"  (15% of item price)
+    {{paypal_fee}}             — e.g. "1.15"  (2.99% + $0.49)
+    {{seller_payout}}          — e.g. "17.72"
+    {{shipping_estimate}}      — e.g. "5" (dollar amount, no $)
+    {{buyer_name}}             — buyer's name (for shipping label)
+    {{shipping_address_line1}} — e.g. "123 Main St"
+    {{shipping_address_line2}} — e.g. "Apt 4B" (omit line if blank)
+    {{shipping_city}}          — e.g. "Brooklyn"
+    {{shipping_state}}         — e.g. "NY"
+    {{shipping_zip}}           — e.g. "11201"
+    {{ship_deadline}}          — e.g. "May 13, 2026" (7 days from purchase)
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,7 +32,6 @@
     <tr>
       <td align="center" style="padding: 40px 16px;">
 
-        <!-- Card -->
         <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0ddd6; border-radius: 8px; overflow: hidden;">
 
           <!-- Header -->
@@ -58,12 +78,12 @@
                         <td style="padding-top: 8px; border-top: 1px solid #e0ddd6; font-size: 15px; font-weight: 700; color: #1F4E33; text-align: right;">${{seller_payout}}</td>
                       </tr>
                     </table>
-                    <p style="margin: 10px 0 0; font-size: 12px; color: #999;">Payout goes to your PayPal account after tracking is confirmed. You'll still need to cover your own shipping cost (~${{shipping_estimate}} recommended via USPS).</p>
+                    <p style="margin: 10px 0 0; font-size: 12px; color: #999;">Payout releases to your PayPal account after you enter a tracking number. You'll cover your own shipping (~${{shipping_estimate}} via USPS).</p>
                   </td>
                 </tr>
               </table>
 
-              <!-- Ship to -->
+              <!-- Ship to address — this is the buyer's address; keep it private -->
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border: 1px solid #e0ddd6; border-radius: 6px; margin-bottom: 28px;">
                 <tr>
                   <td style="padding: 16px 20px;">
@@ -71,7 +91,6 @@
                     <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #333;">
                       {{buyer_name}}<br/>
                       {{shipping_address_line1}}<br/>
-                      {{#shipping_address_line2}}{{shipping_address_line2}}<br/>{{/shipping_address_line2}}
                       {{shipping_city}}, {{shipping_state}} {{shipping_zip}}
                     </p>
                   </td>
@@ -83,7 +102,7 @@
                 <tr>
                   <td style="padding: 14px 18px;">
                     <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6b3a1f;">
-                      <strong>Ship by {{ship_deadline}}</strong> — if no tracking is entered within 7 days, the order will be automatically refunded and the item pulled from the shop.
+                      <strong>Ship by {{ship_deadline}}.</strong> If no tracking is entered within 7 days, the order will be automatically refunded and the item pulled from the shop.
                     </p>
                   </td>
                 </tr>
@@ -93,16 +112,16 @@
                 <strong>How to ship:</strong>
               </p>
               <ul style="margin: 0 0 28px; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #333;">
-                <li>Use USPS First Class or Ground Advantage — cheapest for clothing.</li>
+                <li>USPS First Class or Ground Advantage — cheapest for clothing.</li>
                 <li>Poly mailers keep weight low and cost down.</li>
-                <li>Enter your tracking number using the button below — this releases your payout.</li>
+                <li>Enter your tracking number below — this releases your payout.</li>
               </ul>
 
-              <!-- CTA -->
+              <!-- CTA — links to /seller dashboard -->
               <table cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td style="background-color: #1F4E33; border-radius: 6px;">
-                    <a href="{{mark_shipped_url}}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">Enter tracking number</a>
+                    <a href="https://campcloset.com/seller" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">Enter tracking number</a>
                   </td>
                 </tr>
               </table>
@@ -123,7 +142,6 @@
           </tr>
 
         </table>
-        <!-- /Card -->
 
       </td>
     </tr>
