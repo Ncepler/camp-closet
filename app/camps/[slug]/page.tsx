@@ -5,19 +5,22 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp, Item } from "@/app/lib/supabaseClient";
-import { getItemTypeLabel } from "@/app/lib/supabaseClient";
-import { calcTotalImpact } from "@/app/lib/impact";
 import { ItemCard } from "@/components/ItemCard";
+import { WaitlistModal } from "@/components/WaitlistModal";
+
+const TYPE_SECTIONS = [
+  { value: "tshirt",  label: "T-Shirt", price: 22 },
+  { value: "hat",     label: "Hat",     price: 12 },
+  { value: "hoodie",  label: "Hoodie",  price: 30 },
+] as const;
 
 export default function CampPage() {
   const { slug } = useParams() as { slug: string };
   const [camp, setCamp]         = useState<Camp | null>(null);
   const [items, setItems]       = useState<Item[]>([]);
   const [loading, setLoading]   = useState(true);
-  const [filter, setFilter]     = useState("all");
-  const [sortBy, setSortBy]     = useState("type");
-  const [search, setSearch]     = useState("");
   const [notFound, setNotFound] = useState(false);
+  const [waitlistItem, setWaitlistItem] = useState<Item | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -41,24 +44,6 @@ export default function CampPage() {
     load();
   }, [slug]);
 
-  const filteredItems = items
-    .filter((item) => {
-      const matchType = filter === "all" || item.item_type === filter;
-      const matchSearch =
-        search === "" ||
-        getItemTypeLabel(item.item_type).toLowerCase().includes(search.toLowerCase()) ||
-        item.size.toLowerCase().includes(search.toLowerCase());
-      return matchType && matchSearch;
-    })
-    .sort((a, b) => {
-      if (sortBy === "price_asc")  return a.price - b.price;
-      if (sortBy === "price_desc") return b.price - a.price;
-      if (sortBy === "stock")      return b.available_count - a.available_count;
-      return a.item_type.localeCompare(b.item_type); // default: type
-    });
-
-  const usedTypes = [...new Set(items.map((i) => i.item_type))];
-
   if (notFound) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
@@ -74,7 +59,7 @@ export default function CampPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--camp-bg)" }}>
+    <div className="min-h-screen" style={{ background: "#f8faf6" }}>
       {/* Hero */}
       <div className="relative py-16 px-6" style={{ background: "#1a3310" }}>
         {camp?.main_image && (
@@ -92,8 +77,8 @@ export default function CampPage() {
           </Link>
           {loading ? (
             <div className="space-y-3">
-              <div className="skeleton h-10 w-64 bg-white/20" />
-              <div className="skeleton h-5 w-48 bg-white/20" />
+              <div className="h-10 w-64 bg-white/20 rounded animate-pulse" />
+              <div className="h-5 w-48 bg-white/20 rounded animate-pulse" />
             </div>
           ) : (
             <>
@@ -111,129 +96,129 @@ export default function CampPage() {
               {camp?.description && (
                 <p className="text-white/70 max-w-2xl leading-relaxed">{camp.description}</p>
               )}
-              <div className="flex gap-6 mt-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{items.length}</div>
-                  <div className="text-white/60 text-xs mt-0.5">Item Types</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">
-                    {items.reduce((s, i) => s + i.available_count, 0)}
-                  </div>
-                  <div className="text-white/60 text-xs mt-0.5">Available</div>
-                </div>
-                {(() => {
-                  const impact = calcTotalImpact(
-                    items.flatMap((i) => Array.from({ length: i.available_count }, () => ({ item_type: i.item_type })))
-                  );
-                  return impact.energy > 0 ? (
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{impact.energy} kWh</div>
-                      <div className="text-white/60 text-xs mt-0.5">energy in stock to save</div>
-                    </div>
-                  ) : null;
-                })()}
-              </div>
             </>
           )}
         </div>
       </div>
 
-      {/* Filter & Sort bar */}
-      <div className="sticky top-14 z-30 bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
-          {/* Search */}
-          <div className="relative flex-shrink-0">
-            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search items…"
-              className="pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#7fb069] w-36 sm:w-48"
-            />
-          </div>
-
-          {/* Category filter */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
-            <button
-              onClick={() => setFilter("all")}
-              className={`flex-shrink-0 px-3 py-1.5 rounded text-xs font-medium transition-colors ${filter === "all" ? "bg-[#2d5016] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-            >
-              All
-            </button>
-            {usedTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => setFilter(type)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filter === type ? "bg-[#2d5016] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-              >
-                {getItemTypeLabel(type)}
-              </button>
-            ))}
-          </div>
-
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="ml-auto text-xs border border-gray-200 rounded-lg px-2 py-1.5 outline-none text-gray-600"
-          >
-            <option value="type">Sort: Type</option>
-            <option value="price_asc">Price: Low → High</option>
-            <option value="price_desc">Price: High → Low</option>
-            <option value="stock">Most Available</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Items grid */}
+      {/* 3 Type Sections */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="rounded-lg overflow-hidden border border-gray-200">
-                <div className="skeleton aspect-square" />
-                <div className="p-3 space-y-2">
-                  <div className="skeleton h-4 w-3/4" />
-                  <div className="skeleton h-3 w-1/2" />
-                  <div className="skeleton h-8 w-full mt-2" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TYPE_SECTIONS.map((t) => (
+              <div key={t.value} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <div className="h-5 w-24 bg-gray-100 rounded animate-pulse mb-1" />
+                  <div className="h-4 w-12 bg-gray-100 rounded animate-pulse" />
+                </div>
+                <div className="p-4 space-y-3">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="flex gap-3">
+                      <div className="w-16 h-16 rounded bg-gray-100 animate-pulse flex-shrink-0" />
+                      <div className="flex-1 space-y-2 py-1">
+                        <div className="h-3 w-3/4 bg-gray-100 rounded animate-pulse" />
+                        <div className="h-3 w-1/2 bg-gray-100 rounded animate-pulse" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
           </div>
-        ) : filteredItems.length === 0 ? (
-          <div className="text-center py-20">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">No items found</h3>
-            <p className="text-gray-500 text-sm mb-6">
-              {filter !== "all" || search
-                ? "Try clearing your filters"
-                : "This camp has no items yet. Be the first to sell!"}
-            </p>
-            <Link
-              href="/submit"
-              className="px-5 py-2.5 rounded-md text-white font-medium text-sm inline-block transition-opacity hover:opacity-90"
-              style={{ background: "#2d5016" }}
-            >
-              Sell an Item
-            </Link>
-          </div>
         ) : (
-          <>
-            <p className="text-sm text-[#556b4f] mb-5">
-              {filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}
-              {filter !== "all" && ` in ${getItemTypeLabel(filter)}`}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filteredItems.map((item, i) => (
-                <ItemCard key={item.id} item={item} theme="camp" animationDelay={i * 50} />
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TYPE_SECTIONS.map((type) => {
+              const typeItems = items.filter((i) => i.item_type === type.value);
+              const available = typeItems.filter((i) => i.available_count > 0);
+              const hasStock  = available.length > 0;
+
+              return (
+                <div key={type.value} className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
+                  {/* Section header */}
+                  <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <div>
+                      <h2 className="font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
+                        {type.label}
+                      </h2>
+                      <p className="text-xs text-gray-400 mt-0.5">${type.price} · shipping included</p>
+                    </div>
+                    {hasStock ? (
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {available.reduce((s, i) => s + i.available_count, 0)} in stock
+                      </span>
+                    ) : (
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
+                        Out of stock
+                      </span>
+                    )}
+                  </div>
+
+                  {hasStock ? (
+                    /* Item cards */
+                    <div className="p-4 grid gap-4 flex-1">
+                      {available.map((item, i) => (
+                        <ItemCard key={item.id} item={item} theme="camp" animationDelay={i * 60} />
+                      ))}
+                    </div>
+                  ) : (
+                    /* Out-of-stock skeleton placeholder */
+                    <div className="p-5 flex-1 flex flex-col items-center justify-center gap-4">
+                      <div className="w-full space-y-2 opacity-40">
+                        <div className="flex gap-3">
+                          <div className="w-14 h-14 rounded bg-gray-200 flex-shrink-0" />
+                          <div className="flex-1 space-y-2 py-1">
+                            <div className="h-3 w-3/4 bg-gray-200 rounded" />
+                            <div className="h-3 w-1/2 bg-gray-200 rounded" />
+                            <div className="h-6 w-full bg-gray-200 rounded mt-1" />
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-400 text-center">
+                        No {type.label.toLowerCase()}s available right now.
+                      </p>
+                      {typeItems.length > 0 ? (
+                        <button
+                          onClick={() => setWaitlistItem(typeItems[0])}
+                          className="text-xs font-medium text-[#2d5016] border border-[#2d5016]/40 px-4 py-1.5 rounded hover:bg-[#2d5016]/5 transition-colors"
+                        >
+                          Join Waitlist
+                        </button>
+                      ) : (
+                        <Link
+                          href="/submit"
+                          className="text-xs font-medium text-[#2d5016] border border-[#2d5016]/40 px-4 py-1.5 rounded hover:bg-[#2d5016]/5 transition-colors"
+                        >
+                          Sell one here
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
+
+        {/* Sell CTA */}
+        <div className="mt-10 text-center">
+          <p className="text-sm text-gray-500 mb-3">Have {camp?.name ?? "camp"} gear to sell?</p>
+          <Link
+            href="/submit"
+            className="inline-block px-6 py-2.5 rounded-md text-white font-medium text-sm transition-opacity hover:opacity-90"
+            style={{ background: "#2d5016" }}
+          >
+            List an Item
+          </Link>
+        </div>
       </div>
+
+      {waitlistItem && (
+        <WaitlistModal
+          item={waitlistItem}
+          theme="camp"
+          onClose={() => setWaitlistItem(null)}
+        />
+      )}
     </div>
   );
 }

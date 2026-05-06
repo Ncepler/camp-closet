@@ -71,6 +71,7 @@ export interface CampRequest {
   image_url: string | null;
   seller_email: string;
   seller_phone: string | null;
+  seller_name: string | null;
   status: "pending" | "approved" | "rejected";
   is_donation: boolean;
   approved_at: string | null;
@@ -146,10 +147,9 @@ export const ITEM_TYPES = [
 ] as const;
 
 export const CONDITIONS = [
-  { value: "new",      label: "New",      description: "Never worn, tags on" },
-  { value: "like_new", label: "Like New", description: "Worn once or twice, no flaws" },
-  { value: "good",     label: "Good",     description: "Normal wear, no significant issues" },
-  { value: "fair",     label: "Fair",     description: "Visible wear but fully functional" },
+  { value: "new",  label: "New",  description: "Never worn, tags on" },
+  { value: "good", label: "Good", description: "Normal wear, no significant issues" },
+  { value: "fair", label: "Fair", description: "Visible wear but fully functional" },
 ] as const;
 
 export const SIZES_CLOTHING = ["XS", "S", "M", "L", "XL", "XXL", "Youth XS", "Youth S", "Youth M", "Youth L", "Youth XL"];

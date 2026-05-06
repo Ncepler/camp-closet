@@ -163,10 +163,10 @@ function AuthForm() {
                         type="tel"
                         required
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                         autoComplete="tel"
                         className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                        placeholder="(555) 000-0000"
+                        placeholder="5550001234"
                       />
                     </div>
                   </>

@@ -53,25 +53,23 @@ export default function SellSubmissionsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id: string, newStatus: "approved" | "rejected", reason?: string) => {
+  const updateStatus = async (id: string, newStatus: "approved" | "rejected") => {
     setActionLoading(id);
     await adminApi.update("camp_requests", id, {
-      status:           newStatus,
-      approved_at:      newStatus === "approved" ? new Date().toISOString() : null,
-      rejection_reason: newStatus === "rejected" ? (reason ?? null) : null,
+      status:      newStatus,
+      approved_at: newStatus === "approved" ? new Date().toISOString() : null,
     });
     await load();
     setActionLoading(null);
   };
 
-  const bulkAction = async (newStatus: "approved" | "rejected", reason?: string) => {
+  const bulkAction = async (newStatus: "approved" | "rejected") => {
     setActionLoading("bulk");
     const selectedArr = Array.from(selected);
     for (const id of selectedArr) {
       await adminApi.update("camp_requests", id, {
-        status:           newStatus,
-        approved_at:      newStatus === "approved" ? new Date().toISOString() : null,
-        rejection_reason: newStatus === "rejected" ? (reason ?? null) : null,
+        status:      newStatus,
+        approved_at: newStatus === "approved" ? new Date().toISOString() : null,
       });
     }
     setSelected(new Set());
@@ -81,11 +79,10 @@ export default function SellSubmissionsPage() {
 
   const handleReject = () => {
     if (!rejectModal) return;
-    const reason = rejectReason.trim() || undefined;
     if (rejectModal.bulk) {
-      bulkAction("rejected", reason);
+      bulkAction("rejected");
     } else {
-      updateStatus(rejectModal.id, "rejected", reason);
+      updateStatus(rejectModal.id, "rejected");
     }
     setRejectModal(null);
     setRejectReason("");
@@ -194,7 +191,10 @@ export default function SellSubmissionsPage() {
                       <div className="text-white">{req.institution}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-white text-xs">{req.seller_email}</div>
+                      {req.seller_name && (
+                        <div className="text-white text-xs font-medium">{req.seller_name}</div>
+                      )}
+                      <div className="text-gray-300 text-xs">{req.seller_email}</div>
                       {req.seller_phone && <div className="text-xs text-gray-500">{req.seller_phone}</div>}
                     </td>
                     <td className="px-4 py-3">
@@ -210,7 +210,7 @@ export default function SellSubmissionsPage() {
                         <div className="flex gap-2 justify-end">
                           <button
                             onClick={() => updateStatus(req.id, "approved")}
-                            disabled={actionLoading === req.id}
+                            disabled={!!actionLoading}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors disabled:opacity-50"
                           >
                             {actionLoading === req.id ? "…" : "Approve"}

@@ -98,9 +98,18 @@ export default function CampsPage() {
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3" style={{ fontFamily: "var(--font-fraunces)" }}>
             Camp Clothing
           </h1>
-          <p className="text-white/60 text-sm mb-8 max-w-md">
+          <p className="text-white/60 text-sm mb-5 max-w-md">
             Browse gear from {camps.length || "13"}+ summer camps. Buy used, save money, and give clothing another summer.
           </p>
+          <Link
+            href="/donations"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded transition-colors mb-6"
+          >
+            Looking for free items? Browse donated gear
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
           {/* Search */}
           <div className="relative max-w-md">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

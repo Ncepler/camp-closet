@@ -17,10 +17,9 @@ interface ItemCardProps {
 }
 
 const conditionColors: Record<string, string> = {
-  new:      "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  like_new: "bg-blue-50 text-blue-700 border border-blue-200",
-  good:     "bg-amber-50 text-amber-700 border border-amber-200",
-  fair:     "bg-orange-50 text-orange-700 border border-orange-200",
+  new:  "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  good: "bg-amber-50 text-amber-700 border border-amber-200",
+  fair: "bg-orange-50 text-orange-700 border border-orange-200",
 };
 
 function BoltIcon() {

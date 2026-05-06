@@ -9,19 +9,30 @@ import type { User } from "@supabase/supabase-js";
 
 type Step = 1 | 2 | 3 | 4;
 
+const SUBMIT_ITEM_TYPES = [
+  ...ITEM_TYPES,
+  { value: "other", label: "Other" },
+] as const;
+
+function sortKey(name: string) {
+  return name.replace(/^camp\s+/i, "").toLowerCase();
+}
+
 export default function SubmitPage() {
-  const router = useRouter();
+  const router  = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [user, setUser]   = useState<User | null>(null);
-  const [step, setStep]   = useState<Step>(1);
+  const [user, setUser]           = useState<User | null>(null);
+  const [sellerName, setSellerName] = useState("");
+  const [sellerPhone, setSellerPhone] = useState("");
+  const [step, setStep]           = useState<Step>(1);
 
   const [camps, setCamps]           = useState<Camp[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [itemType, setItemType]     = useState("");
+  const [otherItemText, setOtherItemText] = useState("");
   const [size, setSize]             = useState("");
   const [condition, setCondition]   = useState("");
-  const [phone, setPhone]           = useState("");
   const [imageFile, setImageFile]   = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -37,8 +48,21 @@ export default function SubmitPage() {
         return;
       }
       setUser(data.user);
+
+      // Pull name and phone from profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", data.user.id)
+        .single();
+      if (profile) {
+        setSellerName(profile.full_name ?? "");
+        setSellerPhone(profile.phone ?? "");
+      }
+
       const { data: campsData } = await supabase.from("camps").select("*").order("name");
-      setCamps(campsData ?? []);
+      const sorted = (campsData ?? []).sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name)));
+      setCamps(sorted);
     };
     load();
   }, [router]);
@@ -54,12 +78,10 @@ export default function SubmitPage() {
 
   const handleSubmit = async () => {
     if (!user) return;
-
     if (!imageFile) {
       setError("You need to upload a photo before submitting.");
       return;
     }
-
     setSubmitting(true);
     setError("");
 
@@ -72,15 +94,18 @@ export default function SubmitPage() {
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("item-images").getPublicUrl(path);
 
+      const finalItemType = itemType === "other" ? otherItemText.trim() : itemType;
+
       const { error: insertError } = await supabase.from("camp_requests").insert({
         user_id:      user.id,
         camp_id:      selectedId,
-        item_type:    itemType,
+        item_type:    finalItemType,
         size,
         condition,
         image_url:    urlData.publicUrl,
         seller_email: user.email,
-        seller_phone: phone || null,
+        seller_phone: sellerPhone || null,
+        seller_name:  sellerName || null,
         status:       "pending",
         is_donation:  false,
       });
@@ -97,10 +122,12 @@ export default function SubmitPage() {
 
   const canAdvance = () => {
     if (step === 1) return !!selectedId;
-    if (step === 2) return !!itemType && !!size;
+    if (step === 2) return !!itemType && !!size && (itemType !== "other" || !!otherItemText.trim());
     if (step === 3) return !!condition;
     return true;
   };
+
+  const selectedCamp = camps.find((c) => c.id === selectedId);
 
   if (submitted) {
     return (
@@ -125,6 +152,7 @@ export default function SubmitPage() {
                 setStep(1);
                 setSelectedId("");
                 setItemType("");
+                setOtherItemText("");
                 setSize("");
                 setCondition("");
                 setImageFile(null);
@@ -189,28 +217,54 @@ export default function SubmitPage() {
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          {/* Step 1: Select camp */}
+          {/* Step 1: Select camp — card grid layout */}
           {step === 1 && (
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
                 Which camp?
               </h2>
-              <div className="grid gap-2 max-h-72 overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-96 overflow-y-auto pr-1">
                 {camps.map((camp) => (
                   <button
                     key={camp.id}
                     onClick={() => setSelectedId(camp.id)}
-                    className={`w-full text-left px-4 py-3 rounded border-2 transition-all text-sm font-medium ${
+                    className={`relative rounded-lg overflow-hidden text-left transition-all border-2 ${
                       selectedId === camp.id
-                        ? "text-white border-transparent bg-[#2d5016]"
-                        : "border-gray-200 text-gray-700 hover:border-gray-300"
+                        ? "border-[#2d5016] shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                     }`}
                   >
-                    <div>{camp.name}</div>
-                    {camp.location && <div className="text-xs opacity-60 mt-0.5">{camp.location}</div>}
+                    {/* Image or color block */}
+                    <div className="h-20 relative" style={{ background: "#2d5016" }}>
+                      {camp.main_image && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={camp.main_image} alt={camp.name} className="w-full h-full object-cover" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-1.5 left-2 right-2">
+                        <p className="text-white text-xs font-semibold leading-tight" style={{ fontFamily: "var(--font-fraunces)" }}>
+                          {camp.name.replace(/^camp\s+/i, "")}
+                        </p>
+                        {camp.location && (
+                          <p className="text-white/60 text-[10px] truncate">{camp.location}</p>
+                        )}
+                      </div>
+                      {selectedId === camp.id && (
+                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#2d5016] flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
+              {selectedCamp && (
+                <p className="text-xs text-[#2d5016] font-medium">
+                  Selected: {selectedCamp.name}
+                </p>
+              )}
             </div>
           )}
 
@@ -222,11 +276,11 @@ export default function SubmitPage() {
               </h2>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">Item Type</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {ITEM_TYPES.map((type) => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {SUBMIT_ITEM_TYPES.map((type) => (
                     <button
                       key={type.value}
-                      onClick={() => { setItemType(type.value); setSize(""); }}
+                      onClick={() => { setItemType(type.value); setSize(""); setOtherItemText(""); }}
                       className={`py-2.5 px-3 rounded text-xs font-medium border-2 transition-all ${
                         itemType === type.value
                           ? "text-white border-transparent bg-[#2d5016]"
@@ -237,6 +291,16 @@ export default function SubmitPage() {
                     </button>
                   ))}
                 </div>
+                {itemType === "other" && (
+                  <input
+                    type="text"
+                    value={otherItemText}
+                    onChange={(e) => setOtherItemText(e.target.value)}
+                    placeholder="Describe the item (e.g. Sweatpants, Jacket…)"
+                    className="mt-3 w-full px-3 py-2 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
+                    autoFocus
+                  />
+                )}
               </div>
               {itemType && (
                 <div>
@@ -288,7 +352,7 @@ export default function SubmitPage() {
             </div>
           )}
 
-          {/* Step 4: Photo + contact */}
+          {/* Step 4: Photo only */}
           {step === 4 && (
             <div className="space-y-5">
               <div>
@@ -322,19 +386,6 @@ export default function SubmitPage() {
                     <div className="text-xs text-gray-400 mt-1">JPG, PNG, or WEBP — up to 10MB</div>
                   </button>
                 )}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Phone Number <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                  placeholder="(555) 000-0000"
-                />
-                <p className="text-xs text-gray-400 mt-1">In case we need to reach you about your listing. Never shared with buyers.</p>
               </div>
 
               {error && (
