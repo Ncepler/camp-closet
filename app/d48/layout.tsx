@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/d48/inventory",         label: "Inventory"          },
   { href: "/d48/new-camps",         label: "New Camp Requests"  },
   { href: "/d48/waitlist",          label: "Waitlist"           },
+  { href: "/d48/users",             label: "Users"              },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
