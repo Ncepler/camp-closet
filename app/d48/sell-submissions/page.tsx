@@ -22,6 +22,8 @@ export default function SellSubmissionsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [selected, setSelected]         = useState<Set<string>>(new Set());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [rejectModal, setRejectModal]     = useState<{ id: string; bulk?: boolean } | null>(null);
+  const [rejectReason, setRejectReason]   = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -51,28 +53,42 @@ export default function SellSubmissionsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const updateStatus = async (id: string, newStatus: "approved" | "rejected") => {
+  const updateStatus = async (id: string, newStatus: "approved" | "rejected", reason?: string) => {
     setActionLoading(id);
     await adminApi.update("camp_requests", id, {
-      status:      newStatus,
-      approved_at: newStatus === "approved" ? new Date().toISOString() : null,
+      status:           newStatus,
+      approved_at:      newStatus === "approved" ? new Date().toISOString() : null,
+      rejection_reason: newStatus === "rejected" ? (reason ?? null) : null,
     });
     await load();
     setActionLoading(null);
   };
 
-  const bulkAction = async (newStatus: "approved" | "rejected") => {
+  const bulkAction = async (newStatus: "approved" | "rejected", reason?: string) => {
     setActionLoading("bulk");
     const selectedArr = Array.from(selected);
     for (const id of selectedArr) {
       await adminApi.update("camp_requests", id, {
-        status:      newStatus,
-        approved_at: newStatus === "approved" ? new Date().toISOString() : null,
+        status:           newStatus,
+        approved_at:      newStatus === "approved" ? new Date().toISOString() : null,
+        rejection_reason: newStatus === "rejected" ? (reason ?? null) : null,
       });
     }
     setSelected(new Set());
     await load();
     setActionLoading(null);
+  };
+
+  const handleReject = () => {
+    if (!rejectModal) return;
+    const reason = rejectReason.trim() || undefined;
+    if (rejectModal.bulk) {
+      bulkAction("rejected", reason);
+    } else {
+      updateStatus(rejectModal.id, "rejected", reason);
+    }
+    setRejectModal(null);
+    setRejectReason("");
   };
 
   const filtered = requests.filter((r) => statusFilter === "all" || r.status === statusFilter);
@@ -90,7 +106,7 @@ export default function SellSubmissionsPage() {
               className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#2d5016] hover:bg-[#4a7c2c] transition-colors disabled:opacity-50">
               Approve {selected.size}
             </button>
-            <button onClick={() => bulkAction("rejected")} disabled={actionLoading === "bulk"}
+            <button onClick={() => { setRejectModal({ id: "bulk", bulk: true }); setRejectReason(""); }} disabled={actionLoading === "bulk"}
               className="px-4 py-2 rounded-lg text-sm font-medium text-red-400 bg-red-900/20 border border-red-900/50 hover:bg-red-900/40 transition-colors">
               Reject {selected.size}
             </button>
@@ -200,7 +216,7 @@ export default function SellSubmissionsPage() {
                             {actionLoading === req.id ? "…" : "Approve"}
                           </button>
                           <button
-                            onClick={() => updateStatus(req.id, "rejected")}
+                            onClick={() => { setRejectModal({ id: req.id }); setRejectReason(""); }}
                             disabled={actionLoading === req.id}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 transition-colors"
                           >
@@ -216,6 +232,38 @@ export default function SellSubmissionsPage() {
           </div>
         )}
       </div>
+      {/* Rejection reason modal */}
+      {rejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+            <h2 className="text-white font-semibold text-lg mb-1">Reject listing</h2>
+            <p className="text-gray-500 text-sm mb-4">
+              Optionally add a reason — it will be included in the email sent to the seller.
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="e.g. Photo is too dark to verify condition — please resubmit with better lighting."
+              rows={4}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-gray-500 resize-none mb-4"
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => { setRejectModal(null); setRejectReason(""); }}
+                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-red-400 bg-red-900/30 border border-red-900/50 hover:bg-red-900/50 transition-colors"
+              >
+                Confirm rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

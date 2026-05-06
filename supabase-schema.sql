@@ -58,10 +58,14 @@ CREATE TABLE IF NOT EXISTS camp_requests (
   image_url    TEXT,
   seller_email TEXT NOT NULL,
   seller_phone TEXT,
-  status       TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-  is_donation  BOOLEAN NOT NULL DEFAULT FALSE,
-  approved_at  TIMESTAMPTZ
+  status            TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  is_donation       BOOLEAN NOT NULL DEFAULT FALSE,
+  approved_at       TIMESTAMPTZ,
+  rejection_reason  TEXT
 );
+
+-- Run this if the table already exists:
+-- ALTER TABLE camp_requests ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
 
 CREATE TABLE IF NOT EXISTS school_requests (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),

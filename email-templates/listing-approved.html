@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your listing has been approved — Camp Closet</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F5F1EA; font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #F5F1EA;">
+    <tr>
+      <td align="center" style="padding: 40px 16px;">
+
+        <!-- Card -->
+        <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e0ddd6; border-radius: 8px; overflow: hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #1F4E33; padding: 32px 40px;">
+              <p style="margin: 0; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #A8C5A0;">Camp Closet</p>
+              <h1 style="margin: 8px 0 0; font-size: 26px; font-weight: 700; color: #ffffff; line-height: 1.2;">Your listing is live.</h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px 40px 32px;">
+
+              <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333;">
+                Hi {{seller_name}},
+              </p>
+
+              <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333;">
+                Good news — your <strong>{{item_type}}</strong> from <strong>{{camp_name}}</strong> has been reviewed and approved. It's now visible to buyers on the camp's shop page.
+              </p>
+
+              <!-- Item summary box -->
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #F5F1EA; border-radius: 6px; margin-bottom: 28px;">
+                <tr>
+                  <td style="padding: 20px 24px;">
+                    <p style="margin: 0 0 4px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #888;">Your listing</p>
+                    <p style="margin: 0 0 12px; font-size: 18px; font-weight: 700; color: #1F4E33;">{{item_type}} &mdash; {{camp_name}}</p>
+                    <table cellpadding="0" cellspacing="0" role="presentation">
+                      <tr>
+                        <td style="padding-right: 32px;">
+                          <p style="margin: 0 0 2px; font-size: 12px; color: #888;">Listed price</p>
+                          <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1a1a1a;">${{item_price}}</p>
+                        </td>
+                        <td>
+                          <p style="margin: 0 0 2px; font-size: 12px; color: #888;">You receive (after fees)</p>
+                          <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1F4E33;">${{seller_payout}}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0 0 8px; font-size: 16px; line-height: 1.6; color: #333;">
+                <strong>What happens next:</strong>
+              </p>
+              <ul style="margin: 0 0 24px; padding-left: 20px; font-size: 16px; line-height: 1.8; color: #333;">
+                <li>When a buyer purchases your item, you'll get an email with their shipping address.</li>
+                <li>Ship within 7 days using USPS First Class or Ground Advantage.</li>
+                <li>Enter your tracking number through the link in that email — it unlocks your payout.</li>
+                <li>Your share lands in your PayPal account once the order is marked shipped.</li>
+              </ul>
+
+              <p style="margin: 0 0 28px; font-size: 16px; line-height: 1.6; color: #333;">
+                Thanks for giving this item a second life. Every relisted piece keeps one more garment out of a landfill.
+              </p>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td style="background-color: #1F4E33; border-radius: 6px;">
+                    <a href="{{shop_url}}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.01em;">View the shop page</a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="border-top: 1px solid #e0ddd6; padding: 24px 40px;">
+              <p style="margin: 0 0 4px; font-size: 13px; color: #999; line-height: 1.5;">
+                Questions? Reply to this email and we'll help.
+              </p>
+              <p style="margin: 0; font-size: 13px; color: #bbb;">
+                Camp Closet &mdash; reloved, repurposed, second summer.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Card -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
