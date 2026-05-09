@@ -3,7 +3,7 @@ import { Fraunces, Geist, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { BRAND_NAME } from "@/lib/brand";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -85,16 +85,16 @@ export default function RootLayout({
                     {BRAND_NAME}
                   </h3>
                   <p
-                    className="text-sm leading-relaxed mb-4"
+                    className="text-xs leading-relaxed mb-1"
                     style={{ color: "rgba(245,241,232,0.45)" }}
                   >
-                    {BRAND_TAGLINE}
+                    Used camp clothing, organized by camp.
                   </p>
                   <p
                     className="text-xs leading-relaxed"
                     style={{ color: "rgba(245,241,232,0.25)" }}
                   >
-                    Organized by camp. Every listing reviewed before it goes live.
+                    Every listing is reviewed before it goes live.
                   </p>
                 </div>
 

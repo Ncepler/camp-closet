@@ -101,7 +101,7 @@ export default function CampsPage() {
             Camp clothing, organized by camp
           </h1>
           <p className="text-sm mb-6 max-w-md" style={{ color: "#8A8E83" }}>
-            Used gear from {camps.length > 0 ? `${camps.length}` : "13"}+ summer camps. Every item reviewed before it goes live.
+            Used gear from {camps.length > 0 ? camps.length : 13} summer camps. Every item reviewed before it goes live.
           </p>
 
           {/* Search */}

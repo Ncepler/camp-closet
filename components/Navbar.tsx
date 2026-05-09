@@ -45,18 +45,18 @@ export function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 flex-shrink-0"
+          className="flex-shrink-0"
           onClick={() => setMenuOpen(false)}
         >
-          <div
-            className="w-6 h-6 flex items-center justify-center text-white text-xs font-semibold"
-            style={{ background: "#2D5A3D", borderRadius: "2px" }}
-          >
-            C
-          </div>
           <span
-            className="text-sm font-medium hidden sm:block"
-            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 72, 'soft' 50" }}
+            className="font-medium"
+            style={{
+              fontFamily: "var(--font-fraunces)",
+              fontVariationSettings: "'opsz' 14, 'soft' 50",
+              fontWeight: 500,
+              fontSize: "15px",
+              color: "#1F2A20",
+            }}
           >
             {BRAND_NAME}
           </span>
