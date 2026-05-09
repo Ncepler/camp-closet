@@ -144,7 +144,7 @@ export function BuyModal({ item, onClose }: BuyModalProps) {
 
   const isAddressValid =
     address.name.trim() && address.street.trim() &&
-    address.city.trim() && address.state.trim() && address.zip.trim();
+    address.city.trim() && address.state.trim() && address.zip.length === 5;
 
   return (
     <div
@@ -333,7 +333,7 @@ export function BuyModal({ item, onClose }: BuyModalProps) {
                       </div>
                       <div className="col-span-2">
                         <label className="block text-xs font-medium mb-1" style={{ color: "#4A5247" }}>ZIP</label>
-                        <input type="text" value={address.zip} onChange={(e) => setAddress((a) => ({ ...a, zip: e.target.value }))} placeholder="02101" maxLength={10} autoComplete="postal-code" style={inputStyle} />
+                        <input type="text" inputMode="numeric" value={address.zip} onChange={(e) => setAddress((a) => ({ ...a, zip: e.target.value.replace(/\D/g, "").slice(0, 5) }))} placeholder="02101" maxLength={5} autoComplete="postal-code" style={inputStyle} />
                       </div>
                     </div>
                     <div>

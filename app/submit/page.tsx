@@ -44,6 +44,7 @@ export default function SubmitPage() {
 
   const [user, setUser]               = useState<User | null>(null);
   const [sellerPhone, setSellerPhone] = useState("");
+  const [profileHasPhone, setProfileHasPhone] = useState(false);
   const [step, setStep]               = useState<Step>(1);
 
   const [camps, setCamps]           = useState<Camp[]>([]);
@@ -77,8 +78,9 @@ export default function SubmitPage() {
         .select("full_name, phone")
         .eq("id", data.user.id)
         .single();
-      if (profile) {
-        setSellerPhone(profile.phone ?? "");
+      if (profile?.phone) {
+        setSellerPhone(profile.phone);
+        setProfileHasPhone(true);
       }
 
       const { data: campsData } = await supabase.from("camps").select("*").order("name");
@@ -163,7 +165,7 @@ export default function SubmitPage() {
     if (step === 1) return !!imageFile;
     if (step === 2) return !!selectedId;
     if (step === 3) return !!itemType && !!size && (itemType !== "other" || !!otherItemText.trim());
-    if (step === 4) return !!condition;
+    if (step === 4) return !!condition && (profileHasPhone || sellerPhone.length === 10);
     if (step === 5) return true; // donation step is always skippable
     return true;
   };
@@ -207,6 +209,8 @@ export default function SubmitPage() {
                 setCondition("");
                 setImageFile(null);
                 setImagePreview(null);
+                setIsDonating(false);
+                setDonorNote("");
               }}
               className="px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
               style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
@@ -457,6 +461,28 @@ export default function SubmitPage() {
                 </button>
               ))}
             </div>
+
+            {!profileHasPhone && (
+              <div className="mt-5 pt-5" style={{ borderTop: "1px solid #D9D2C2" }}>
+                <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
+                  Your phone number
+                </label>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={sellerPhone}
+                  onChange={(e) => setSellerPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="5550001234"
+                  maxLength={10}
+                  style={{ ...inputCss }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
+                />
+                <p className="text-xs mt-1" style={{ color: "#8A8E83" }}>
+                  10 digits, numbers only. Used to contact you about your listing.
+                </p>
+              </div>
+            )}
 
             {error && (
               <p

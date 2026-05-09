@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 const NAV_ITEMS = [
   { href: "/d48",                   label: "Dashboard"          },
   { href: "/d48/sell-submissions",  label: "Sell Submissions"   },
-  { href: "/d48/buy-requests",      label: "Buy Requests"       },
+  { href: "/d48/shipping",          label: "Shipping"           },
   { href: "/d48/disputes",          label: "Disputes & Refunds" },
   { href: "/d48/donations",         label: "Donations"          },
   { href: "/d48/camps",             label: "Camps"              },

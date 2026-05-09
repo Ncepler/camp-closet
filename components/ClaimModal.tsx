@@ -37,13 +37,18 @@ export function ClaimModal({ item, onClose }: ClaimModalProps) {
   }, [item.id]);
 
   const handleClaim = async () => {
+    if (!note.trim()) return;
     setModalState("submitting");
     setError("");
     try {
+      const { data: { session } } = await import("@/app/lib/supabaseClient").then((m) => m.supabase.auth.getSession());
       const res = await fetch("/api/claims", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listing_id: item.id, claimer_note: note.trim() || null }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ listing_id: item.id, claimer_note: note.trim() }),
       });
       const data = await res.json();
 
@@ -150,10 +155,10 @@ export function ClaimModal({ item, onClose }: ClaimModalProps) {
                 </p>
               </div>
 
-              {/* Optional note */}
+              {/* Required note */}
               <div className="mb-6">
                 <label className="block text-xs font-medium mb-1.5" style={{ color: "#4A5247" }}>
-                  In a sentence — what's this for?
+                  In a sentence — what's this for? <span style={{ color: "#8B3A2E" }}>*</span>
                 </label>
                 <textarea
                   value={note}
@@ -175,7 +180,7 @@ export function ClaimModal({ item, onClose }: ClaimModalProps) {
                   onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
                 />
                 <p className="text-xs mt-1" style={{ color: "#8A8E83" }}>
-                  Optional. The donor sees this if you claim.
+                  Required. The donor will see this.
                 </p>
               </div>
 
@@ -197,7 +202,7 @@ export function ClaimModal({ item, onClose }: ClaimModalProps) {
                 </button>
                 <button
                   onClick={handleClaim}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !note.trim()}
                   className="px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-50 w-full sm:w-auto"
                   style={{ background: "#C8932F", color: "#F5F1E8", borderRadius: "4px", whiteSpace: "nowrap" }}
                 >
