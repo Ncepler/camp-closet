@@ -85,7 +85,7 @@ export default function AboutPage() {
         </h2>
         <div className="space-y-4 text-sm leading-relaxed" style={{ color: "#4A5247", maxWidth: "600px" }}>
           <p>
-            Branded camp gear is expensive. You buy a hoodie for $55, it gets worn six weeks,
+            Branded camp gear is expensive. You buy a hoodie for $55, it gets worn seven weeks,
             and then it sits in a bin until it's donated to someone who has no idea what
             Camp Echo Lake is. The embroidery is still perfect. The fabric has barely been used.
           </p>
@@ -98,7 +98,7 @@ export default function AboutPage() {
           <p>
             {BRAND_NAME} is the focused version: one camp, one category at a time.
             Built by a 15-year-old who got tired of paying full price for a shirt that's
-            going to smell like bug spray in six weeks anyway.
+            going to smell like bug spray in seven weeks anyway.
           </p>
         </div>
       </section>

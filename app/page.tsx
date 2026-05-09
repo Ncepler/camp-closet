@@ -194,7 +194,7 @@ export default function HomePage() {
               color: '#1F2A20',
             }}
           >
-            A camp tee worn six weeks
+            A camp tee worn seven weeks
             <br />
             <span style={{ color: '#2D5A3D' }}>deserves another summer.</span>
           </motion.h1>
