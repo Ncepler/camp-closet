@@ -62,7 +62,7 @@ export default function RootLayout({
             <p className="text-xs" style={{ color: "#4A5247" }}>
               Manufacturing new clothes produces ~10× more carbon than shipping used ones.{" "}
               <Link
-                href="/the-math"
+                href="/your-impact"
                 className="underline underline-offset-2 transition-opacity hover:opacity-70"
                 style={{ textDecorationColor: "#2D5A3D" }}
               >
@@ -162,8 +162,7 @@ export default function RootLayout({
                   </h4>
                   <ul className="space-y-3">
                     {[
-                      { href: "/the-math", label: "The math" },
-                      { href: "/about",    label: "Our story" },
+                      { href: "/your-impact", label: "Your impact" },
                     ].map(({ href, label }) => (
                       <li key={href}>
                         <Link

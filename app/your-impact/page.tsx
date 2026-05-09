@@ -4,7 +4,7 @@ import { BRAND_NAME } from "@/lib/brand";
 import { ImpactEstimator } from "./ImpactEstimator";
 
 export const metadata: Metadata = {
-  title: `The Math — ${BRAND_NAME}`,
+  title: `Your Impact — ${BRAND_NAME}`,
   description:
     "Does shipping used clothing really help? We show the numbers: manufacturing a t-shirt produces 7 kg of CO₂. Shipping it produces 0.4 kg.",
 };
@@ -45,7 +45,7 @@ export default function TheMathPage() {
         style={{ borderBottom: "1px solid #D9D2C2", maxWidth: "720px", margin: "0 auto" }}
       >
         <p className="text-xs font-medium uppercase tracking-widest mb-6" style={{ color: "#8A8E83", letterSpacing: "0.12em" }}>
-          The Math
+          Your Impact
         </p>
         <h1
           className="mb-6 leading-tight"

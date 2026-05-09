@@ -289,18 +289,6 @@ export default function HomePage() {
             <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#8A8E83' }}>
               The numbers made real
             </p>
-            <h2
-              className="leading-tight mb-4"
-              style={{
-                fontFamily: 'var(--font-fraunces)',
-                fontVariationSettings: "'opsz' 96, 'soft' 50",
-                fontWeight: 500,
-                fontSize: 'clamp(28px, 3.5vw, 48px)',
-                color: '#1F2A20',
-              }}
-            >
-              Raw numbers don't land. These do.
-            </h2>
             <p className="text-base leading-relaxed" style={{ color: '#4A5247', maxWidth: '480px' }}>
               Every item you buy used instead of new keeps this much out of the world.
             </p>
@@ -410,12 +398,11 @@ export default function HomePage() {
             <RevealSection>
               <div className="space-y-5 leading-relaxed" style={{ color: '#4A5247' }}>
                 <p>
-                  Your kid wore it every day at camp. It's sun-faded, a little soft, and it still
-                  smells vaguely of sunscreen. It's also completely wearable. And somewhere across
+                  Your kid wore it every day at camp. It's completely wearable. And somewhere across
                   town, another kid is heading to the same camp next summer and needs exactly this shirt.
                 </p>
                 <p>
-                  That's the whole pitch. Not a donation bin that never gets checked. Not a
+                  Not a donation bin that never gets checked. Not a
                   garage sale. A direct path from one family's closet to the next kid who needs it —
                   where it gets worn again instead of forgotten.
                 </p>
@@ -427,11 +414,6 @@ export default function HomePage() {
                   Every t-shirt that gets a second summer instead of a landfill is 2,500 liters of
                   water that didn't have to be used. Enough to fill 34 bathtubs. That's not abstract —
                   that's the actual number, and it comes from cotton farming, not shipping.
-                </p>
-                <p>
-                  We use the word <em>reloved</em> because it's accurate. These aren't throwaway
-                  things. They have camp names on them. Numbers. Colors. They mean something.
-                  Passing them on is passing on that meaning.
                 </p>
               </div>
             </RevealSection>
@@ -476,9 +458,9 @@ export default function HomePage() {
                 color: '#1F2A20',
               }}
             >
-              Fashion is the problem.
+              The numbers are real.
               <br />
-              <span style={{ color: '#2D5A3D' }}>Resale is the fix.</span>
+              <span style={{ color: '#2D5A3D' }}>Here's what they mean.</span>
             </h2>
           </RevealSection>
 
@@ -512,44 +494,6 @@ export default function HomePage() {
               </RevealSection>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ══ THE MATH TEASER ═══════════════════════════════════════════════════ */}
-      <section
-        className="py-24 px-6"
-        style={{ background: '#EDE6D3', borderTop: '1px solid #D9D2C2' }}
-      >
-        <div className="max-w-4xl mx-auto">
-          <RevealSection className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-6" style={{ color: '#8A8E83' }}>
-              The honest question
-            </p>
-            <h2
-              className="leading-tight mb-6"
-              style={{
-                fontFamily: 'var(--font-fraunces)',
-                fontVariationSettings: "'opsz' 96, 'soft' 50",
-                fontWeight: 500,
-                fontSize: 'clamp(24px, 3vw, 40px)',
-                color: '#1F2A20',
-              }}
-            >
-              Doesn't shipping a used shirt back and forth produce more carbon than just buying new?
-            </h2>
-            <p className="text-base leading-relaxed mb-6" style={{ color: '#4A5247', maxWidth: '540px' }}>
-              Manufacturing a new t-shirt produces about 7 kg of CO₂. Shipping a used one
-              across the country produces about 0.4 kg. That's roughly 17× less — before
-              the shirt even leaves the post office.
-            </p>
-            <Link
-              href="/the-math"
-              className="inline-flex items-center gap-2 text-sm font-semibold transition-opacity hover:opacity-70"
-              style={{ color: '#2D5A3D', textDecoration: 'underline', textDecorationColor: '#2D5A3D', textUnderlineOffset: '4px' }}
-            >
-              See the full breakdown with sources →
-            </Link>
-          </RevealSection>
         </div>
       </section>
 

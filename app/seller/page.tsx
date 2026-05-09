@@ -91,6 +91,7 @@ export default function SellerDashboard() {
 
   const pendingShipments = orders.filter((o) => o.status === "paid" && !o.tracking_number);
   const shippedOrders    = orders.filter((o) => o.status === "shipped" || o.tracking_number);
+  const soldImpact       = calcTotalImpact(orders.map((o) => ({ item_type: o.item_type })));
 
   if (loading) {
     return (
@@ -264,6 +265,27 @@ export default function SellerDashboard() {
             >
               Shipped orders
             </h2>
+            {orders.length > 0 && (
+              <div className="mb-5 p-5" style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+                <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
+                  Impact from your sales
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { value: `${soldImpact.water.toLocaleString()} L`, label: "water saved", color: "#2D5A3D" },
+                    { value: `${soldImpact.energy} kWh`, label: "energy saved", color: "#C8932F" },
+                    { value: `${soldImpact.co2} kg`, label: "CO₂ avoided", color: "#2D5A3D" },
+                  ].map(({ value, label, color }) => (
+                    <div key={label}>
+                      <div className="text-xl font-medium mb-0.5 tabular" style={{ fontFamily: "var(--font-mono)", color, fontVariantNumeric: "tabular-nums" }}>
+                        {value}
+                      </div>
+                      <div className="text-xs" style={{ color: "#8A8E83" }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div style={{ border: "1px solid #D9D2C2", overflow: "hidden" }}>
               <table className="w-full text-sm">
                 <thead>
