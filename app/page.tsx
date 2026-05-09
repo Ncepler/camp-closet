@@ -175,23 +175,12 @@ export default function HomePage() {
       {/* ══ HERO ═══════════════════════════════════════════════════════════════ */}
       <section
         className="px-6 py-28 sm:py-36"
-        style={{ background: 'linear-gradient(160deg, #F5F1E8 0%, #EDE6D3 55%, #E8DFC7 100%)' }}
+        style={{ background: '#F5F1E8' }}
       >
         <div className="max-w-4xl mx-auto">
-          {/* Social proof / eyebrow */}
-          <motion.p
-            ref={heroRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-xs font-semibold uppercase tracking-widest mb-10"
-            style={{ color: '#8A8E83' }}
-          >
-            camp ramah · camp echo lake · camp pinemere · and 10 more
-          </motion.p>
-
           {/* Headline */}
           <motion.h1
+            ref={heroRef}
             initial={{ opacity: 0, y: 16 }}
             animate={heroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
@@ -205,11 +194,9 @@ export default function HomePage() {
               color: '#1F2A20',
             }}
           >
-            Most camp gear is worn
+            A camp tee worn six weeks
             <br />
-            six weeks and thrown out.
-            <br />
-            <span style={{ color: '#2D5A3D' }}>We turn that line into a circle.</span>
+            <span style={{ color: '#2D5A3D' }}>deserves another summer.</span>
           </motion.h1>
 
           {/* Subtext */}
@@ -220,8 +207,8 @@ export default function HomePage() {
             className="text-lg max-w-xl mb-12 leading-relaxed"
             style={{ color: '#4A5247' }}
           >
-            Buy and sell used camp clothing — organized by camp, reviewed before it
-            goes live. One transaction keeps real resources out of the world.
+            Used camp clothing, organized by camp. Every listing reviewed before it goes live.
+            Buy used, sell used — one less new shirt gets made.
           </motion.p>
 
           {/* CTAs */}
@@ -428,9 +415,9 @@ export default function HomePage() {
                   town, another kid is heading to the same camp next summer and needs exactly this shirt.
                 </p>
                 <p>
-                  That's what this is. Not a landfill. Not a donation bin that never gets checked.
-                  A direct path from one family's closet to another — where clothing gets reloved
-                  instead of forgotten.
+                  That's the whole pitch. Not a donation bin that never gets checked. Not a
+                  garage sale. A direct path from one family's closet to the next kid who needs it —
+                  where it gets worn again instead of forgotten.
                 </p>
               </div>
             </RevealSection>
@@ -438,8 +425,8 @@ export default function HomePage() {
               <div className="space-y-5 leading-relaxed" style={{ color: '#4A5247' }}>
                 <p>
                   Every t-shirt that gets a second summer instead of a landfill is 2,500 liters of
-                  water that didn't have to be used. Every sweatshirt re-worn instead of replaced
-                  is 6,000 liters. That's not abstract — that's real.
+                  water that didn't have to be used. Enough to fill 34 bathtubs. That's not abstract —
+                  that's the actual number, and it comes from cotton farming, not shipping.
                 </p>
                 <p>
                   We use the word <em>reloved</em> because it's accurate. These aren't throwaway
@@ -465,7 +452,7 @@ export default function HomePage() {
                 "Repurposed. Reloved. Second summer."
               </p>
               <p className="text-sm" style={{ color: '#8A8E83' }}>
-                That's the whole idea. Buy used, sell used, and every transaction is a vote for the planet.
+                That's the whole idea. The shirt already exists. It just needs to find another kid.
               </p>
             </div>
           </RevealSection>
@@ -551,9 +538,9 @@ export default function HomePage() {
               Doesn't shipping a used shirt back and forth produce more carbon than just buying new?
             </h2>
             <p className="text-base leading-relaxed mb-6" style={{ color: '#4A5247', maxWidth: '540px' }}>
-              Manufacturing a new camp t-shirt produces about 6.5 kg of CO₂. Shipping a secondhand
-              one across the country produces about 1.8 kg. Even worst-case shipping is roughly 4×
-              less than making something new.
+              Manufacturing a new t-shirt produces about 7 kg of CO₂. Shipping a used one
+              across the country produces about 0.4 kg. That's roughly 17× less — before
+              the shirt even leaves the post office.
             </p>
             <Link
               href="/the-math"
