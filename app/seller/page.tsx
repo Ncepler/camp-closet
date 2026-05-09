@@ -30,14 +30,20 @@ export default function SellerDashboard() {
   const [submitting, setSubmitting]       = useState<string | null>(null);
   const [shipError, setShipError]         = useState<Record<string, string>>({});
   const [shipSuccess, setShipSuccess]     = useState<Record<string, boolean>>({});
+  const [claimCount, setClaimCount]       = useState<number>(0);
+  const [claimResetDays, setClaimResetDays] = useState<number | null>(null);
 
   const load = useCallback(async (token: string, userId: string, email: string) => {
     setLoading(true);
 
-    const [ordersRes, campReqs, camps] = await Promise.all([
+    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [ordersRes, campReqs, camps, claimsRes, oldestClaimRes] = await Promise.all([
       fetch("/api/seller/orders", { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
       supabase.from("camp_requests").select("*").or(`user_id.eq.${userId},seller_email.eq.${email}`).order("created_at", { ascending: false }),
       supabase.from("camps").select("id, name"),
+      supabase.from("claims").select("*", { count: "exact", head: true }).eq("claimer_id", userId).gt("created_at", since30d).neq("status", "cancelled"),
+      supabase.from("claims").select("created_at").eq("claimer_id", userId).neq("status", "cancelled").gt("created_at", since30d).order("created_at", { ascending: true }).limit(1),
     ]);
 
     setOrders(ordersRes.orders ?? []);
@@ -51,6 +57,14 @@ export default function SellerDashboard() {
     }));
 
     setSubmissions(allSubmissions);
+
+    const count = claimsRes.count ?? 0;
+    setClaimCount(count);
+    if (count >= 2 && oldestClaimRes.data?.[0]) {
+      const resetAt = new Date(oldestClaimRes.data[0].created_at).getTime() + 30 * 24 * 60 * 60 * 1000;
+      setClaimResetDays(Math.max(1, Math.ceil((resetAt - Date.now()) / (24 * 60 * 60 * 1000))));
+    }
+
     setLoading(false);
   }, []);
 
@@ -114,6 +128,12 @@ export default function SellerDashboard() {
           </h1>
           <p className="text-sm" style={{ color: "#8A8E83" }}>
             Track shipments, manage listings, and see your impact.
+          </p>
+          <p className="text-xs mt-3" style={{ color: "#8A8E83" }}>
+            Free claims this month: {claimCount} of 2.
+            {claimCount >= 2 && claimResetDays !== null && (
+              <span> Resets in {claimResetDays} {claimResetDays === 1 ? "day" : "days"}.</span>
+            )}
           </p>
         </div>
 

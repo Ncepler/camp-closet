@@ -18,6 +18,7 @@ export default function CampItemTypePage() {
 
   const [camp, setCamp]         = useState<Camp | null>(null);
   const [items, setItems]       = useState<Item[]>([]);
+  const [donatedOnly, setDonatedOnly] = useState(false);
   const [loading, setLoading]   = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -62,7 +63,9 @@ export default function CampItemTypePage() {
     );
   }
 
-  const totalStock = items.reduce((s, i) => s + i.available_count, 0);
+  const hasDonated  = items.some((i) => i.is_donated);
+  const displayed   = donatedOnly ? items.filter((i) => i.is_donated) : items;
+  const totalStock  = items.reduce((s, i) => s + i.available_count, 0);
 
   return (
     <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
@@ -137,6 +140,17 @@ export default function CampItemTypePage() {
               </div>
             ))}
           </div>
+        ) : displayed.length === 0 && donatedOnly ? (
+          <div className="py-20" style={{ maxWidth: "400px" }}>
+            <p className="text-sm mb-4" style={{ color: "#8A8E83" }}>No donated {meta?.label.toLowerCase() ?? item} available right now.</p>
+            <button
+              onClick={() => setDonatedOnly(false)}
+              className="text-sm font-medium transition-opacity hover:opacity-70"
+              style={{ color: "#2D5A3D" }}
+            >
+              Show all listings
+            </button>
+          </div>
         ) : items.length === 0 ? (
           <div className="py-20" style={{ maxWidth: "400px" }}>
             <h3
@@ -158,11 +172,38 @@ export default function CampItemTypePage() {
           </div>
         ) : (
           <>
-            <p className="text-sm mb-6" style={{ color: "#8A8E83" }}>
-              {items.length} listing{items.length !== 1 ? "s" : ""} · {totalStock} available
-            </p>
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+              <p className="text-sm" style={{ color: "#8A8E83" }}>
+                {displayed.length} listing{displayed.length !== 1 ? "s" : ""} · {totalStock} available
+              </p>
+              {hasDonated && (
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <span
+                    className="w-4 h-4 flex items-center justify-center flex-shrink-0"
+                    style={{
+                      border: `1.5px solid ${donatedOnly ? "#C8932F" : "#8A8E83"}`,
+                      background: donatedOnly ? "#C8932F" : "transparent",
+                      borderRadius: "2px",
+                    }}
+                  >
+                    {donatedOnly && (
+                      <svg className="w-2.5 h-2.5" fill="none" stroke="#F5F1E8" viewBox="0 0 24 24" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={donatedOnly}
+                    onChange={(e) => setDonatedOnly(e.target.checked)}
+                  />
+                  <span className="text-xs" style={{ color: "#4A5247" }}>Show donated items only</span>
+                </label>
+              )}
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {items.map((it, i) => (
+              {displayed.map((it, i) => (
                 <ItemCard key={it.id} item={it} theme="camp" animationDelay={i * 50} />
               ))}
             </div>

@@ -9,6 +9,7 @@ import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
 import { getImpact } from "@/app/lib/impact";
 import { BuyModal } from "./BuyModal";
 import { WaitlistModal } from "./WaitlistModal";
+import { ClaimModal } from "./ClaimModal";
 
 interface ItemCardProps {
   item: Item;
@@ -34,8 +35,11 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
   const router = useRouter();
   const [showBuyModal, setShowBuyModal]           = useState(false);
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [showClaimModal, setShowClaimModal]       = useState(false);
   const [imgError, setImgError]                   = useState(false);
 
+  const isDonated   = item.is_donated;
+  const isClaimed   = item.is_claimed;
   const isAvailable = item.available_count > 0;
   const impact      = getImpact(item.item_type);
 
@@ -46,6 +50,15 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
       return;
     }
     setShowBuyModal(true);
+  };
+
+  const handleClaimClick = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      router.push("/auth?redirect=" + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    setShowClaimModal(true);
   };
 
   return (
@@ -89,8 +102,8 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
             </div>
           )}
 
-          {/* Out of stock overlay */}
-          {!isAvailable && (
+          {/* Out of stock / Claimed overlay */}
+          {(isClaimed || (!isDonated && !isAvailable)) && (
             <div
               className="absolute inset-0 flex items-center justify-center"
               style={{ background: "rgba(245,241,232,0.75)" }}
@@ -99,7 +112,7 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
                 className="text-xs font-semibold px-3 py-1"
                 style={{ background: "#1F2A20", color: "#F5F1E8", borderRadius: "2px" }}
               >
-                Out of stock
+                {isClaimed ? "Claimed" : "Out of stock"}
               </span>
             </div>
           )}
@@ -125,12 +138,28 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
             >
               {getItemTypeLabel(item.item_type)}
             </h3>
-            <span
-              className="text-sm font-medium flex-shrink-0 tabular"
-              style={{ color: "#1F2A20", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}
-            >
-              ${item.price.toFixed(0)}
-            </span>
+            {isDonated ? (
+              <span
+                className="text-xs flex-shrink-0 tabular"
+                style={{
+                  color: "#2D5A3D",
+                  fontFamily: "var(--font-mono)",
+                  textDecoration: "underline",
+                  textDecorationColor: "#2D5A3D",
+                  textUnderlineOffset: "3px",
+                  textDecorationThickness: "1px",
+                }}
+              >
+                donated
+              </span>
+            ) : (
+              <span
+                className="text-sm font-medium flex-shrink-0 tabular"
+                style={{ color: "#1F2A20", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}
+              >
+                ${item.price.toFixed(0)}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2 text-xs mb-3" style={{ color: "#8A8E83" }}>
             <span
@@ -149,9 +178,34 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
             </span>
           </div>
 
+          {/* Donor note */}
+          {isDonated && item.donor_note && (
+            <p className="text-xs leading-relaxed mb-2 italic" style={{ color: "#8A8E83" }}>
+              <span style={{ fontStyle: "normal", color: "#4A5247" }}>Note from the donor:</span>{" "}
+              {item.donor_note}
+            </p>
+          )}
+
           {/* CTA */}
           <div className="mt-auto">
-            {isAvailable ? (
+            {isDonated ? (
+              isClaimed ? (
+                <div
+                  className="w-full py-2 text-xs font-medium text-center"
+                  style={{ border: "1px solid #D9D2C2", color: "#8A8E83", borderRadius: "4px" }}
+                >
+                  Claimed
+                </div>
+              ) : (
+                <button
+                  onClick={handleClaimClick}
+                  className="w-full py-2 text-xs font-semibold transition-opacity hover:opacity-80"
+                  style={{ background: "#C8932F", color: "#F5F1E8", borderRadius: "4px" }}
+                >
+                  Claim it
+                </button>
+              )
+            ) : isAvailable ? (
               <button
                 onClick={handleBuyClick}
                 className="w-full py-2 text-xs font-semibold transition-opacity hover:opacity-80"
@@ -175,6 +229,7 @@ export function ItemCard({ item, theme, animationDelay = 0 }: ItemCardProps) {
       </div>
 
       {showBuyModal && <BuyModal item={item} onClose={() => setShowBuyModal(false)} />}
+      {showClaimModal && <ClaimModal item={item} onClose={() => setShowClaimModal(false)} />}
       {showWaitlistModal && (
         <WaitlistModal item={item} theme={theme} onClose={() => setShowWaitlistModal(false)} />
       )}

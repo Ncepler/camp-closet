@@ -7,14 +7,15 @@ import type { Camp } from "@/app/lib/supabaseClient";
 import { ITEM_TYPES, CONDITIONS, getSizesForItemType } from "@/app/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
-// Step order: 1=photo, 2=camp, 3=details, 4=condition
+// Step order: 1=photo, 2=camp, 3=details, 4=condition, 5=donate
 const STEP_LABELS: Record<Step, string> = {
   1: "photo",
   2: "camp",
   3: "item",
   4: "condition",
+  5: "donate",
 };
 
 const SUBMIT_ITEM_TYPES = [
@@ -53,6 +54,10 @@ export default function SubmitPage() {
   const [condition, setCondition]   = useState("");
   const [imageFile, setImageFile]   = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const [isDonating, setIsDonating] = useState(false);
+  const [donorNote, setDonorNote]   = useState("");
+  const [claimedCheck, setClaimedCheck] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(false);
@@ -102,6 +107,26 @@ export default function SubmitPage() {
     setError("");
 
     try {
+      const finalItemType = itemType === "other" ? otherItemText.trim() : itemType;
+
+      // Anti-resell check: block if user previously claimed this item type+camp for free
+      if (!isDonating) {
+        const { data: priorClaims } = await supabase
+          .from("claims")
+          .select("id, items!inner(camp_id, item_type)")
+          .eq("claimer_id", user.id)
+          .neq("status", "cancelled")
+          .eq("items.camp_id", selectedId)
+          .eq("items.item_type", finalItemType)
+          .limit(1);
+
+        if (priorClaims && priorClaims.length > 0) {
+          setError("Items you claimed for free can't be listed for sale. If it doesn't fit, donate it forward instead.");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const ext  = imageFile.name.split(".").pop();
       const path = `submissions/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: uploadError } = await supabase.storage
@@ -109,8 +134,6 @@ export default function SubmitPage() {
         .upload(path, imageFile);
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("item-images").getPublicUrl(path);
-
-      const finalItemType = itemType === "other" ? otherItemText.trim() : itemType;
 
       const { error: insertError } = await supabase.from("camp_requests").insert({
         user_id:      user.id,
@@ -122,7 +145,8 @@ export default function SubmitPage() {
         seller_email: user.email,
         seller_phone: sellerPhone || null,
         status:       "pending",
-        is_donation:  false,
+        is_donation:  isDonating,
+        donor_note:   isDonating && donorNote.trim() ? donorNote.trim() : null,
       });
 
       if (insertError) throw insertError;
@@ -140,6 +164,7 @@ export default function SubmitPage() {
     if (step === 2) return !!selectedId;
     if (step === 3) return !!itemType && !!size && (itemType !== "other" || !!otherItemText.trim());
     if (step === 4) return !!condition;
+    if (step === 5) return true; // donation step is always skippable
     return true;
   };
 
@@ -227,10 +252,10 @@ export default function SubmitPage() {
         {/* Progress — hairline bar */}
         <div className="mb-8">
           <p className="text-xs mb-3" style={{ color: "#8A8E83" }}>
-            {step} of 4 — {STEP_LABELS[step]}
+            {step} of 5 — {STEP_LABELS[step]}
           </p>
           <div className="flex gap-1.5">
-            {([1, 2, 3, 4] as Step[]).map((s) => (
+            {([1, 2, 3, 4, 5] as Step[]).map((s) => (
               <div
                 key={s}
                 className="flex-1 h-0.5 transition-all duration-300"
@@ -444,6 +469,87 @@ export default function SubmitPage() {
           </div>
         )}
 
+        {/* Step 5: Donate toggle */}
+        {step === 5 && (
+          <div className="space-y-6">
+            <div>
+              <h2
+                className="font-medium mb-1"
+                style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+              >
+                Donating this instead?
+              </h2>
+              <p className="text-xs leading-relaxed" style={{ color: "#8A8E83" }}>
+                Free for another camp family to claim. We'll handle matching and shipping reimbursement.
+              </p>
+            </div>
+
+            <button
+              onClick={() => { setIsDonating(!isDonating); if (isDonating) setDonorNote(""); }}
+              className="flex items-center gap-3 w-full text-left p-4 transition-all"
+              style={{
+                border: isDonating ? "2px solid #2D5A3D" : "1px solid #D9D2C2",
+                background: isDonating ? "#EDE6D3" : "transparent",
+                borderRadius: "4px",
+              }}
+            >
+              <div
+                className="w-5 h-5 flex-shrink-0 flex items-center justify-center transition-all"
+                style={{
+                  border: isDonating ? "none" : "1.5px solid #D9D2C2",
+                  background: isDonating ? "#2D5A3D" : "transparent",
+                  borderRadius: "2px",
+                }}
+              >
+                {isDonating && (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#F5F1E8" }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <div className="text-sm font-medium" style={{ color: isDonating ? "#1F2A20" : "#4A5247" }}>
+                  {isDonating ? "Free — donated" : "Donate this item"}
+                </div>
+                {isDonating && (
+                  <div className="text-xs mt-0.5" style={{ color: "#8A8E83" }}>No sale price. Another family can claim it at no cost.</div>
+                )}
+              </div>
+            </button>
+
+            {isDonating && (
+              <div>
+                <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
+                  Add a note for whoever claims it{" "}
+                  <span style={{ color: "#8A8E83", fontWeight: 400 }}>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={donorNote}
+                  onChange={(e) => setDonorNote(e.target.value.slice(0, 140))}
+                  placeholder="e.g., 'written for younger kids' or 'good for a first-time camper'"
+                  maxLength={140}
+                  style={{ ...inputCss }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
+                />
+                <p className="text-xs mt-1 text-right" style={{ color: "#8A8E83" }}>
+                  {donorNote.length}/140
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <p
+                className="text-xs p-3"
+                style={{ color: "#8B3A2E", background: "#F9F0EE", border: "1px solid #D9B9B4", borderRadius: "4px" }}
+              >
+                {error}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Navigation */}
         <div className="flex gap-3 mt-8">
           {step > 1 && (
@@ -457,7 +563,7 @@ export default function SubmitPage() {
               Back
             </button>
           )}
-          {step < 4 ? (
+          {step < 5 ? (
             <button
               onClick={() => setStep((s) => (s + 1) as Step)}
               disabled={!canAdvance()}

@@ -58,6 +58,28 @@ export interface Item {
   available_count: number;
   image_url: string | null;
   description: string | null;
+  is_donated: boolean;
+  donor_note: string | null;
+  donor_user_id: string | null;
+  donor_email: string | null;
+  camp_request_id: string | null;
+  is_claimed: boolean;
+  claimed_at: string | null;
+}
+
+export interface Claim {
+  id: string;
+  listing_id: string;
+  claimer_id: string;
+  donor_user_id: string | null;
+  donor_email: string | null;
+  claimer_note: string | null;
+  claimer_email: string | null;
+  claimer_address: string | null;
+  status: "pending_pickup" | "shipped" | "delivered" | "cancelled";
+  created_at: string;
+  shipped_at: string | null;
+  tracking_number: string | null;
 }
 
 export interface CampRequest {
@@ -74,6 +96,7 @@ export interface CampRequest {
   seller_name: string | null;
   status: "pending" | "approved" | "rejected";
   is_donation: boolean;
+  donor_note: string | null;
   approved_at: string | null;
 }
 
