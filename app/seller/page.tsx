@@ -11,41 +11,25 @@ import type { CampRequest } from "@/app/lib/supabaseClient";
 
 type SellRequest = CampRequest & { institution: string };
 
-function LeafIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-      <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-    </svg>
-  );
-}
-
-function WaterIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true">
-      <path d="M12 2C9 6.5 5 10.5 5 14.5 5 18.36 8.13 21.5 12 21.5c3.87 0 7-3.14 7-7C19 10.5 15 6.5 12 2Z" />
-    </svg>
-  );
-}
-
-function BoltIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true">
-      <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
-    </svg>
-  );
-}
+const statusStyle: Record<string, React.CSSProperties> = {
+  paid:     { color: "#C8932F", border: "1px solid #E6C97A", background: "#FBF5E8" },
+  shipped:  { color: "#2D5A3D", border: "1px solid #A8C5A0", background: "#EDF4EE" },
+  refunded: { color: "#8B3A2E", border: "1px solid #D9B9B4", background: "#F9F0EE" },
+  approved: { color: "#2D5A3D", border: "1px solid #A8C5A0", background: "#EDF4EE" },
+  pending:  { color: "#C8932F", border: "1px solid #E6C97A", background: "#FBF5E8" },
+  rejected: { color: "#8B3A2E", border: "1px solid #D9B9B4", background: "#F9F0EE" },
+};
 
 export default function SellerDashboard() {
   const router = useRouter();
-  const [session, setSession]       = useState<{ access_token: string } | null>(null);
-  const [orders, setOrders]         = useState<Order[]>([]);
-  const [submissions, setSubmissions] = useState<SellRequest[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [session, setSession]             = useState<{ access_token: string } | null>(null);
+  const [orders, setOrders]               = useState<Order[]>([]);
+  const [submissions, setSubmissions]     = useState<SellRequest[]>([]);
+  const [loading, setLoading]             = useState(true);
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
-  const [submitting, setSubmitting] = useState<string | null>(null);
-  const [shipError, setShipError]   = useState<Record<string, string>>({});
-  const [shipSuccess, setShipSuccess] = useState<Record<string, boolean>>({});
+  const [submitting, setSubmitting]       = useState<string | null>(null);
+  const [shipError, setShipError]         = useState<Record<string, string>>({});
+  const [shipSuccess, setShipSuccess]     = useState<Record<string, boolean>>({});
 
   const load = useCallback(async (token: string, userId: string, email: string) => {
     setLoading(true);
@@ -81,8 +65,7 @@ export default function SellerDashboard() {
 
   const handleMarkShipped = async (orderId: string) => {
     const tracking = trackingInputs[orderId]?.trim();
-    if (!tracking) return;
-    if (!session) return;
+    if (!tracking || !session) return;
     setSubmitting(orderId);
     setShipError((e) => ({ ...e, [orderId]: "" }));
 
@@ -109,75 +92,73 @@ export default function SellerDashboard() {
   const pendingShipments = orders.filter((o) => o.status === "paid" && !o.tracking_number);
   const shippedOrders    = orders.filter((o) => o.status === "shipped" || o.tracking_number);
 
-  const statusColors: Record<string, string> = {
-    paid:     "bg-yellow-50 text-yellow-700 border border-yellow-200",
-    shipped:  "bg-green-50 text-green-700 border border-green-200",
-    refunded: "bg-red-50 text-red-700 border border-red-200",
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-gray-200 border-t-[#2d5016] rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F5F1E8" }}>
+        <div className="w-5 h-5 border-2 border-[#D9D2C2] border-t-[#2D5A3D] rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
+      <div className="px-6 py-12" style={{ maxWidth: "880px", margin: "0 auto" }}>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
-            Seller Dashboard
+        <div className="mb-10 pb-8" style={{ borderBottom: "1px solid #D9D2C2" }}>
+          <h1
+            className="mb-1"
+            style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "32px", color: "#1F2A20" }}
+          >
+            Seller dashboard
           </h1>
-          <p className="text-gray-500 text-sm">Track your shipments, manage listings, and see your impact.</p>
+          <p className="text-sm" style={{ color: "#8A8E83" }}>
+            Track shipments, manage listings, and see your impact.
+          </p>
         </div>
 
-        {/* Sustainability impact */}
+        {/* Sustainability impact — cream-based */}
         {approvedSubmissions.length > 0 && (
-          <div className="bg-[#1F4E33] rounded-lg p-6 mb-8 text-white">
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">
+          <div className="mb-10 p-6" style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-5" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
               Your cumulative impact
             </p>
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="flex justify-center mb-2 text-blue-300"><WaterIcon /></div>
-                <div className="text-2xl font-bold" style={{ fontFamily: "var(--font-fraunces)" }}>
-                  {totalImpact.water.toLocaleString()}L
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { value: `${totalImpact.water.toLocaleString()} L`, label: "water saved", color: "#2D5A3D" },
+                { value: `${totalImpact.energy} kWh`, label: "energy saved", color: "#C8932F" },
+                { value: `${totalImpact.co2} kg`, label: "CO₂ avoided", color: "#2D5A3D" },
+              ].map(({ value, label, color }) => (
+                <div key={label}>
+                  <div
+                    className="text-xl font-medium mb-0.5 tabular"
+                    style={{ fontFamily: "var(--font-mono)", color, fontVariantNumeric: "tabular-nums" }}
+                  >
+                    {value}
+                  </div>
+                  <div className="text-xs" style={{ color: "#8A8E83" }}>{label}</div>
                 </div>
-                <div className="text-white/50 text-xs mt-0.5">water saved</div>
-              </div>
-              <div className="text-center">
-                <div className="flex justify-center mb-2 text-yellow-300"><BoltIcon /></div>
-                <div className="text-2xl font-bold" style={{ fontFamily: "var(--font-fraunces)" }}>
-                  {totalImpact.energy} kWh
-                </div>
-                <div className="text-white/50 text-xs mt-0.5">energy saved</div>
-              </div>
-              <div className="text-center">
-                <div className="flex justify-center mb-2 text-green-300"><LeafIcon /></div>
-                <div className="text-2xl font-bold" style={{ fontFamily: "var(--font-fraunces)" }}>
-                  {totalImpact.co2} kg
-                </div>
-                <div className="text-white/50 text-xs mt-0.5">CO2 avoided</div>
-              </div>
+              ))}
             </div>
-            <p className="text-white/40 text-xs text-center mt-4">
+            <p className="text-xs mt-4" style={{ color: "#8A8E83" }}>
               Based on {approvedSubmissions.length} approved listing{approvedSubmissions.length !== 1 ? "s" : ""}.
-              PayPal deducts ~3% + $0.49 per transaction, then the platform takes 15% of the remainder. Your effective payout is ~80% of the listed price, before your shipping cost.
             </p>
           </div>
         )}
 
         {/* Pending shipments */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
-            Pending Shipments
+        <div className="mb-10">
+          <h2
+            className="font-medium mb-5"
+            style={{ fontFamily: "var(--font-fraunces)", fontSize: "18px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+          >
+            Pending shipments
           </h2>
           {pendingShipments.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-              <p className="text-gray-500 text-sm">No pending shipments. You&apos;re all caught up.</p>
+            <div
+              className="p-8 text-center"
+              style={{ border: "1px solid #D9D2C2" }}
+            >
+              <p className="text-sm" style={{ color: "#8A8E83" }}>No pending shipments. You&apos;re all caught up.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -186,49 +167,52 @@ export default function SellerDashboard() {
                   try { return JSON.parse(order.buyer_address!); } catch { return null; }
                 })() : null;
 
-                const impact = getImpact(order.item_type);
+                const impact   = getImpact(order.item_type);
                 const deadline = new Date(order.created_at);
-                deadline.setDate(deadline.getDate() + 7); // 7 calendar days
+                deadline.setDate(deadline.getDate() + 7);
 
                 return (
-                  <div key={order.id} className="bg-white border border-gray-200 rounded-lg p-5">
+                  <div key={order.id} className="p-5" style={{ border: "1px solid #D9D2C2", background: "#F5F1E8" }}>
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
-                        <div className="font-semibold text-gray-900 text-sm">
+                        <div className="font-medium text-sm" style={{ color: "#1F2A20" }}>
                           {getItemTypeLabel(order.item_type)}
                         </div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-xs mt-0.5" style={{ color: "#8A8E83" }}>
                           Sold {new Date(order.created_at).toLocaleDateString()} · Ship by {deadline.toLocaleDateString()}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold text-[#2d5016] text-sm">
+                        <div className="font-medium text-sm tabular" style={{ fontFamily: "var(--font-mono)", color: "#2D5A3D" }}>
                           ${order.seller_payout.toFixed(2)}
                         </div>
-                        <div className="text-xs text-gray-400">your payout</div>
+                        <div className="text-xs" style={{ color: "#8A8E83" }}>your payout</div>
                       </div>
                     </div>
 
-                    {/* Shipping address */}
                     {address && (
-                      <div className="bg-gray-50 border border-gray-100 rounded p-3 mb-4 text-sm">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Ship to</p>
-                        <p className="text-gray-800 font-medium">{address.name}</p>
-                        <p className="text-gray-600">{address.street}</p>
-                        <p className="text-gray-600">{address.city}, {address.state} {address.zip}</p>
+                      <div className="p-3 mb-4" style={{ background: "#EDE6D3", border: "1px solid #D9D2C2" }}>
+                        <p className="text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>
+                          Ship to
+                        </p>
+                        <p className="text-sm font-medium" style={{ color: "#1F2A20" }}>{address.name}</p>
+                        <p className="text-xs" style={{ color: "#4A5247" }}>{address.street}</p>
+                        <p className="text-xs" style={{ color: "#4A5247" }}>{address.city}, {address.state} {address.zip}</p>
                       </div>
                     )}
 
                     {impact && (
-                      <p className="text-xs text-[#2d5016] mb-4">
-                        This sale saved {impact.energyDisplay} of energy and {impact.waterDisplay} of water.
-                        Ship USPS Ground Advantage for best rates — free $100 insurance included.
+                      <p className="text-xs mb-4" style={{ color: "#4A5247" }}>
+                        This sale saves {impact.energyDisplay} of energy.
+                        Ship USPS Ground Advantage — cheapest option, free $100 insurance.
                       </p>
                     )}
 
-                    {/* Tracking entry */}
                     {shipSuccess[order.id] ? (
-                      <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded p-3">
+                      <div
+                        className="text-xs p-3"
+                        style={{ color: "#2D5A3D", background: "#EDF4EE", border: "1px solid #A8C5A0", borderRadius: "4px" }}
+                      >
                         Tracking saved. The buyer will be notified.
                       </div>
                     ) : (
@@ -238,19 +222,31 @@ export default function SellerDashboard() {
                           value={trackingInputs[order.id] ?? ""}
                           onChange={(e) => setTrackingInputs((t) => ({ ...t, [order.id]: e.target.value }))}
                           placeholder="Enter USPS tracking number"
-                          className="flex-1 px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d5016] transition-colors"
+                          style={{
+                            flex: 1,
+                            padding: "8px 12px",
+                            border: "1px solid #D9D2C2",
+                            borderRadius: "4px",
+                            background: "transparent",
+                            outline: "none",
+                            fontSize: "13px",
+                            color: "#1F2A20",
+                          }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
                         />
                         <button
                           onClick={() => handleMarkShipped(order.id)}
                           disabled={!trackingInputs[order.id]?.trim() || submitting === order.id}
-                          className="px-4 py-2 rounded text-white text-sm font-semibold bg-[#2d5016] hover:opacity-90 transition-opacity disabled:opacity-40"
+                          className="px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
+                          style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px", whiteSpace: "nowrap" }}
                         >
-                          {submitting === order.id ? "Saving…" : "Mark Shipped"}
+                          {submitting === order.id ? "Saving…" : "Mark shipped"}
                         </button>
                       </div>
                     )}
                     {shipError[order.id] && (
-                      <p className="text-xs text-red-600 mt-2">{shipError[order.id]}</p>
+                      <p className="text-xs mt-2" style={{ color: "#8B3A2E" }}>{shipError[order.id]}</p>
                     )}
                   </div>
                 );
@@ -261,41 +257,52 @@ export default function SellerDashboard() {
 
         {/* Shipped orders */}
         {shippedOrders.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
-              Shipped Orders
+          <div className="mb-10">
+            <h2
+              className="font-medium mb-5"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "18px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+            >
+              Shipped orders
             </h2>
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div style={{ border: "1px solid #D9D2C2", overflow: "hidden" }}>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tracking</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider pr-4">Payout</th>
+                  <tr style={{ borderBottom: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Item</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Tracking</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Status</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Payout</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {shippedOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                <tbody>
+                  {shippedOrders.map((order, i) => (
+                    <tr
+                      key={order.id}
+                      style={{ borderBottom: i < shippedOrders.length - 1 ? "1px solid #D9D2C2" : "none" }}
+                    >
                       <td className="px-4 py-3">
-                        <div className="font-medium text-gray-900">{getItemTypeLabel(order.item_type)}</div>
-                        <div className="text-xs text-gray-400">{new Date(order.created_at).toLocaleDateString()}</div>
+                        <div className="font-medium text-sm" style={{ color: "#1F2A20" }}>{getItemTypeLabel(order.item_type)}</div>
+                        <div className="text-xs" style={{ color: "#8A8E83" }}>{new Date(order.created_at).toLocaleDateString()}</div>
                       </td>
                       <td className="px-4 py-3">
                         {order.tracking_number ? (
-                          <span className="text-xs font-mono text-gray-600">{order.tracking_number}</span>
+                          <span className="text-xs" style={{ fontFamily: "var(--font-mono)", color: "#4A5247" }}>{order.tracking_number}</span>
                         ) : (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs" style={{ color: "#D9D2C2" }}>—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColors[order.status] ?? "bg-gray-100 text-gray-600"}`}>
+                        <span
+                          className="text-xs font-medium px-2 py-0.5"
+                          style={{ borderRadius: "2px", ...(statusStyle[order.status] ?? { color: "#8A8E83", border: "1px solid #D9D2C2" }) }}
+                        >
                           {order.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 pr-4 text-right font-semibold text-[#2d5016]">
-                        ${order.seller_payout.toFixed(2)}
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm font-medium tabular" style={{ fontFamily: "var(--font-mono)", color: "#2D5A3D" }}>
+                          ${order.seller_payout.toFixed(2)}
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -305,56 +312,68 @@ export default function SellerDashboard() {
           </div>
         )}
 
-        {/* My submissions */}
+        {/* My listings */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
-              My Listings
+          <div className="flex items-center justify-between mb-5">
+            <h2
+              className="font-medium"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "18px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+            >
+              My listings
             </h2>
-            <Link href="/submit" className="text-sm font-medium text-[#2d5016] hover:opacity-80 transition-opacity">
+            <Link
+              href="/submit"
+              className="text-xs font-medium transition-opacity hover:opacity-70"
+              style={{ color: "#2D5A3D" }}
+            >
               + List an item
             </Link>
           </div>
+
           {submissions.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-              <p className="text-gray-500 text-sm mb-4">You haven&apos;t listed anything yet.</p>
-              <Link href="/submit" className="px-5 py-2.5 rounded text-white text-sm font-semibold bg-[#2d5016] hover:opacity-90 transition-opacity">
-                List Your First Item
+            <div className="p-8 text-center" style={{ border: "1px solid #D9D2C2" }}>
+              <p className="text-sm mb-4" style={{ color: "#8A8E83" }}>You haven&apos;t listed anything yet.</p>
+              <Link
+                href="/submit"
+                className="inline-block px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
+                style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
+              >
+                List your first item
               </Link>
             </div>
           ) : (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div style={{ border: "1px solid #D9D2C2", overflow: "hidden" }}>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Institution</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Impact</th>
+                  <tr style={{ borderBottom: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Item</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Camp</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Impact</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {submissions.map((sub) => {
+                <tbody>
+                  {submissions.map((sub, i) => {
                     const impact = sub.status === "approved" ? getImpact(sub.item_type) : null;
                     return (
-                      <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
+                      <tr
+                        key={sub.id}
+                        style={{ borderBottom: i < submissions.length - 1 ? "1px solid #D9D2C2" : "none" }}
+                      >
                         <td className="px-4 py-3">
-                          <div className="font-medium text-gray-900">{getItemTypeLabel(sub.item_type)}</div>
-                          <div className="text-xs text-gray-400">Size {sub.size} · {getConditionLabel(sub.condition)}</div>
+                          <div className="font-medium text-sm" style={{ color: "#1F2A20" }}>{getItemTypeLabel(sub.item_type)}</div>
+                          <div className="text-xs" style={{ color: "#8A8E83" }}>Size {sub.size} · {getConditionLabel(sub.condition)}</div>
                         </td>
-                        <td className="px-4 py-3 text-gray-600 text-xs">{sub.institution}</td>
+                        <td className="px-4 py-3 text-xs" style={{ color: "#4A5247" }}>{sub.institution}</td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                            sub.status === "approved"
-                              ? "bg-green-50 text-green-700 border border-green-200"
-                              : sub.status === "rejected"
-                              ? "bg-red-50 text-red-700 border border-red-200"
-                              : "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                          }`}>
+                          <span
+                            className="text-xs font-medium px-2 py-0.5"
+                            style={{ borderRadius: "2px", ...(statusStyle[sub.status] ?? { color: "#8A8E83", border: "1px solid #D9D2C2" }) }}
+                          >
                             {sub.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-500">
+                        <td className="px-4 py-3 text-xs" style={{ color: "#4A5247" }}>
                           {impact ? `${impact.energyDisplay} · ${impact.waterDisplay}` : "—"}
                         </td>
                       </tr>

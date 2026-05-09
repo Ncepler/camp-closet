@@ -14,9 +14,9 @@ const TYPE_SECTIONS = [
 
 export default function CampPage() {
   const { slug } = useParams() as { slug: string };
-  const [camp, setCamp]       = useState<Camp | null>(null);
-  const [items, setItems]     = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [camp, setCamp]         = useState<Camp | null>(null);
+  const [items, setItems]       = useState<Item[]>([]);
+  const [loading, setLoading]   = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -42,12 +42,23 @@ export default function CampPage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Camp not found</h1>
-          <p className="text-gray-500 mb-6">We couldn&apos;t find a camp with that name.</p>
-          <Link href="/camps" className="px-5 py-2.5 rounded-md text-white font-medium text-sm bg-[#2d5016] hover:opacity-90 transition-opacity">
-            Back to Camps
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#F5F1E8" }}>
+        <div style={{ maxWidth: "400px" }}>
+          <h1
+            className="font-medium mb-2"
+            style={{ fontFamily: "var(--font-fraunces)", fontSize: "24px", color: "#1F2A20" }}
+          >
+            Camp not found
+          </h1>
+          <p className="text-sm mb-6" style={{ color: "#8A8E83" }}>
+            We couldn&apos;t find a camp with that name.
+          </p>
+          <Link
+            href="/camps"
+            className="text-sm font-medium transition-opacity hover:opacity-70"
+            style={{ color: "#2D5A3D" }}
+          >
+            ← All camps
           </Link>
         </div>
       </div>
@@ -55,42 +66,42 @@ export default function CampPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#f8faf6" }}>
-      {/* Hero */}
-      <div className="relative py-16 px-6" style={{ background: "#1a3310" }}>
-        {camp?.main_image && (
-          <div className="absolute inset-0 opacity-20">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={camp.main_image} alt={camp?.name} className="w-full h-full object-cover" />
-          </div>
-        )}
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <Link href="/camps" className="inline-flex items-center gap-1.5 text-white/60 text-sm mb-6 hover:text-white transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
+
+      {/* Header */}
+      <div className="px-6 py-14" style={{ borderBottom: "1px solid #D9D2C2" }}>
+        <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+          <Link
+            href="/camps"
+            className="inline-flex items-center gap-1.5 text-xs mb-6 transition-opacity hover:opacity-70"
+            style={{ color: "#8A8E83" }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            All Camps
+            All camps
           </Link>
+
           {loading ? (
             <div className="space-y-3">
-              <div className="h-10 w-64 bg-white/20 rounded animate-pulse" />
-              <div className="h-5 w-48 bg-white/20 rounded animate-pulse" />
+              <div className="skeleton h-10 w-64" style={{ borderRadius: "2px" }} />
+              <div className="skeleton h-4 w-40" style={{ borderRadius: "2px" }} />
             </div>
           ) : (
             <>
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2" style={{ fontFamily: "var(--font-fraunces)" }}>
+              <h1
+                className="mb-2"
+                style={{
+                  fontFamily: "var(--font-fraunces)",
+                  fontVariationSettings: "'opsz' 72, 'soft' 40",
+                  fontSize: "clamp(28px, 4vw, 44px)",
+                  color: "#1F2A20",
+                }}
+              >
                 {camp?.name}
               </h1>
               {camp?.location && (
-                <p className="text-white/70 flex items-center gap-1.5 mb-3">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  </svg>
-                  {camp.location}
-                </p>
-              )}
-              {camp?.description && (
-                <p className="text-white/70 max-w-2xl leading-relaxed">{camp.description}</p>
+                <p className="text-sm" style={{ color: "#8A8E83" }}>{camp.location}</p>
               )}
             </>
           )}
@@ -98,21 +109,18 @@ export default function CampPage() {
       </div>
 
       {/* Type tiles */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      <div className="px-6 py-10" style={{ maxWidth: "960px", margin: "0 auto" }}>
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ border: "1px solid #D9D2C2", background: "#D9D2C2" }}>
             {TYPE_SECTIONS.map((t) => (
-              <div key={t.value} className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-lg bg-gray-100 animate-pulse flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-20 bg-gray-100 rounded animate-pulse" />
-                  <div className="h-3 w-14 bg-gray-100 rounded animate-pulse" />
-                </div>
+              <div key={t.value} className="p-6" style={{ background: "#F5F1E8" }}>
+                <div className="skeleton h-5 w-20 mb-3" style={{ borderRadius: "2px" }} />
+                <div className="skeleton h-4 w-24" style={{ borderRadius: "2px" }} />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ border: "1px solid #D9D2C2", background: "#D9D2C2" }}>
             {TYPE_SECTIONS.map((type) => {
               const typeItems  = items.filter((i) => i.item_type === type.value);
               const totalStock = typeItems.reduce((s, i) => s + i.available_count, 0);
@@ -123,45 +131,51 @@ export default function CampPage() {
                 <Link
                   key={type.value}
                   href={`/camps/${slug}/${type.value}`}
-                  className={`group bg-white rounded-lg border overflow-hidden flex items-center gap-4 p-4 transition-all ${
-                    hasStock
-                      ? "border-gray-200 hover:border-[#2d5016]/40 hover:shadow-md"
-                      : "border-gray-200 opacity-60"
-                  }`}
+                  className="group flex gap-4 p-6 transition-colors"
+                  style={{ background: "#F5F1E8" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#F5F1E8"; }}
                 >
-                  {/* Small preview image */}
-                  <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                  {/* Preview image */}
+                  <div
+                    className="w-14 h-14 overflow-hidden flex-shrink-0"
+                    style={{ background: "#EDE6D3", borderRadius: "0px" }}
+                  >
                     {preview?.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={preview.image_url}
-                        alt={type.label}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={preview.image_url} alt={type.label} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: "#f0f4ee" }}>
-                        <span className="text-[10px] text-gray-400 font-medium">{type.label[0]}</span>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-xs" style={{ color: "#8A8E83" }}>{type.label[0]}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm" style={{ fontFamily: "var(--font-fraunces)" }}>
+                    <div
+                      className="font-medium text-sm mb-1"
+                      style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+                    >
                       {type.label}
                     </div>
-                    <div className="text-xs text-gray-400 mt-0.5">${type.price} · incl. shipping</div>
-                    <div className={`text-xs font-medium mt-1 ${hasStock ? "text-emerald-600" : "text-gray-400"}`}>
+                    <div className="text-xs mb-1.5 tabular" style={{ color: "#8A8E83", fontFamily: "var(--font-mono)" }}>
+                      ${type.price} · incl. shipping
+                    </div>
+                    <div
+                      className="text-xs font-medium"
+                      style={{ color: hasStock ? "#2D5A3D" : "#8A8E83" }}
+                    >
                       {hasStock ? `${totalStock} in stock` : "None available"}
                     </div>
                   </div>
 
-                  {/* Arrow */}
                   <svg
-                    className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-0.5 ${hasStock ? "text-gray-400" : "text-gray-300"}`}
+                    className="w-4 h-4 flex-shrink-0 self-center transition-transform group-hover:translate-x-0.5"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    style={{ color: "#D9D2C2" }}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
               );
@@ -170,16 +184,20 @@ export default function CampPage() {
         )}
 
         {/* Sell CTA */}
-        <div className="mt-10 text-center">
-          <p className="text-sm text-gray-500 mb-3">Have {camp?.name ?? "camp"} gear to sell?</p>
-          <Link
-            href="/submit"
-            className="inline-block px-6 py-2.5 rounded-md text-white font-medium text-sm transition-opacity hover:opacity-90"
-            style={{ background: "#2d5016" }}
-          >
-            List an Item
-          </Link>
-        </div>
+        {!loading && (
+          <div className="mt-10 pt-8" style={{ borderTop: "1px solid #D9D2C2" }}>
+            <p className="text-sm mb-3" style={{ color: "#8A8E83" }}>
+              Have {camp?.name ?? "camp"} gear to sell?
+            </p>
+            <Link
+              href="/submit"
+              className="inline-block px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
+            >
+              List an item
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

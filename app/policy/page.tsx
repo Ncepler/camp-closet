@@ -1,40 +1,45 @@
 import Link from "next/link";
+import { BRAND_NAME, BRAND_EMAIL } from "@/lib/brand";
 
 export const metadata = {
-  title: "Policies — Camp Closet",
-  description: "Return policy, refund policy, and seller guidelines for Camp Closet Marketplace.",
+  title: `Policies — ${BRAND_NAME}`,
+  description: `Return policy, refund policy, and seller guidelines for ${BRAND_NAME} Marketplace.`,
 };
 
 export default function PolicyPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-2xl mx-auto px-6 py-16">
+    <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
+      <div className="px-6 py-16" style={{ maxWidth: "680px", margin: "0 auto" }}>
+
         <div className="mb-12">
-          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+          <Link
+            href="/"
+            className="text-xs transition-opacity hover:opacity-70"
+            style={{ color: "#8A8E83" }}
+          >
             &larr; Back to home
           </Link>
           <h1
-            className="text-3xl font-bold text-gray-900 mt-4"
-            style={{ fontFamily: "var(--font-fraunces)" }}
+            className="mt-5 mb-2"
+            style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "36px", color: "#1F2A20" }}
           >
             Policies
           </h1>
-          <p className="text-gray-500 text-sm mt-2">
-            Last updated May 2026. Questions? Email us at hello@campcloset.com.
+          <p className="text-sm" style={{ color: "#8A8E83" }}>
+            Last updated May 2026. Questions? Email us at {BRAND_EMAIL}.
           </p>
         </div>
 
-        <div className="space-y-12 text-gray-700">
+        <div className="space-y-12">
 
-          {/* Returns */}
-          <section>
+          <section style={{ borderTop: "1px solid #D9D2C2", paddingTop: "36px" }}>
             <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="font-medium mb-4"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
             >
               Returns
             </h2>
-            <div className="space-y-3 text-sm leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#4A5247" }}>
               <p>
                 All sales are final. We don&apos;t accept returns for reasons like wrong size,
                 change of mind, or fit. Camp clothing sizing varies a lot by brand, so please
@@ -48,45 +53,47 @@ export default function PolicyPage() {
             </div>
           </section>
 
-          {/* Refunds */}
-          <section>
+          <section style={{ borderTop: "1px solid #D9D2C2", paddingTop: "36px" }}>
             <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="font-medium mb-4"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
             >
               Refunds
             </h2>
-            <div className="space-y-3 text-sm leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#4A5247" }}>
               <p>You&apos;re eligible for a full refund in two situations:</p>
-              <ul className="list-disc list-inside space-y-2 pl-2">
-                <li>
-                  <strong>The seller doesn&apos;t ship.</strong> Sellers have 7 days from
-                  the date of purchase to enter a tracking number. If they miss that window,
-                  your payment is automatically refunded in full.
+              <ul className="space-y-2 pl-0">
+                <li className="flex gap-3">
+                  <span className="text-xs mt-0.5 flex-shrink-0 tabular" style={{ fontFamily: "var(--font-mono)", color: "#C8932F" }}>1</span>
+                  <span>
+                    <strong style={{ color: "#1F2A20" }}>The seller doesn&apos;t ship.</strong> Sellers have 7 days from
+                    the date of purchase to enter a tracking number. If they miss that window,
+                    your payment is automatically refunded in full.
+                  </span>
                 </li>
-                <li>
-                  <strong>The item is significantly not as described.</strong> If what arrives
-                  is materially different from what was listed — wrong item, undisclosed damage,
-                  that sort of thing — reply to your shipping confirmation email within 48 hours
-                  of delivery and we&apos;ll sort it out.
+                <li className="flex gap-3">
+                  <span className="text-xs mt-0.5 flex-shrink-0 tabular" style={{ fontFamily: "var(--font-mono)", color: "#C8932F" }}>2</span>
+                  <span>
+                    <strong style={{ color: "#1F2A20" }}>The item is significantly not as described.</strong> If what arrives
+                    is materially different from what was listed — wrong item, undisclosed damage —
+                    reply to your shipping confirmation email within 48 hours of delivery and we&apos;ll sort it out.
+                  </span>
                 </li>
               </ul>
               <p>
-                Refunds are processed through PayPal and typically show up within 3–5 business
-                days depending on your bank.
+                Refunds are processed through PayPal and typically show up within 3–5 business days.
               </p>
             </div>
           </section>
 
-          {/* PayPal disputes */}
-          <section>
+          <section style={{ borderTop: "1px solid #D9D2C2", paddingTop: "36px" }}>
             <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="font-medium mb-4"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
             >
-              PayPal Disputes
+              PayPal disputes
             </h2>
-            <div className="space-y-3 text-sm leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#4A5247" }}>
               <p>
                 Because payments go through PayPal, you can open a buyer dispute directly
                 with PayPal for up to 180 days after your purchase. PayPal&apos;s buyer
@@ -99,15 +106,14 @@ export default function PolicyPage() {
             </div>
           </section>
 
-          {/* For buyers */}
-          <section>
+          <section style={{ borderTop: "1px solid #D9D2C2", paddingTop: "36px" }}>
             <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="font-medium mb-4"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
             >
-              For Buyers
+              For buyers
             </h2>
-            <div className="space-y-3 text-sm leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#4A5247" }}>
               <p>
                 Your shipping address is shared with the seller so they can mail your item.
                 It is never displayed publicly or used for anything else. We don&apos;t share
@@ -121,22 +127,21 @@ export default function PolicyPage() {
             </div>
           </section>
 
-          {/* For sellers */}
-          <section>
+          <section style={{ borderTop: "1px solid #D9D2C2", paddingTop: "36px" }}>
             <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="font-medium mb-4"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
             >
-              For Sellers
+              For sellers
             </h2>
-            <div className="space-y-3 text-sm leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#4A5247" }}>
               <p>
                 Once your item sells, you have 7 days to ship it and enter the USPS tracking
                 number on your seller dashboard. If you miss that window, the buyer gets
                 an automatic refund and the sale is reversed.
               </p>
               <p>
-                Listing is free. Camp Closet takes a 15% platform fee from the sale price,
+                Listing is free. {BRAND_NAME} takes a 15% platform fee from the sale price,
                 and PayPal deducts its standard processing fee (2.99% + $0.49). The rest
                 is paid to you through PayPal.
               </p>
@@ -154,15 +159,14 @@ export default function PolicyPage() {
             </div>
           </section>
 
-          {/* Disputes */}
-          <section>
+          <section style={{ borderTop: "1px solid #D9D2C2", paddingTop: "36px" }}>
             <h2
-              className="text-xl font-semibold text-gray-900 mb-4"
-              style={{ fontFamily: "var(--font-fraunces)" }}
+              className="font-medium mb-4"
+              style={{ fontFamily: "var(--font-fraunces)", fontSize: "20px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
             >
-              Disputes Between Buyers and Sellers
+              Disputes between buyers and sellers
             </h2>
-            <div className="space-y-3 text-sm leading-relaxed">
+            <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#4A5247" }}>
               <p>
                 Buyers and sellers never communicate directly through this platform — we
                 act as the middleman. If there&apos;s a problem with an order, contact us
@@ -176,12 +180,11 @@ export default function PolicyPage() {
             </div>
           </section>
 
-          {/* Contact */}
-          <section className="border-t border-gray-100 pt-10">
-            <p className="text-sm text-gray-500">
+          <section className="pt-4" style={{ borderTop: "1px solid #D9D2C2" }}>
+            <p className="text-sm" style={{ color: "#8A8E83" }}>
               If you have a question about an order or something not covered here, email{" "}
-              <a href="mailto:hello@campcloset.com" className="text-[#2d5016] font-medium hover:underline">
-                hello@campcloset.com
+              <a href={`mailto:${BRAND_EMAIL}`} className="font-medium transition-opacity hover:opacity-70" style={{ color: "#2D5A3D" }}>
+                {BRAND_EMAIL}
               </a>
               . We read every message.
             </p>

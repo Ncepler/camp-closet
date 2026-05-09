@@ -1,47 +1,65 @@
 @import "tailwindcss";
 
-/* ============================================================
-   CAMP CLOSET MARKETPLACE — Global Styles
-   ============================================================ */
+/* ────────────────────────────────────────────────────────────
+   Camp Closet — Design Tokens & Global Styles
+   ──────────────────────────────────────────────────────────── */
 
-/* ---------- Camp (Green) Theme ---------- */
-:root {
-  --camp-primary: #2d5016;
-  --camp-primary-light: #4a7c2c;
-  --camp-accent: #7fb069;
-  --camp-bg: #f8faf6;
-  --camp-surface: #ffffff;
-  --camp-border: #d4e3cc;
-  --camp-text: #1a3310;
-  --camp-text-muted: #556b4f;
+/* ── Tailwind v4 tokens ── */
+@theme {
+  /* Colors */
+  --color-bg:             #F5F1E8;
+  --color-bg-deep:        #EDE6D3;
+  --color-ink:            #1F2A20;
+  --color-ink-soft:       #4A5247;
+  --color-ink-quiet:      #8A8E83;
+  --color-forest:         #2D5A3D;
+  --color-forest-deep:    #1C3825;
+  --color-marigold:       #C8932F;
+  --color-marigold-deep:  #A67424;
+  --color-rule:           #D9D2C2;
+  --color-error:          #8B3A2E;
 
-  /* School (Blue) Theme */
-  --school-primary: #1e3a5f;
-  --school-primary-light: #2e5a8f;
-  --school-accent: #4a90e2;
-  --school-bg: #f6f9fc;
-  --school-surface: #ffffff;
-  --school-border: #c5d9ed;
-  --school-text: #0f1e33;
-  --school-text-muted: #4f5d75;
-
-  /* Neutral */
-  --background: #ffffff;
-  --foreground: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --radius: 0.625rem;
+  /* Border radius — max 4px everywhere except full */
+  --radius-sm:  2px;
+  --radius:     4px;
+  --radius-md:  4px;
+  --radius-lg:  4px;
+  --radius-xl:  4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-ink);
 }
 
-/* ---------- Base ---------- */
-*, *::before, *::after {
-  box-sizing: border-box;
+/* ── CSS custom properties ── */
+:root {
+  /* Legacy aliases kept for compatibility */
+  --camp-primary:       #2D5A3D;
+  --camp-primary-light: #4a7c5c;
+  --camp-accent:        #C8932F;
+  --camp-bg:            #F5F1E8;
+  --camp-surface:       #EDE6D3;
+  --camp-border:        #D9D2C2;
+  --camp-text:          #1F2A20;
+  --camp-text-muted:    #4A5247;
+
+  --school-primary:       #1e3a5f;
+  --school-primary-light: #2e5a8f;
+  --school-bg:            #f6f9fc;
+  --school-border:        #c5d9ed;
+  --school-text:          #0f1e33;
+  --school-text-muted:    #4f5d75;
+
+  --background: #F5F1E8;
+  --foreground: #1F2A20;
+  --border:     #D9D2C2;
 }
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
@@ -51,31 +69,60 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  font-size: 17px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Animations ---------- */
+/* ── Fraunces variable-font tuning ── */
+.fraunces-display {
+  font-family: var(--font-fraunces);
+  font-variation-settings: 'opsz' 144, 'soft' 50;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.fraunces-heading {
+  font-family: var(--font-fraunces);
+  font-variation-settings: 'opsz' 72, 'soft' 50;
+  font-weight: 500;
+}
+
+/* ── Tabular numerics for prices ── */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono), 'Courier New', monospace;
+}
+
+/* ── Warm photo treatment ── */
+.photo-warm {
+  filter: saturate(0.92) brightness(0.98) sepia(0.05);
+}
+
+/* ── Focus ring ── */
+:focus-visible {
+  outline: 1px solid #2D5A3D;
+  outline-offset: 2px;
+}
+
+/* ── Animations ── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(-16px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
 }
-
 @keyframes shimmer {
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -85,7 +132,6 @@ body {
 .animate-scale-in { animation: scaleIn 0.3s ease forwards; }
 .animate-spin     { animation: spin    1s linear infinite; }
 
-/* Staggered card reveals */
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.10s; }
 .stagger-3 { animation-delay: 0.15s; }
@@ -93,22 +139,16 @@ body {
 .stagger-5 { animation-delay: 0.25s; }
 .stagger-6 { animation-delay: 0.30s; }
 
-/* ---------- Skeleton loader ---------- */
+/* ── Skeleton ── */
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #EDE6D3 25%, #D9D2C2 50%, #EDE6D3 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 0.5rem;
+  border-radius: 2px;
 }
 
-/* ---------- Focus ring ---------- */
-:focus-visible {
-  outline: 2px solid var(--camp-accent);
-  outline-offset: 2px;
-}
-
-/* ---------- Scrollbar (webkit) ---------- */
+/* ── Scrollbar ── */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: #f1f1f1; }
-::-webkit-scrollbar-thumb  { background: #c1c1c1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+::-webkit-scrollbar-track  { background: #F5F1E8; }
+::-webkit-scrollbar-thumb  { background: #D9D2C2; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #8A8E83; }

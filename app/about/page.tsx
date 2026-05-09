@@ -1,160 +1,215 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { BRAND_NAME } from "@/lib/brand";
 
-const values = [
+export const metadata: Metadata = {
+  title: `About — ${BRAND_NAME}`,
+  description: "Your kid's old camp tee has one more summer in it. Camp Closet is a curated resale marketplace for used summer camp clothing.",
+};
+
+const PRINCIPLES = [
   {
-    title: "Sustainability",
-    desc: "Every item resold is one fewer item in a landfill. We believe clothing should have long lives.",
+    title: "Every listing is reviewed",
+    desc: "Nothing goes live without a human looking at it. No spam, no scams, no surprises.",
   },
   {
-    title: "Privacy First",
-    desc: "Buyers and sellers never see each other's personal info. We act as the trusted middleman.",
+    title: "Buyers and sellers never meet",
+    desc: "Personal info stays private. All coordination runs through us — buyer address shared with seller for shipping only.",
   },
   {
-    title: "Quality Control",
-    desc: "Every submission is reviewed before going live. No spam, no scams, no surprises.",
+    title: "Prices are set, not negotiated",
+    desc: "One price per item type. No haggling, no pressure, no wondering if you got a fair deal.",
   },
   {
-    title: "Fair Pricing",
-    desc: "We set prices that are fair to both buyers and sellers. No haggling, no pressure.",
-  },
-  {
-    title: "Community",
-    desc: "We're building a network of families who support each other through shared resources.",
-  },
-  {
-    title: "Giving Back",
-    desc: "Our donation program helps families who can't afford new gear access quality clothing.",
+    title: "Shipping is always included",
+    desc: "The price you see is the price you pay. No checkout surprises.",
   },
 ];
 
-const sellerSteps = [
+const SELLER_STEPS = [
   "Create a free account",
-  "Find your camp or school",
+  "Find your camp",
   "Describe the item and upload a photo",
   "We review and approve within 1–2 days",
-  "When sold, we coordinate the handoff",
+  "When sold, you ship directly to the buyer",
 ];
 
-const buyerSteps = [
-  "Browse freely — no account needed",
-  "Find your camp or school",
-  "Click Buy Now on any item",
-  "We review and match you with the seller",
-  "We coordinate pickup or delivery",
+const BUYER_STEPS = [
+  "Browse without an account",
+  "Find your camp",
+  "Buy any available item",
+  "Seller ships within a week",
+  "Item arrives — transaction complete",
 ];
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
+
       {/* Hero */}
-      <section className="py-20 px-6 text-center" style={{ background: "#111827" }}>
+      <section
+        className="px-6 py-20 md:py-28"
+        style={{ borderBottom: "1px solid #D9D2C2", maxWidth: "720px", margin: "0 auto" }}
+      >
+        <p className="text-xs font-medium uppercase tracking-widest mb-6" style={{ color: "#8A8E83", letterSpacing: "0.12em" }}>
+          About
+        </p>
         <h1
-          className="text-5xl font-bold text-white mb-4"
-          style={{ fontFamily: "var(--font-fraunces)" }}
+          className="mb-6 leading-tight"
+          style={{
+            fontFamily: "var(--font-fraunces)",
+            fontVariationSettings: "'opsz' 144, 'soft' 50",
+            fontSize: "clamp(36px, 5vw, 60px)",
+            color: "#1F2A20",
+          }}
         >
-          About Camp Closet
+          Your kid's old camp tee has one more summer in it.
         </h1>
-        <p className="text-white/50 text-base max-w-xl mx-auto leading-relaxed">
-          A marketplace built by a student who got tired of paying full price for gear that only
-          gets worn one summer. Trusted, safe, and focused on giving clothing a second life.
+        <p className="text-base leading-relaxed" style={{ color: "#4A5247", maxWidth: "560px" }}>
+          {BRAND_NAME} is a curated resale marketplace for used summer camp clothing,
+          organized by camp. Every item reviewed by a human. Every transaction handled end-to-end.
+          Every sale is one less new garment manufactured.
         </p>
       </section>
 
       {/* Story */}
-      <section className="py-20 px-6 border-b border-gray-100">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6" style={{ fontFamily: "var(--font-fraunces)" }}>
-            Our Story
-          </h2>
-          <div className="space-y-5 text-gray-600 leading-relaxed text-sm">
-            <p>
-              Camp Closet started with a simple frustration: buying branded camp gear is expensive,
-              and you outgrow it in one summer. The same goes for school uniforms — families spend
-              hundreds of dollars on clothes that barely get worn.
-            </p>
-            <p>
-              I built Camp Closet at 15 to solve this. A focused, trusted marketplace where families
-              can buy and sell used camp clothing and school uniforms — organized by institution,
-              curated by a real human.
-            </p>
-            <p>
-              Unlike general resale platforms, every submission is reviewed before it goes live.
-              Prices are set fairly. Buyer and seller info stays private — all communication runs
-              through us. It&apos;s not just a marketplace; it&apos;s a community built on trust.
-            </p>
-          </div>
+      <section
+        className="px-6 py-16"
+        style={{ borderBottom: "1px solid #D9D2C2", maxWidth: "720px", margin: "0 auto" }}
+      >
+        <h2
+          className="text-base font-medium mb-6"
+          style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+        >
+          Why this exists
+        </h2>
+        <div className="space-y-4 text-sm leading-relaxed" style={{ color: "#4A5247", maxWidth: "600px" }}>
+          <p>
+            Branded camp gear is expensive. You buy a hoodie for $55, it gets worn six weeks,
+            and then it sits in a bin until it's donated to someone who has no idea what
+            Camp Echo Lake is. The embroidery is still perfect. The fabric has barely been used.
+          </p>
+          <p>
+            The resale market for this specific category didn't exist — general platforms like
+            eBay and Poshmark are too noisy, and camp families don't have time to search through
+            thousands of listings to find gear from the right camp, in the right size, at a
+            reasonable price.
+          </p>
+          <p>
+            {BRAND_NAME} is the focused version: one camp, one category at a time.
+            Built by a 15-year-old who got tired of paying full price for a shirt that's
+            going to smell like bug spray in six weeks anyway.
+          </p>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-20 px-6 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center" style={{ fontFamily: "var(--font-fraunces)" }}>
-            What We Stand For
+      {/* Principles */}
+      <section
+        className="px-6 py-16"
+        style={{ borderBottom: "1px solid #D9D2C2", background: "#EDE6D3", maxWidth: "100%" }}
+      >
+        <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+          <h2
+            className="text-base font-medium mb-8"
+            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+          >
+            How we operate
           </h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {values.map((value) => (
-              <div key={value.title} className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-sm transition-shadow">
-                <h3 className="font-semibold text-gray-900 mb-2 text-sm">{value.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{value.desc}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ border: "1px solid #D9D2C2", background: "#D9D2C2" }}>
+            {PRINCIPLES.map((p) => (
+              <div key={p.title} className="p-6" style={{ background: "#F5F1E8" }}>
+                <h3 className="text-sm font-medium mb-2" style={{ color: "#1F2A20" }}>{p.title}</h3>
+                <p className="text-xs leading-relaxed" style={{ color: "#4A5247" }}>{p.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How it works detail */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center" style={{ fontFamily: "var(--font-fraunces)" }}>
-            The Full Process
-          </h2>
-          <div className="grid md:grid-cols-2 gap-10">
-            <div className="space-y-5">
-              <h3 className="text-sm font-semibold text-[#2d5016] uppercase tracking-widest">For Sellers</h3>
-              {sellerSteps.map((step, i) => (
-                <div key={i} className="flex gap-3">
-                  <div
-                    className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5"
-                    style={{ background: "#2d5016" }}
+      {/* How it works */}
+      <section
+        className="px-6 py-16"
+        style={{ borderBottom: "1px solid #D9D2C2", maxWidth: "720px", margin: "0 auto" }}
+      >
+        <h2
+          className="text-base font-medium mb-10"
+          style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+        >
+          The process
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider mb-6" style={{ color: "#2D5A3D", letterSpacing: "0.1em" }}>
+              Selling
+            </p>
+            <ol className="space-y-5">
+              {SELLER_STEPS.map((step, i) => (
+                <li key={i} className="flex gap-4">
+                  <span
+                    className="flex-shrink-0 text-xs tabular"
+                    style={{ fontFamily: "var(--font-mono)", color: "#C8932F", fontVariantNumeric: "tabular-nums", minWidth: "20px", paddingTop: "1px" }}
                   >
                     {i + 1}
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed pt-0.5">{step}</p>
-                </div>
+                  </span>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4A5247" }}>{step}</span>
+                </li>
               ))}
-            </div>
-            <div className="space-y-5">
-              <h3 className="text-sm font-semibold text-[#1e3a5f] uppercase tracking-widest">For Buyers</h3>
-              {buyerSteps.map((step, i) => (
-                <div key={i} className="flex gap-3">
-                  <div
-                    className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5"
-                    style={{ background: "#1e3a5f" }}
+            </ol>
+          </div>
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider mb-6" style={{ color: "#2D5A3D", letterSpacing: "0.1em" }}>
+              Buying
+            </p>
+            <ol className="space-y-5">
+              {BUYER_STEPS.map((step, i) => (
+                <li key={i} className="flex gap-4">
+                  <span
+                    className="flex-shrink-0 text-xs tabular"
+                    style={{ fontFamily: "var(--font-mono)", color: "#C8932F", fontVariantNumeric: "tabular-nums", minWidth: "20px", paddingTop: "1px" }}
                   >
                     {i + 1}
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed pt-0.5">{step}</p>
-                </div>
+                  </span>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4A5247" }}>{step}</span>
+                </li>
               ))}
-            </div>
+            </ol>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 text-center" style={{ background: "#111827" }}>
-        <h2 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-fraunces)" }}>
-          Ready to join the community?
+      <section
+        className="px-6 py-16"
+        style={{ maxWidth: "720px", margin: "0 auto" }}
+      >
+        <h2
+          className="mb-4"
+          style={{
+            fontFamily: "var(--font-fraunces)",
+            fontVariationSettings: "'opsz' 72, 'soft' 40",
+            fontSize: "clamp(24px, 3vw, 36px)",
+            color: "#1F2A20",
+          }}
+        >
+          Ready to give gear a second summer?
         </h2>
-        <p className="text-white/50 mb-8 text-sm">Browse hundreds of items or list your own today.</p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <p className="text-sm mb-8" style={{ color: "#8A8E83" }}>
+          Browse items at no cost. Listing is free.
+        </p>
+        <div className="flex flex-wrap gap-3">
           <Link
             href="/camps"
-            className="px-7 py-3 rounded-md text-white font-semibold text-sm transition-opacity hover:opacity-90"
-            style={{ background: "#2d5016" }}
+            className="px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
+            style={{ background: "#C8932F", color: "#F5F1E8", borderRadius: "4px" }}
           >
-            Browse Camps
+            Browse the marketplace →
+          </Link>
+          <Link
+            href="/submit"
+            className="px-6 py-3 text-sm font-medium transition-colors"
+            style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
+          >
+            List an item
           </Link>
         </div>
       </section>

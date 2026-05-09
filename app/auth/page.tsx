@@ -4,6 +4,19 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/app/lib/supabaseClient";
+import { BRAND_NAME } from "@/lib/brand";
+
+const inputCss: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 0",
+  border: "none",
+  borderBottom: "1px solid #D9D2C2",
+  borderRadius: "0",
+  background: "transparent",
+  outline: "none",
+  fontSize: "14px",
+  color: "#1F2A20",
+};
 
 function AuthForm() {
   const router       = useRouter();
@@ -77,161 +90,184 @@ function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16 bg-gray-50">
-      <div className="w-full max-w-sm">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-16"
+      style={{ background: "#F5F1E8" }}
+    >
+      <div className="w-full" style={{ maxWidth: "400px" }}>
 
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
+        <div className="mb-10">
+          <Link href="/" className="inline-flex items-center gap-2.5">
             <div
-              className="w-8 h-8 rounded flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: "#2d5016" }}
+              className="w-7 h-7 flex items-center justify-center text-xs font-bold flex-shrink-0"
+              style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "2px" }}
             >
-              CC
+              C
             </div>
-            <span className="text-lg font-semibold text-gray-900" style={{ fontFamily: "var(--font-fraunces)" }}>
-              Camp Closet
+            <span
+              className="text-base font-medium"
+              style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+            >
+              {BRAND_NAME}
             </span>
           </Link>
         </div>
 
+        <h1
+          className="mb-2 leading-tight"
+          style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "28px", color: "#1F2A20" }}
+        >
+          {mode === "login" ? "Sign in" : "Create account"}
+        </h1>
+        <p className="text-sm mb-8" style={{ color: "#8A8E83" }}>
+          {mode === "login"
+            ? "Welcome back."
+            : "You'll need an account to list items."}
+        </p>
+
         {hasError && (
-          <div className="mb-4 px-4 py-3 rounded border border-red-200 bg-red-50 text-xs text-red-700">
+          <div
+            className="mb-6 px-4 py-3 text-xs"
+            style={{ color: "#8B3A2E", background: "#F9F0EE", border: "1px solid #D9B9B4", borderRadius: "4px" }}
+          >
             The sign-in link expired or was already used. Request a new one below.
           </div>
         )}
 
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-          {/* Tab toggle */}
-          <div className="flex border-b border-gray-100">
-            {(["login", "signup"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => { setMode(tab); setMessage(""); setStatus("idle"); setFullName(""); setPhone(""); }}
-                className={`flex-1 py-3.5 text-sm font-medium transition-colors ${
-                  mode === tab
-                    ? "text-gray-900 border-b-2 border-[#2d5016]"
-                    : "text-gray-400 hover:text-gray-600"
-                }`}
-              >
-                {tab === "login" ? "Sign In" : "Create Account"}
-              </button>
-            ))}
+        {status === "success" ? (
+          <div>
+            <div
+              className="w-10 h-10 flex items-center justify-center mb-6"
+              style={{ border: "1.5px solid #2D5A3D", borderRadius: "2px" }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#2D5A3D" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3
+              className="font-medium mb-2 text-sm"
+              style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20" }}
+            >
+              Check your inbox
+            </h3>
+            <p className="text-xs leading-relaxed mb-1" style={{ color: "#4A5247" }}>
+              We sent a confirmation link to <strong>{email}</strong>.
+            </p>
+            <p className="text-xs leading-relaxed mb-6" style={{ color: "#8A8E83" }}>
+              Click the link to finish setting up your account. Check spam if you don&apos;t see it.
+            </p>
+            <button
+              onClick={() => { setMode("login"); setStatus("idle"); setMessage(""); }}
+              className="text-xs font-medium transition-opacity hover:opacity-70"
+              style={{ color: "#2D5A3D" }}
+            >
+              ← Back to sign in
+            </button>
           </div>
-
-          <div className="p-6">
-            {status === "success" ? (
-              <div className="text-center py-4">
-                <div className="w-10 h-10 rounded-lg border-2 border-[#2d5016] flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-5 h-5 text-[#2d5016]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2 text-sm">Check your inbox</h3>
-                <p className="text-xs text-gray-500 mb-1 leading-relaxed">
-                  We sent a confirmation link to <strong>{email}</strong>.
-                </p>
-                <p className="text-xs text-gray-400 mb-5 leading-relaxed">
-                  Click the link to finish setting up your account. Check spam if you don&apos;t see it.
-                </p>
-                <button
-                  onClick={() => { setMode("login"); setStatus("idle"); setMessage(""); }}
-                  className="text-xs text-[#2d5016] font-medium hover:underline"
-                >
-                  Back to sign in
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === "signup" && (
-                  <>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1.5">Full Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        autoComplete="name"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                        placeholder="Your name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1.5">Phone Number</label>
-                      <input
-                        type="tel"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        autoComplete="tel"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                        placeholder="5550001234"
-                      />
-                    </div>
-                  </>
-                )}
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {mode === "signup" && (
+              <>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Email</label>
+                  <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>Full name</label>
                   <input
-                    type="email"
+                    type="text"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                    placeholder="you@example.com"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    autoComplete="name"
+                    placeholder="Your name"
+                    style={inputCss}
+                    onFocus={(e) => { e.currentTarget.style.borderBottomColor = "#2D5A3D"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderBottomColor = "#D9D2C2"; }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Password</label>
+                  <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>Phone number</label>
                   <input
-                    type="password"
+                    type="tel"
                     required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete={mode === "login" ? "current-password" : "new-password"}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 transition-colors"
-                    placeholder={mode === "signup" ? "6 characters minimum" : "••••••••"}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    autoComplete="tel"
+                    placeholder="5550001234"
+                    style={inputCss}
+                    onFocus={(e) => { e.currentTarget.style.borderBottomColor = "#2D5A3D"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderBottomColor = "#D9D2C2"; }}
                   />
                 </div>
-
-                {message && status === "error" && (
-                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-3">{message}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  className="w-full py-2.5 rounded text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50 mt-1"
-                  style={{ background: "#2d5016" }}
-                >
-                  {status === "loading"
-                    ? "Please wait…"
-                    : mode === "login"
-                    ? "Sign In"
-                    : "Create Account"}
-                </button>
-
-                <p className="text-center text-xs text-gray-400 pt-1">
-                  {mode === "login" ? "No account? " : "Already have one? "}
-                  <button
-                    type="button"
-                    onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); setStatus("idle"); setFullName(""); setPhone(""); }}
-                    className="text-[#2d5016] font-medium hover:underline"
-                  >
-                    {mode === "login" ? "Sign up" : "Sign in"}
-                  </button>
-                </p>
-              </form>
+              </>
             )}
-          </div>
-        </div>
+            <div>
+              <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                placeholder="you@example.com"
+                style={inputCss}
+                onFocus={(e) => { e.currentTarget.style.borderBottomColor = "#2D5A3D"; }}
+                onBlur={(e) => { e.currentTarget.style.borderBottomColor = "#D9D2C2"; }}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>Password</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                placeholder={mode === "signup" ? "6 characters minimum" : "••••••••"}
+                style={inputCss}
+                onFocus={(e) => { e.currentTarget.style.borderBottomColor = "#2D5A3D"; }}
+                onBlur={(e) => { e.currentTarget.style.borderBottomColor = "#D9D2C2"; }}
+              />
+            </div>
 
-        <p className="text-center text-xs text-gray-400 mt-5">
-          You need an account to sell. Browsing is free.{" "}
-          <Link href="/camps" className="hover:text-gray-600 transition-colors">
+            {message && status === "error" && (
+              <p
+                className="text-xs p-3"
+                style={{ color: "#8B3A2E", background: "#F9F0EE", border: "1px solid #D9B9B4", borderRadius: "4px" }}
+              >
+                {message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              className="w-full py-3 font-semibold text-sm transition-opacity hover:opacity-80 disabled:opacity-50"
+              style={{ background: "#C8932F", color: "#F5F1E8", borderRadius: "4px" }}
+            >
+              {status === "loading"
+                ? "Please wait…"
+                : mode === "login"
+                ? "Sign in →"
+                : "Create account →"}
+            </button>
+
+            <p className="text-center text-xs" style={{ color: "#8A8E83" }}>
+              {mode === "login" ? "No account? " : "Already have one? "}
+              <button
+                type="button"
+                onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); setStatus("idle"); setFullName(""); setPhone(""); }}
+                className="font-medium transition-opacity hover:opacity-70"
+                style={{ color: "#2D5A3D" }}
+              >
+                {mode === "login" ? "Sign up" : "Sign in"}
+              </button>
+            </p>
+          </form>
+        )}
+
+        <p className="text-xs mt-8" style={{ color: "#8A8E83" }}>
+          Browsing is always free.{" "}
+          <Link href="/camps" className="transition-opacity hover:opacity-70" style={{ color: "#4A5247" }}>
             Browse camps →
           </Link>
         </p>

@@ -17,7 +17,7 @@ export default function OrderPage() {
   const [order, setOrder]       = useState<Order | null>(null);
   const [loading, setLoading]   = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [refundStep, setRefundStep] = useState<RefundStep>("idle");
+  const [refundStep, setRefundStep]     = useState<RefundStep>("idle");
   const [refundReason, setRefundReason] = useState("");
   const [refundError, setRefundError]   = useState("");
 
@@ -46,14 +46,9 @@ export default function OrderPage() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setRefundError("Session expired. Please sign in again."); setRefundStep("form"); return; }
 
-    // Use the admin API to update refund_status to 'requested'
-    // (In production, this would go through a dedicated buyer API route with auth)
     const res = await fetch("/api/buyer/refund-request", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({ order_id: order.id, reason: refundReason }),
     });
     const result = await res.json();
@@ -68,7 +63,6 @@ export default function OrderPage() {
 
   const impact = order ? getImpact(order.item_type) : null;
 
-  // Can file a claim if delivered within 7 days (approximated by 14 days from ship date)
   const canFileClaim = order &&
     order.status !== "refunded" &&
     order.refund_status === "none" &&
@@ -76,27 +70,34 @@ export default function OrderPage() {
     (Date.now() - new Date(order.shipped_at).getTime()) < 14 * 24 * 60 * 60 * 1000;
 
   const statusSteps = [
-    { key: "paid",      label: "Order placed",    done: true },
-    { key: "shipped",   label: "Shipped",         done: !!order?.tracking_number },
-    { key: "delivered", label: "Delivered",       done: order?.status === "delivered" },
+    { key: "paid",      label: "Order placed", done: true },
+    { key: "shipped",   label: "Shipped",      done: !!order?.tracking_number },
+    { key: "delivered", label: "Delivered",    done: order?.status === "delivered" },
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-gray-200 border-t-[#2d5016] rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F5F1E8" }}>
+        <div className="w-5 h-5 border-2 border-[#D9D2C2] border-t-[#2D5A3D] rounded-full animate-spin" />
       </div>
     );
   }
 
   if (notFound || !order) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Order not found</h1>
-          <p className="text-gray-500 mb-6">We couldn&apos;t find this order on your account.</p>
-          <Link href="/" className="px-5 py-2.5 rounded text-white font-medium text-sm bg-[#2d5016] hover:opacity-90 transition-opacity">
-            Back to Home
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#F5F1E8" }}>
+        <div style={{ maxWidth: "400px" }}>
+          <h1
+            className="font-medium mb-2"
+            style={{ fontFamily: "var(--font-fraunces)", fontSize: "24px", color: "#1F2A20" }}
+          >
+            Order not found
+          </h1>
+          <p className="text-sm mb-6" style={{ color: "#8A8E83" }}>
+            We couldn&apos;t find this order on your account.
+          </p>
+          <Link href="/" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: "#2D5A3D" }}>
+            ← Back to home
           </Link>
         </div>
       </div>
@@ -108,63 +109,79 @@ export default function OrderPage() {
   })() : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-gray-500 text-sm mb-8 hover:text-gray-700 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
+      <div className="px-6 py-12" style={{ maxWidth: "620px", margin: "0 auto" }}>
+
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs mb-8 transition-opacity hover:opacity-70"
+          style={{ color: "#8A8E83" }}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back
         </Link>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
+        <div className="mb-8">
+          <h1
+            className="mb-1"
+            style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "28px", color: "#1F2A20" }}
+          >
             Order {order.id.slice(0, 8).toUpperCase()}
           </h1>
-          <p className="text-sm text-gray-500">Placed {new Date(order.created_at).toLocaleDateString()}</p>
+          <p className="text-sm" style={{ color: "#8A8E83" }}>
+            Placed {new Date(order.created_at).toLocaleDateString()}
+          </p>
         </div>
 
-        {/* Status timeline */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-5">Shipping Status</h2>
-          <div className="flex items-center gap-0">
-            {statusSteps.map((step, i) => (
-              <div key={step.key} className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                    step.done ? "bg-[#2d5016] border-[#2d5016]" : "bg-white border-gray-200"
-                  }`}>
-                    {step.done ? (
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Shipping status — linear, not circles */}
+        <div className="mb-4 p-5" style={{ border: "1px solid #D9D2C2" }}>
+          <h2 className="text-xs font-medium uppercase tracking-wider mb-5" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
+            Shipping status
+          </h2>
+          <div className="relative">
+            {/* Line */}
+            <div className="absolute top-2.5 left-2.5 right-2.5 h-px" style={{ background: "#D9D2C2" }} />
+            <div className="flex justify-between relative">
+              {statusSteps.map((step) => (
+                <div key={step.key} className="flex flex-col items-center gap-3" style={{ maxWidth: "80px" }}>
+                  <div
+                    className="w-5 h-5 flex items-center justify-center z-10"
+                    style={{
+                      background: step.done ? "#2D5A3D" : "#F5F1E8",
+                      border: step.done ? "1.5px solid #2D5A3D" : "1.5px solid #D9D2C2",
+                      borderRadius: "2px",
+                    }}
+                  >
+                    {step.done && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#F5F1E8" }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                       </svg>
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-gray-200" />
                     )}
                   </div>
-                  <span className="text-xs text-gray-500 mt-2 text-center leading-tight w-20">{step.label}</span>
+                  <span className="text-xs text-center leading-tight" style={{ color: step.done ? "#1F2A20" : "#8A8E83" }}>
+                    {step.label}
+                  </span>
                 </div>
-                {i < statusSteps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mb-5 ${step.done && statusSteps[i + 1].done ? "bg-[#2d5016]" : "bg-gray-100"}`} />
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          {/* Tracking number */}
           {order.tracking_number && (
-            <div className="mt-5 pt-5 border-t border-gray-100">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">USPS Tracking</p>
+            <div className="mt-5 pt-4" style={{ borderTop: "1px solid #D9D2C2" }}>
+              <p className="text-xs uppercase tracking-wider mb-1" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>USPS Tracking</p>
               <a
                 href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-mono text-[#2d5016] hover:underline"
+                className="text-sm transition-opacity hover:opacity-70"
+                style={{ fontFamily: "var(--font-mono)", color: "#2D5A3D" }}
               >
                 {order.tracking_number}
               </a>
               {order.shipped_at && (
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs mt-0.5" style={{ color: "#8A8E83" }}>
                   Shipped {new Date(order.shipped_at).toLocaleDateString()}
                 </p>
               )}
@@ -172,84 +189,98 @@ export default function OrderPage() {
           )}
 
           {!order.tracking_number && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded text-xs text-amber-700">
-              Awaiting tracking. Your seller has 5 business days to ship from the order date.
+            <div className="mt-4 p-3 text-xs" style={{ background: "#FBF5E8", border: "1px solid #E6C97A", color: "#A67424", borderRadius: "4px" }}>
+              Awaiting tracking. Your seller has 7 days to ship from the order date.
               Auto-refund applies if no tracking is entered in time.
             </div>
           )}
         </div>
 
         {/* Order details */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">Order Details</h2>
-          <div className="space-y-2 text-sm">
+        <div className="mb-4 p-5" style={{ border: "1px solid #D9D2C2" }}>
+          <h2 className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
+            Order details
+          </h2>
+          <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">{getItemTypeLabel(order.item_type)}</span>
-              <span className="font-medium">${order.item_price.toFixed(2)}</span>
+              <span style={{ color: "#4A5247" }}>{getItemTypeLabel(order.item_type)}</span>
+              <span className="font-medium tabular" style={{ fontFamily: "var(--font-mono)", color: "#1F2A20" }}>
+                ${order.item_price.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Shipping</span>
-              <span className="font-medium">${order.shipping_fee.toFixed(2)}</span>
+              <span style={{ color: "#4A5247" }}>Shipping</span>
+              <span className="font-medium tabular" style={{ fontFamily: "var(--font-mono)", color: "#1F2A20" }}>
+                ${order.shipping_fee.toFixed(2)}
+              </span>
             </div>
-            <div className="border-t border-gray-100 pt-2 flex justify-between font-semibold">
-              <span>Total paid</span>
-              <span>${order.total_amount.toFixed(2)}</span>
+            <div className="flex justify-between pt-3" style={{ borderTop: "1px solid #D9D2C2" }}>
+              <span className="font-medium" style={{ color: "#1F2A20" }}>Total paid</span>
+              <span className="font-medium tabular" style={{ fontFamily: "var(--font-mono)", color: "#1F2A20" }}>
+                ${order.total_amount.toFixed(2)}
+              </span>
             </div>
           </div>
 
           {address && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Shipping to</p>
-              <p className="text-sm text-gray-700">{address.name}</p>
-              <p className="text-sm text-gray-500">{address.street}, {address.city}, {address.state} {address.zip}</p>
+            <div className="mt-4 pt-4" style={{ borderTop: "1px solid #D9D2C2" }}>
+              <p className="text-xs uppercase tracking-wider mb-1.5" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>Shipping to</p>
+              <p className="text-sm font-medium" style={{ color: "#1F2A20" }}>{address.name}</p>
+              <p className="text-xs" style={{ color: "#4A5247" }}>{address.street}, {address.city}, {address.state} {address.zip}</p>
             </div>
           )}
         </div>
 
         {/* Environmental impact */}
         {impact && (
-          <div className="bg-[#1F4E33]/5 border border-[#1F4E33]/10 rounded-lg p-5 mb-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#1F4E33] mb-3">Your purchase saved</p>
+          <div className="mb-4 p-5" style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>
+              Your purchase saved
+            </p>
             <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="font-bold text-lg text-[#1F4E33]" style={{ fontFamily: "var(--font-fraunces)" }}>{impact.waterDisplay}</div>
-                <div className="text-xs text-gray-500 mt-0.5">water</div>
-              </div>
-              <div>
-                <div className="font-bold text-lg text-[#1F4E33]" style={{ fontFamily: "var(--font-fraunces)" }}>{impact.energyDisplay}</div>
-                <div className="text-xs text-gray-500 mt-0.5">energy</div>
-              </div>
-              <div>
-                <div className="font-bold text-lg text-[#1F4E33]" style={{ fontFamily: "var(--font-fraunces)" }}>{impact.co2Display}</div>
-                <div className="text-xs text-gray-500 mt-0.5">CO2</div>
-              </div>
+              {[
+                { value: impact.waterDisplay, label: "water" },
+                { value: impact.energyDisplay, label: "energy" },
+                { value: impact.co2Display, label: "CO₂" },
+              ].map(({ value, label }) => (
+                <div key={label}>
+                  <div
+                    className="text-xl font-medium mb-0.5 tabular"
+                    style={{ fontFamily: "var(--font-mono)", color: "#2D5A3D", fontVariantNumeric: "tabular-nums" }}
+                  >
+                    {value}
+                  </div>
+                  <div className="text-xs" style={{ color: "#8A8E83" }}>{label}</div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Refund / claim section */}
+        {/* Refund status messages */}
         {order.refund_status === "requested" && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+          <div className="mb-4 p-4 text-sm" style={{ background: "#FBF5E8", border: "1px solid #E6C97A", color: "#A67424", borderRadius: "4px" }}>
             Your refund claim is under review. Our team will respond within 1–2 business days.
           </div>
         )}
 
         {order.refund_status === "issued" && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
+          <div className="mb-4 p-4 text-sm" style={{ background: "#EDF4EE", border: "1px solid #A8C5A0", color: "#2D5A3D", borderRadius: "4px" }}>
             Refund issued. Allow 3–5 business days to appear in your PayPal account.
           </div>
         )}
 
         {canFileClaim && refundStep === "idle" && (
-          <div className="bg-white border border-gray-200 rounded-lg p-5">
-            <h2 className="text-sm font-semibold text-gray-900 mb-1">Problem with this order?</h2>
-            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+          <div className="p-5" style={{ border: "1px solid #D9D2C2" }}>
+            <h2 className="text-sm font-medium mb-1" style={{ color: "#1F2A20" }}>Problem with this order?</h2>
+            <p className="text-xs mb-3 leading-relaxed" style={{ color: "#8A8E83" }}>
               If the item was not as described or never arrived, you may file a claim within 7 days of delivery.
               All sales are otherwise final.
             </p>
             <button
               onClick={() => setRefundStep("form")}
-              className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+              className="text-xs font-medium transition-opacity hover:opacity-70"
+              style={{ color: "#8B3A2E" }}
             >
               Report a problem
             </button>
@@ -257,43 +288,57 @@ export default function OrderPage() {
         )}
 
         {(refundStep === "form" || refundStep === "submitting") && (
-          <div className="bg-white border border-gray-200 rounded-lg p-5">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Report a Problem</h2>
+          <div className="p-5" style={{ border: "1px solid #D9D2C2" }}>
+            <h2 className="text-sm font-medium mb-3" style={{ color: "#1F2A20" }}>Report a problem</h2>
             <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Describe the issue <span className="text-red-500">*</span>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: "#4A5247" }}>
+                Describe the issue <span style={{ color: "#8B3A2E" }}>*</span>
               </label>
               <textarea
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400 transition-colors resize-none"
-                placeholder="Item was stained / not the right size described / never arrived…"
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  border: "1px solid #D9D2C2",
+                  borderRadius: "4px",
+                  background: "transparent",
+                  outline: "none",
+                  fontSize: "14px",
+                  color: "#1F2A20",
+                  resize: "none",
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
+                placeholder="Item was stained / not the size described / never arrived…"
               />
             </div>
             {refundError && (
-              <p className="text-xs text-red-600 mb-3">{refundError}</p>
+              <p className="text-xs mb-3" style={{ color: "#8B3A2E" }}>{refundError}</p>
             )}
             <div className="flex gap-3">
               <button
                 onClick={() => setRefundStep("idle")}
-                className="flex-1 py-2 border border-gray-200 rounded text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 text-sm font-medium transition-colors"
+                style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleRefundRequest}
                 disabled={!refundReason.trim() || refundStep === "submitting"}
-                className="flex-1 py-2 rounded text-white text-sm font-semibold bg-red-600 hover:opacity-90 transition-opacity disabled:opacity-40"
+                className="flex-1 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
+                style={{ background: "#8B3A2E", color: "#F5F1E8", borderRadius: "4px" }}
               >
-                {refundStep === "submitting" ? "Submitting…" : "Submit Claim"}
+                {refundStep === "submitting" ? "Submitting…" : "Submit claim"}
               </button>
             </div>
           </div>
         )}
 
         {refundStep === "submitted" && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
+          <div className="p-4 text-sm" style={{ background: "#EDF4EE", border: "1px solid #A8C5A0", color: "#2D5A3D", borderRadius: "4px" }}>
             Claim submitted. We&apos;ll review it and respond within 1–2 business days.
           </div>
         )}
