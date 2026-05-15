@@ -3,11 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Order } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
 import { getImpact, calcTotalImpact } from "@/app/lib/impact";
 import type { CampRequest } from "@/app/lib/supabaseClient";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 type SellRequest = CampRequest & { institution: string };
 
@@ -22,15 +25,15 @@ const statusStyle: Record<string, React.CSSProperties> = {
 
 export default function SellerDashboard() {
   const router = useRouter();
-  const [session, setSession]             = useState<{ access_token: string } | null>(null);
-  const [orders, setOrders]               = useState<Order[]>([]);
-  const [submissions, setSubmissions]     = useState<SellRequest[]>([]);
-  const [loading, setLoading]             = useState(true);
+  const [session, setSession]               = useState<{ access_token: string } | null>(null);
+  const [orders, setOrders]                 = useState<Order[]>([]);
+  const [submissions, setSubmissions]       = useState<SellRequest[]>([]);
+  const [loading, setLoading]               = useState(true);
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
-  const [submitting, setSubmitting]       = useState<string | null>(null);
-  const [shipError, setShipError]         = useState<Record<string, string>>({});
-  const [shipSuccess, setShipSuccess]     = useState<Record<string, boolean>>({});
-  const [claimCount, setClaimCount]       = useState<number>(0);
+  const [submitting, setSubmitting]         = useState<string | null>(null);
+  const [shipError, setShipError]           = useState<Record<string, string>>({});
+  const [shipSuccess, setShipSuccess]       = useState<Record<string, boolean>>({});
+  const [claimCount, setClaimCount]         = useState<number>(0);
   const [claimResetDays, setClaimResetDays] = useState<number | null>(null);
 
   const load = useCallback(async (token: string, userId: string, email: string) => {
@@ -119,7 +122,14 @@ export default function SellerDashboard() {
     <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
       <div className="px-6 py-12" style={{ maxWidth: "880px", margin: "0 auto" }}>
 
-        <div className="mb-10 pb-8" style={{ borderBottom: "1px solid #D9D2C2" }}>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.45, ease: EASE_OUT }}
+          className="mb-10 pb-8"
+          style={{ borderBottom: "1px solid #D9D2C2" }}
+        >
           <h1
             className="mb-1"
             style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "32px", color: "#1F2A20" }}
@@ -135,11 +145,17 @@ export default function SellerDashboard() {
               <span> Resets in {claimResetDays} {claimResetDays === 1 ? "day" : "days"}.</span>
             )}
           </p>
-        </div>
+        </motion.div>
 
-        {/* Sustainability impact — cream-based */}
+        {/* Sustainability impact */}
         {approvedSubmissions.length > 0 && (
-          <div className="mb-10 p-6" style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 14, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.42, delay: 0.08, ease: EASE_OUT }}
+            className="mb-10 p-6"
+            style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}
+          >
             <p className="text-xs font-medium uppercase tracking-wider mb-5" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
               Your cumulative impact
             </p>
@@ -148,8 +164,13 @@ export default function SellerDashboard() {
                 { value: `${totalImpact.water.toLocaleString()} L`, label: "water saved", color: "#2D5A3D" },
                 { value: `${totalImpact.energy} kWh`, label: "energy saved", color: "#C8932F" },
                 { value: `${totalImpact.co2} kg`, label: "CO₂ avoided", color: "#2D5A3D" },
-              ].map(({ value, label, color }) => (
-                <div key={label}>
+              ].map(({ value, label, color }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.18 + i * 0.08, ease: EASE_OUT }}
+                >
                   <div
                     className="text-xl font-medium mb-0.5 tabular"
                     style={{ fontFamily: "var(--font-mono)", color, fontVariantNumeric: "tabular-nums" }}
@@ -157,17 +178,22 @@ export default function SellerDashboard() {
                     {value}
                   </div>
                   <div className="text-xs" style={{ color: "#8A8E83" }}>{label}</div>
-                </div>
+                </motion.div>
               ))}
             </div>
             <p className="text-xs mt-4" style={{ color: "#8A8E83" }}>
               Based on {approvedSubmissions.length} approved listing{approvedSubmissions.length !== 1 ? "s" : ""}.
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Pending shipments */}
-        <div className="mb-10">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.14, ease: EASE_OUT }}
+          className="mb-10"
+        >
           <h2
             className="font-medium mb-5"
             style={{ fontFamily: "var(--font-fraunces)", fontSize: "18px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
@@ -175,15 +201,12 @@ export default function SellerDashboard() {
             Pending shipments
           </h2>
           {pendingShipments.length === 0 ? (
-            <div
-              className="p-8 text-center"
-              style={{ border: "1px solid #D9D2C2" }}
-            >
+            <div className="p-8 text-center" style={{ border: "1px solid #D9D2C2" }}>
               <p className="text-sm" style={{ color: "#8A8E83" }}>No pending shipments. You&apos;re all caught up.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {pendingShipments.map((order) => {
+              {pendingShipments.map((order, i) => {
                 const address = order.buyer_address ? (() => {
                   try { return JSON.parse(order.buyer_address!); } catch { return null; }
                 })() : null;
@@ -193,7 +216,14 @@ export default function SellerDashboard() {
                 deadline.setDate(deadline.getDate() + 7);
 
                 return (
-                  <div key={order.id} className="p-5" style={{ border: "1px solid #D9D2C2", background: "#F5F1E8" }}>
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.38, delay: i * 0.07, ease: EASE_OUT }}
+                    className="p-5"
+                    style={{ border: "1px solid #D9D2C2", background: "#F5F1E8" }}
+                  >
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
                         <div className="font-medium text-sm" style={{ color: "#1F2A20" }}>
@@ -229,56 +259,81 @@ export default function SellerDashboard() {
                       </p>
                     )}
 
-                    {shipSuccess[order.id] ? (
-                      <div
-                        className="text-xs p-3"
-                        style={{ color: "#2D5A3D", background: "#EDF4EE", border: "1px solid #A8C5A0", borderRadius: "4px" }}
-                      >
-                        Tracking saved. The buyer will be notified.
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={trackingInputs[order.id] ?? ""}
-                          onChange={(e) => setTrackingInputs((t) => ({ ...t, [order.id]: e.target.value }))}
-                          placeholder="Enter USPS tracking number"
-                          style={{
-                            flex: 1,
-                            padding: "8px 12px",
-                            border: "1px solid #D9D2C2",
-                            borderRadius: "4px",
-                            background: "transparent",
-                            outline: "none",
-                            fontSize: "13px",
-                            color: "#1F2A20",
-                          }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
-                          onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
-                        />
-                        <button
-                          onClick={() => handleMarkShipped(order.id)}
-                          disabled={!trackingInputs[order.id]?.trim() || submitting === order.id}
-                          className="px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
-                          style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px", whiteSpace: "nowrap" }}
+                    <AnimatePresence mode="wait">
+                      {shipSuccess[order.id] ? (
+                        <motion.div
+                          key="success"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, ease: EASE_OUT }}
+                          className="text-xs p-3"
+                          style={{ color: "#2D5A3D", background: "#EDF4EE", border: "1px solid #A8C5A0", borderRadius: "4px" }}
                         >
-                          {submitting === order.id ? "Saving…" : "Mark shipped"}
-                        </button>
-                      </div>
-                    )}
-                    {shipError[order.id] && (
-                      <p className="text-xs mt-2" style={{ color: "#8B3A2E" }}>{shipError[order.id]}</p>
-                    )}
-                  </div>
+                          Tracking saved. The buyer will be notified.
+                        </motion.div>
+                      ) : (
+                        <motion.div key="form" className="flex gap-2">
+                          <input
+                            type="text"
+                            value={trackingInputs[order.id] ?? ""}
+                            onChange={(e) => setTrackingInputs((t) => ({ ...t, [order.id]: e.target.value }))}
+                            placeholder="Enter USPS tracking number"
+                            style={{
+                              flex: 1,
+                              padding: "8px 12px",
+                              border: "1px solid #D9D2C2",
+                              borderRadius: "4px",
+                              background: "transparent",
+                              outline: "none",
+                              fontSize: "13px",
+                              color: "#1F2A20",
+                            }}
+                            onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
+                            onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
+                          />
+                          <motion.button
+                            whileTap={{ scale: 0.96 }}
+                            transition={{ duration: 0.1 }}
+                            onClick={() => handleMarkShipped(order.id)}
+                            disabled={!trackingInputs[order.id]?.trim() || submitting === order.id}
+                            className="px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
+                            style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px", whiteSpace: "nowrap" }}
+                          >
+                            {submitting === order.id ? "Saving…" : "Mark shipped"}
+                          </motion.button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                      {shipError[order.id] && (
+                        <motion.p
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="text-xs mt-2"
+                          style={{ color: "#8B3A2E" }}
+                        >
+                          {shipError[order.id]}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 );
               })}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Shipped orders */}
         {shippedOrders.length > 0 && (
-          <div className="mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2, ease: EASE_OUT }}
+            className="mb-10"
+          >
             <h2
               className="font-medium mb-5"
               style={{ fontFamily: "var(--font-fraunces)", fontSize: "18px", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
@@ -295,13 +350,18 @@ export default function SellerDashboard() {
                     { value: `${soldImpact.water.toLocaleString()} L`, label: "water saved", color: "#2D5A3D" },
                     { value: `${soldImpact.energy} kWh`, label: "energy saved", color: "#C8932F" },
                     { value: `${soldImpact.co2} kg`, label: "CO₂ avoided", color: "#2D5A3D" },
-                  ].map(({ value, label, color }) => (
-                    <div key={label}>
+                  ].map(({ value, label, color }, i) => (
+                    <motion.div
+                      key={label}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.28, delay: 0.28 + i * 0.07, ease: EASE_OUT }}
+                    >
                       <div className="text-xl font-medium mb-0.5 tabular" style={{ fontFamily: "var(--font-mono)", color, fontVariantNumeric: "tabular-nums" }}>
                         {value}
                       </div>
                       <div className="text-xs" style={{ color: "#8A8E83" }}>{label}</div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -318,8 +378,11 @@ export default function SellerDashboard() {
                 </thead>
                 <tbody>
                   {shippedOrders.map((order, i) => (
-                    <tr
+                    <motion.tr
                       key={order.id}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: 0.3 + i * 0.05, ease: EASE_OUT }}
                       style={{ borderBottom: i < shippedOrders.length - 1 ? "1px solid #D9D2C2" : "none" }}
                     >
                       <td className="px-4 py-3">
@@ -346,16 +409,20 @@ export default function SellerDashboard() {
                           ${order.seller_payout.toFixed(2)}
                         </span>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* My listings */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.24, ease: EASE_OUT }}
+        >
           <div className="flex items-center justify-between mb-5">
             <h2
               className="font-medium"
@@ -375,13 +442,15 @@ export default function SellerDashboard() {
           {submissions.length === 0 ? (
             <div className="p-8 text-center" style={{ border: "1px solid #D9D2C2" }}>
               <p className="text-sm mb-4" style={{ color: "#8A8E83" }}>You haven&apos;t listed anything yet.</p>
-              <Link
-                href="/submit"
-                className="inline-block px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
-                style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
-              >
-                List your first item
-              </Link>
+              <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.1 }}>
+                <Link
+                  href="/submit"
+                  className="inline-block px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
+                  style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
+                >
+                  List your first item
+                </Link>
+              </motion.div>
             </div>
           ) : (
             <div style={{ border: "1px solid #D9D2C2", overflow: "hidden" }}>
@@ -398,8 +467,11 @@ export default function SellerDashboard() {
                   {submissions.map((sub, i) => {
                     const impact = sub.status === "approved" ? getImpact(sub.item_type) : null;
                     return (
-                      <tr
+                      <motion.tr
                         key={sub.id}
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: 0.32 + i * 0.05, ease: EASE_OUT }}
                         style={{ borderBottom: i < submissions.length - 1 ? "1px solid #D9D2C2" : "none" }}
                       >
                         <td className="px-4 py-3">
@@ -418,14 +490,14 @@ export default function SellerDashboard() {
                         <td className="px-4 py-3 text-xs" style={{ color: "#4A5247" }}>
                           {impact ? `${impact.energyDisplay} · ${impact.waterDisplay}` : "—"}
                         </td>
-                      </tr>
+                      </motion.tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

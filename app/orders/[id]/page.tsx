@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Order } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel } from "@/app/lib/supabaseClient";
 import { getImpact } from "@/app/lib/impact";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 type RefundStep = "idle" | "form" | "submitting" | "submitted";
 
@@ -86,7 +89,12 @@ export default function OrderPage() {
   if (notFound || !order) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#F5F1E8" }}>
-        <div style={{ maxWidth: "400px" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, ease: EASE_OUT }}
+          style={{ maxWidth: "400px" }}
+        >
           <h1
             className="font-medium mb-2"
             style={{ fontFamily: "var(--font-fraunces)", fontSize: "24px", color: "#1F2A20" }}
@@ -99,7 +107,7 @@ export default function OrderPage() {
           <Link href="/" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: "#2D5A3D" }}>
             ← Back to home
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -112,18 +120,29 @@ export default function OrderPage() {
     <div style={{ background: "#F5F1E8", minHeight: "100vh" }}>
       <div className="px-6 py-12" style={{ maxWidth: "620px", margin: "0 auto" }}>
 
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs mb-8 transition-opacity hover:opacity-70"
-          style={{ color: "#8A8E83" }}
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, ease: EASE_OUT }}
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back
-        </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs mb-8 transition-opacity hover:opacity-70"
+            style={{ color: "#8A8E83" }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </Link>
+        </motion.div>
 
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.45, delay: 0.06, ease: EASE_OUT }}
+          className="mb-8"
+        >
           <h1
             className="mb-1"
             style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "28px", color: "#1F2A20" }}
@@ -133,25 +152,38 @@ export default function OrderPage() {
           <p className="text-sm" style={{ color: "#8A8E83" }}>
             Placed {new Date(order.created_at).toLocaleDateString()}
           </p>
-        </div>
+        </motion.div>
 
-        {/* Shipping status — linear, not circles */}
-        <div className="mb-4 p-5" style={{ border: "1px solid #D9D2C2" }}>
+        {/* Shipping status */}
+        <motion.div
+          initial={{ opacity: 0, y: 14, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.12, ease: EASE_OUT }}
+          className="mb-4 p-5"
+          style={{ border: "1px solid #D9D2C2" }}
+        >
           <h2 className="text-xs font-medium uppercase tracking-wider mb-5" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
             Shipping status
           </h2>
           <div className="relative">
-            {/* Line */}
             <div className="absolute top-2.5 left-2.5 right-2.5 h-px" style={{ background: "#D9D2C2" }} />
             <div className="flex justify-between relative">
-              {statusSteps.map((step) => (
-                <div key={step.key} className="flex flex-col items-center gap-3" style={{ maxWidth: "80px" }}>
+              {statusSteps.map((step, i) => (
+                <motion.div
+                  key={step.key}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.22 + i * 0.1, ease: EASE_OUT }}
+                  className="flex flex-col items-center gap-3"
+                  style={{ maxWidth: "80px" }}
+                >
                   <div
                     className="w-5 h-5 flex items-center justify-center z-10"
                     style={{
                       background: step.done ? "#2D5A3D" : "#F5F1E8",
                       border: step.done ? "1.5px solid #2D5A3D" : "1.5px solid #D9D2C2",
                       borderRadius: "2px",
+                      transition: "background 300ms cubic-bezier(0.23, 1, 0.32, 1), border-color 300ms",
                     }}
                   >
                     {step.done && (
@@ -163,7 +195,7 @@ export default function OrderPage() {
                   <span className="text-xs text-center leading-tight" style={{ color: step.done ? "#1F2A20" : "#8A8E83" }}>
                     {step.label}
                   </span>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -194,10 +226,16 @@ export default function OrderPage() {
               Auto-refund applies if no tracking is entered in time.
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Order details */}
-        <div className="mb-4 p-5" style={{ border: "1px solid #D9D2C2" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 14, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.18, ease: EASE_OUT }}
+          className="mb-4 p-5"
+          style={{ border: "1px solid #D9D2C2" }}
+        >
           <h2 className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: "#8A8E83", letterSpacing: "0.1em" }}>
             Order details
           </h2>
@@ -229,11 +267,17 @@ export default function OrderPage() {
               <p className="text-xs" style={{ color: "#4A5247" }}>{address.street}, {address.city}, {address.state} {address.zip}</p>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Environmental impact */}
         {impact && (
-          <div className="mb-4 p-5" style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 14, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.24, ease: EASE_OUT }}
+            className="mb-4 p-5"
+            style={{ border: "1px solid #D9D2C2", background: "#EDE6D3" }}
+          >
             <p className="text-xs font-medium uppercase tracking-wider mb-4" style={{ color: "#8A8E83", letterSpacing: "0.08em" }}>
               Your purchase saved
             </p>
@@ -242,8 +286,13 @@ export default function OrderPage() {
                 { value: impact.waterDisplay, label: "water" },
                 { value: impact.energyDisplay, label: "energy" },
                 { value: impact.co2Display, label: "CO₂" },
-              ].map(({ value, label }) => (
-                <div key={label}>
+              ].map(({ value, label }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, delay: 0.32 + i * 0.08, ease: EASE_OUT }}
+                >
                   <div
                     className="text-xl font-medium mb-0.5 tabular"
                     style={{ fontFamily: "var(--font-mono)", color: "#2D5A3D", fontVariantNumeric: "tabular-nums" }}
@@ -251,97 +300,166 @@ export default function OrderPage() {
                     {value}
                   </div>
                   <div className="text-xs" style={{ color: "#8A8E83" }}>{label}</div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Refund status messages */}
-        {order.refund_status === "requested" && (
-          <div className="mb-4 p-4 text-sm" style={{ background: "#FBF5E8", border: "1px solid #E6C97A", color: "#A67424", borderRadius: "4px" }}>
-            Your refund claim is under review. Our team will respond within 1–2 business days.
-          </div>
-        )}
-
-        {order.refund_status === "issued" && (
-          <div className="mb-4 p-4 text-sm" style={{ background: "#EDF4EE", border: "1px solid #A8C5A0", color: "#2D5A3D", borderRadius: "4px" }}>
-            Refund issued. Allow 3–5 business days to appear in your PayPal account.
-          </div>
-        )}
-
-        {canFileClaim && refundStep === "idle" && (
-          <div className="p-5" style={{ border: "1px solid #D9D2C2" }}>
-            <h2 className="text-sm font-medium mb-1" style={{ color: "#1F2A20" }}>Problem with this order?</h2>
-            <p className="text-xs mb-3 leading-relaxed" style={{ color: "#8A8E83" }}>
-              If the item was not as described or never arrived, you may file a claim within 7 days of delivery.
-              All sales are otherwise final.
-            </p>
-            <button
-              onClick={() => setRefundStep("form")}
-              className="text-xs font-medium transition-opacity hover:opacity-70"
-              style={{ color: "#8B3A2E" }}
+        <AnimatePresence>
+          {order.refund_status === "requested" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: EASE_OUT }}
+              className="mb-4 p-4 text-sm"
+              style={{ background: "#FBF5E8", border: "1px solid #E6C97A", color: "#A67424", borderRadius: "4px" }}
             >
-              Report a problem
-            </button>
-          </div>
-        )}
+              Your refund claim is under review. Our team will respond within 1–2 business days.
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {(refundStep === "form" || refundStep === "submitting") && (
-          <div className="p-5" style={{ border: "1px solid #D9D2C2" }}>
-            <h2 className="text-sm font-medium mb-3" style={{ color: "#1F2A20" }}>Report a problem</h2>
-            <div className="mb-3">
-              <label className="block text-xs font-medium mb-1.5" style={{ color: "#4A5247" }}>
-                Describe the issue <span style={{ color: "#8B3A2E" }}>*</span>
-              </label>
-              <textarea
-                value={refundReason}
-                onChange={(e) => setRefundReason(e.target.value)}
-                rows={4}
-                style={{
-                  width: "100%",
-                  padding: "8px 12px",
-                  border: "1px solid #D9D2C2",
-                  borderRadius: "4px",
-                  background: "transparent",
-                  outline: "none",
-                  fontSize: "14px",
-                  color: "#1F2A20",
-                  resize: "none",
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
-                placeholder="Item was stained / not the size described / never arrived…"
-              />
-            </div>
-            {refundError && (
-              <p className="text-xs mb-3" style={{ color: "#8B3A2E" }}>{refundError}</p>
-            )}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setRefundStep("idle")}
-                className="flex-1 py-2.5 text-sm font-medium transition-colors"
-                style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRefundRequest}
-                disabled={!refundReason.trim() || refundStep === "submitting"}
-                className="flex-1 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
-                style={{ background: "#8B3A2E", color: "#F5F1E8", borderRadius: "4px" }}
-              >
-                {refundStep === "submitting" ? "Submitting…" : "Submit claim"}
-              </button>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {order.refund_status === "issued" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: EASE_OUT }}
+              className="mb-4 p-4 text-sm"
+              style={{ background: "#EDF4EE", border: "1px solid #A8C5A0", color: "#2D5A3D", borderRadius: "4px" }}
+            >
+              Refund issued. Allow 3–5 business days to appear in your PayPal account.
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {refundStep === "submitted" && (
-          <div className="p-4 text-sm" style={{ background: "#EDF4EE", border: "1px solid #A8C5A0", color: "#2D5A3D", borderRadius: "4px" }}>
-            Claim submitted. We&apos;ll review it and respond within 1–2 business days.
-          </div>
-        )}
+        {/* Refund claim section */}
+        <AnimatePresence mode="wait">
+          {canFileClaim && refundStep === "idle" && (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.32, delay: 0.3, ease: EASE_OUT }}
+              className="p-5"
+              style={{ border: "1px solid #D9D2C2" }}
+            >
+              <h2 className="text-sm font-medium mb-1" style={{ color: "#1F2A20" }}>Problem with this order?</h2>
+              <p className="text-xs mb-3 leading-relaxed" style={{ color: "#8A8E83" }}>
+                If the item was not as described or never arrived, you may file a claim within 7 days of delivery.
+                All sales are otherwise final.
+              </p>
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                transition={{ duration: 0.1 }}
+                onClick={() => setRefundStep("form")}
+                className="text-xs font-medium transition-opacity hover:opacity-70"
+                style={{ color: "#8B3A2E" }}
+              >
+                Report a problem
+              </motion.button>
+            </motion.div>
+          )}
+
+          {(refundStep === "form" || refundStep === "submitting") && (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.98, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.35, ease: EASE_OUT }}
+              className="p-5"
+              style={{ border: "1px solid #D9D2C2" }}
+            >
+              <h2 className="text-sm font-medium mb-3" style={{ color: "#1F2A20" }}>Report a problem</h2>
+              <div className="mb-3">
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "#4A5247" }}>
+                  Describe the issue <span style={{ color: "#8B3A2E" }}>*</span>
+                </label>
+                <textarea
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  rows={4}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    border: "1px solid #D9D2C2",
+                    borderRadius: "4px",
+                    background: "transparent",
+                    outline: "none",
+                    fontSize: "14px",
+                    color: "#1F2A20",
+                    resize: "none",
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
+                  placeholder="Item was stained / not the size described / never arrived…"
+                />
+              </div>
+              <AnimatePresence>
+                {refundError && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xs mb-3"
+                    style={{ color: "#8B3A2E" }}
+                  >
+                    {refundError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+              <div className="flex gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.1 }}
+                  onClick={() => setRefundStep("idle")}
+                  className="flex-1 py-2.5 text-sm font-medium"
+                  style={{
+                    border: "1px solid #D9D2C2",
+                    color: "#4A5247",
+                    borderRadius: "4px",
+                    transition: "background 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.1 }}
+                  onClick={handleRefundRequest}
+                  disabled={!refundReason.trim() || refundStep === "submitting"}
+                  className="flex-1 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
+                  style={{ background: "#8B3A2E", color: "#F5F1E8", borderRadius: "4px" }}
+                >
+                  {refundStep === "submitting" ? "Submitting…" : "Submit claim"}
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {refundStep === "submitted" && (
+            <motion.div
+              key="submitted"
+              initial={{ opacity: 0, y: 10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.38, ease: EASE_OUT }}
+              className="p-4 text-sm"
+              style={{ background: "#EDF4EE", border: "1px solid #A8C5A0", color: "#2D5A3D", borderRadius: "4px" }}
+            >
+              Claim submitted. We&apos;ll review it and respond within 1–2 business days.
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { adminApi } from "@/app/lib/adminApi";
 import { supabase } from "@/app/lib/supabaseClient";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 interface Stats {
   pendingSell: number;
@@ -84,7 +87,11 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: EASE_OUT }}
+      >
         <h1 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
           Dashboard
         </h1>
@@ -93,27 +100,46 @@ export default function AdminDashboard() {
             ? `${totalPending} item${totalPending !== 1 ? "s" : ""} need your attention`
             : "Everything is up to date"}
         </p>
-      </div>
+      </motion.div>
 
       {/* Pending actions */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.07, ease: EASE_OUT }}
+      >
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pending Actions</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard label="Sell Submissions" value={stats.pendingSell}      href="/d48/sell-submissions" color="#7fb069" />
-          <StatCard label="Buy Requests"     value={stats.pendingBuy}       href="/d48/buy-requests"     color="#4a90e2" />
-          <StatCard label="Donations"        value={stats.pendingDonations} href="/d48/donations"        color="#f59e0b" />
-          <StatCard label="New Camps"        value={stats.pendingNewCamps}  href="/d48/new-camps"        color="#7fb069" />
+          {[
+            { label: "Sell Submissions", value: stats.pendingSell,      href: "/d48/sell-submissions", color: "#7fb069" },
+            { label: "Buy Requests",     value: stats.pendingBuy,       href: "/d48/buy-requests",     color: "#4a90e2" },
+            { label: "Donations",        value: stats.pendingDonations, href: "/d48/donations",        color: "#f59e0b" },
+            { label: "New Camps",        value: stats.pendingNewCamps,  href: "/d48/new-camps",        color: "#7fb069" },
+          ].map(({ label, value, href, color }, i) => (
+            <motion.div
+              key={href}
+              initial={{ opacity: 0, y: 10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.35, delay: 0.12 + i * 0.06, ease: EASE_OUT }}
+            >
+              <StatCard label={label} value={value} href={href} color={color} />
+            </motion.div>
+          ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Overview */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.22, ease: EASE_OUT }}
+      >
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Platform Overview</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           <StatCard label="Total Camps" value={stats.totalCamps}      href="/d48/camps"     color="#7fb069" />
           <StatCard label="Waitlist"    value={stats.waitlistEntries} href="/d48/waitlist"  color="#a78bfa" />
         </div>
-      </div>
+      </motion.div>
 
       {/* Payout breakdown */}
       <div>

@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp } from "@/app/lib/supabaseClient";
 import { ITEM_TYPES, CONDITIONS, getSizesForItemType } from "@/app/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 const inputCss: React.CSSProperties = {
   width: "100%",
@@ -100,32 +103,57 @@ export default function DonatePage() {
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#F5F1E8" }}>
-        <div style={{ maxWidth: "440px", width: "100%" }}>
-          <div
+        <motion.div
+          initial={{ opacity: 0, y: 18, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.45, ease: EASE_OUT }}
+          style={{ maxWidth: "440px", width: "100%" }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.38, delay: 0.12, ease: EASE_OUT }}
             className="w-10 h-10 flex items-center justify-center mb-6"
             style={{ border: "1.5px solid #2D5A3D", borderRadius: "2px" }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#2D5A3D" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-          </div>
-          <h1
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.2, ease: EASE_OUT }}
             className="font-medium mb-3"
             style={{ fontFamily: "var(--font-fraunces)", fontVariationSettings: "'opsz' 72, 'soft' 40", fontSize: "28px", color: "#1F2A20" }}
           >
             Donation submitted
-          </h1>
-          <p className="text-sm mb-8 leading-relaxed" style={{ color: "#4A5247" }}>
-            Thank you. We&apos;ll review it and reach out at <strong>{user?.email}</strong> if we have questions.
-          </p>
-          <button
-            onClick={() => router.push("/")}
-            className="px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
-            style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.28, ease: EASE_OUT }}
+            className="text-sm mb-8 leading-relaxed"
+            style={{ color: "#4A5247" }}
           >
-            Back to home
-          </button>
-        </div>
+            Thank you. We&apos;ll review it and reach out at <strong>{user?.email}</strong> if we have questions.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, delay: 0.36, ease: EASE_OUT }}
+          >
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.1 }}
+              onClick={() => router.push("/")}
+              className="px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
+              style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
+            >
+              Back to home
+            </motion.button>
+          </motion.div>
+        </motion.div>
       </div>
     );
   }
@@ -136,7 +164,10 @@ export default function DonatePage() {
       {/* Header */}
       <div className="px-6 py-12" style={{ borderBottom: "1px solid #D9D2C2" }}>
         <div style={{ maxWidth: "560px", margin: "0 auto" }}>
-          <h1
+          <motion.h1
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.45, ease: EASE_OUT }}
             className="mb-1"
             style={{
               fontFamily: "var(--font-fraunces)",
@@ -146,23 +177,39 @@ export default function DonatePage() {
             }}
           >
             Donate clothing
-          </h1>
-          <p className="text-sm" style={{ color: "#8A8E83" }}>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.1, ease: EASE_OUT }}
+            className="text-sm"
+            style={{ color: "#8A8E83" }}
+          >
             Help another family by donating gear your kid has outgrown.
-          </p>
+          </motion.p>
         </div>
       </div>
 
       <div className="px-6 py-10" style={{ maxWidth: "560px", margin: "0 auto" }}>
-        <div className="mb-6 p-4 text-sm" style={{ background: "#EDE6D3", border: "1px solid #D9D2C2", borderRadius: "4px" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.38, delay: 0.15, ease: EASE_OUT }}
+          className="mb-6 p-4 text-sm"
+          style={{ background: "#EDE6D3", border: "1px solid #D9D2C2", borderRadius: "4px" }}
+        >
           <p style={{ color: "#4A5247" }}>
             Donated items are reviewed by us and listed for families in need. We&apos;ll let you know once it&apos;s live.
           </p>
-        </div>
+        </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Camp */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.2, ease: EASE_OUT }}
+          >
             <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
               Which camp? <span style={{ color: "#8B3A2E" }}>*</span>
             </label>
@@ -177,10 +224,14 @@ export default function DonatePage() {
               <option value="">Pick a camp…</option>
               {camps.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-          </div>
+          </motion.div>
 
           {/* Item type */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.25, ease: EASE_OUT }}
+          >
             <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
               Item type <span style={{ color: "#8B3A2E" }}>*</span>
             </label>
@@ -195,62 +246,86 @@ export default function DonatePage() {
               <option value="">Select type…</option>
               {ITEM_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
-          </div>
+          </motion.div>
 
           {/* Size */}
-          {itemType && (
-            <div>
-              <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
-                Size <span style={{ color: "#8B3A2E" }}>*</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {getSizesForItemType(itemType).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setSize(s)}
-                    className="px-3 py-1.5 text-xs font-medium transition-all"
-                    style={{
-                      border: size === s ? "2px solid #2D5A3D" : "1px solid #D9D2C2",
-                      background: size === s ? "#2D5A3D" : "transparent",
-                      color: size === s ? "#F5F1E8" : "#4A5247",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {itemType && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0, transition: { duration: 0.18, ease: EASE_OUT } }}
+                transition={{ duration: 0.3, ease: EASE_OUT }}
+                className="overflow-hidden"
+              >
+                <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
+                  Size <span style={{ color: "#8B3A2E" }}>*</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {getSizesForItemType(itemType).map((s, i) => (
+                    <motion.button
+                      key={s}
+                      type="button"
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.22, delay: i * 0.04, ease: EASE_OUT }}
+                      whileTap={{ scale: 0.93 }}
+                      onClick={() => setSize(s)}
+                      className="px-3 py-1.5 text-xs font-medium"
+                      style={{
+                        border: size === s ? "2px solid #2D5A3D" : "1px solid #D9D2C2",
+                        background: size === s ? "#2D5A3D" : "transparent",
+                        color: size === s ? "#F5F1E8" : "#4A5247",
+                        borderRadius: "4px",
+                        transition: "background 150ms cubic-bezier(0.23, 1, 0.32, 1), color 150ms cubic-bezier(0.23, 1, 0.32, 1), border-color 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+                      }}
+                    >
+                      {s}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Condition */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.3, ease: EASE_OUT }}
+          >
             <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
               Condition <span style={{ color: "#8B3A2E" }}>*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
               {CONDITIONS.map((c) => (
-                <button
+                <motion.button
                   key={c.value}
                   type="button"
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.1 }}
                   onClick={() => setCondition(c.value)}
-                  className="text-left px-4 py-3 transition-all"
+                  className="text-left px-4 py-3"
                   style={{
                     border: condition === c.value ? "2px solid #2D5A3D" : "1px solid #D9D2C2",
                     background: condition === c.value ? "#EDE6D3" : "transparent",
                     borderRadius: "4px",
+                    transition: "background 150ms cubic-bezier(0.23, 1, 0.32, 1), border-color 150ms cubic-bezier(0.23, 1, 0.32, 1)",
                   }}
                 >
                   <div className="font-medium text-sm" style={{ color: "#1F2A20" }}>{c.label}</div>
                   <div className="text-xs mt-0.5" style={{ color: "#8A8E83" }}>{c.description}</div>
-                </button>
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Photo */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.35, ease: EASE_OUT }}
+          >
             <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
               Photo <span className="font-normal" style={{ color: "#8A8E83" }}>(optional but helpful)</span>
             </label>
@@ -259,21 +334,29 @@ export default function DonatePage() {
               <div className="relative aspect-video overflow-hidden" style={{ maxWidth: "280px", border: "1px solid #D9D2C2" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                <button
+                <motion.button
                   type="button"
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ duration: 0.1 }}
                   onClick={() => { setImageFile(null); setImagePreview(null); }}
                   className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-xs font-bold transition-opacity hover:opacity-80"
                   style={{ background: "rgba(31,42,32,0.75)", color: "#F5F1E8", borderRadius: "2px" }}
                 >
                   ✕
-                </button>
+                </motion.button>
               </div>
             ) : (
-              <button
+              <motion.button
                 type="button"
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.1 }}
                 onClick={() => fileRef.current?.click()}
-                className="w-full p-8 text-center transition-colors"
-                style={{ border: "1.5px dashed #D9D2C2", borderRadius: "4px" }}
+                className="w-full p-8 text-center"
+                style={{
+                  border: "1.5px dashed #D9D2C2",
+                  borderRadius: "4px",
+                  transition: "border-color 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#8A8E83"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#D9D2C2"; }}
               >
@@ -282,12 +365,16 @@ export default function DonatePage() {
                 </svg>
                 <div className="text-sm font-medium" style={{ color: "#4A5247" }}>Upload a photo</div>
                 <div className="text-xs mt-0.5" style={{ color: "#8A8E83" }}>JPG, PNG, WEBP</div>
-              </button>
+              </motion.button>
             )}
-          </div>
+          </motion.div>
 
           {/* Phone */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.4, ease: EASE_OUT }}
+          >
             <label className="block text-xs font-medium mb-2" style={{ color: "#4A5247" }}>
               Phone <span className="font-normal" style={{ color: "#8A8E83" }}>(optional)</span>
             </label>
@@ -300,25 +387,33 @@ export default function DonatePage() {
               onFocus={(e) => { e.currentTarget.style.borderColor = "#2D5A3D"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "#D9D2C2"; }}
             />
-          </div>
+          </motion.div>
 
-          {error && (
-            <p
-              className="text-xs p-3"
-              style={{ color: "#8B3A2E", background: "#F9F0EE", border: "1px solid #D9B9B4", borderRadius: "4px" }}
-            >
-              {error}
-            </p>
-          )}
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.12 } }}
+                transition={{ duration: 0.25, ease: EASE_OUT }}
+                className="text-xs p-3"
+                style={{ color: "#8B3A2E", background: "#F9F0EE", border: "1px solid #D9B9B4", borderRadius: "4px" }}
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
-          <button
+          <motion.button
             type="submit"
             disabled={submitting || !isValid}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.1 }}
             className="w-full py-3 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
           >
             {submitting ? "Submitting…" : "Donate this item →"}
-          </button>
+          </motion.button>
         </form>
       </div>
     </div>

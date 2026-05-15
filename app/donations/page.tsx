@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import { getItemTypeLabel, getConditionLabel } from "@/app/lib/supabaseClient";
 import { BRAND_EMAIL } from "@/lib/brand";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 interface DonationItem {
   id: string;
@@ -59,34 +62,52 @@ export default function DonationsPage() {
       {/* Header */}
       <div className="px-6 py-14" style={{ borderBottom: "1px solid #D9D2C2" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <Link
-            href="/camps"
-            className="inline-flex items-center gap-1.5 text-xs mb-6 transition-opacity hover:opacity-70"
-            style={{ color: "#8A8E83" }}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Browse camps
-          </Link>
-          <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#8A8E83", letterSpacing: "0.12em" }}>
-            Free items
-          </p>
-          <h1
-            className="mb-3"
-            style={{
-              fontFamily: "var(--font-fraunces)",
-              fontVariationSettings: "'opsz' 72, 'soft' 40",
-              fontSize: "clamp(28px, 4vw, 44px)",
-              color: "#1F2A20",
-            }}
+            <Link
+              href="/camps"
+              className="inline-flex items-center gap-1.5 text-xs mb-6"
+              style={{
+                color: "#8A8E83",
+                transition: "opacity 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.6"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Browse camps
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.45, delay: 0.06, ease: EASE_OUT }}
           >
-            Donated gear
-          </h1>
-          <p className="text-sm max-w-md" style={{ color: "#8A8E83" }}>
-            Families donating gear they&apos;ve outgrown. Free to claim — submit a request and we&apos;ll connect you.
-            Every item is reviewed before it appears here.
-          </p>
+            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#8A8E83", letterSpacing: "0.12em" }}>
+              Free items
+            </p>
+            <h1
+              className="mb-3"
+              style={{
+                fontFamily: "var(--font-fraunces)",
+                fontVariationSettings: "'opsz' 72, 'soft' 40",
+                fontSize: "clamp(28px, 4vw, 44px)",
+                color: "#1F2A20",
+              }}
+            >
+              Donated gear
+            </h1>
+            <p className="text-sm max-w-md" style={{ color: "#8A8E83" }}>
+              Families donating gear they&apos;ve outgrown. Free to claim — submit a request and we&apos;ll connect you.
+              Every item is reviewed before it appears here.
+            </p>
+          </motion.div>
         </div>
       </div>
 
@@ -104,7 +125,13 @@ export default function DonationsPage() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="py-20" style={{ maxWidth: "400px" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE_OUT }}
+            className="py-20"
+            style={{ maxWidth: "400px" }}
+          >
             <h3
               className="font-medium mb-2 text-base"
               style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20" }}
@@ -114,25 +141,41 @@ export default function DonationsPage() {
             <p className="text-sm mb-6" style={{ color: "#8A8E83" }}>
               Check back soon — new items are added regularly.
             </p>
-            <Link
-              href="/camps"
-              className="inline-block px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
-            >
-              Browse camps
-            </Link>
-          </div>
+            <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.1 }}>
+              <Link
+                href="/camps"
+                className="inline-block px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
+                style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
+              >
+                Browse camps
+              </Link>
+            </motion.div>
+          </motion.div>
         ) : (
-          <>
-            <p className="text-sm mb-6" style={{ color: "#8A8E83" }}>
+          <AnimatePresence>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-sm mb-6"
+              style={{ color: "#8A8E83" }}
+            >
               {items.length} item{items.length !== 1 ? "s" : ""} available
-            </p>
+            </motion.p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {items.map((item) => (
-                <div
+              {items.map((item, i) => (
+                <motion.div
                   key={item.id}
-                  className="overflow-hidden flex flex-col transition-all"
-                  style={{ border: "1px solid #D9D2C2", background: "#F5F1E8", borderRadius: "0px" }}
+                  initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.38, delay: i * 0.05, ease: EASE_OUT }}
+                  whileTap={{ scale: 0.98 }}
+                  className="overflow-hidden flex flex-col"
+                  style={{
+                    border: "1px solid #D9D2C2",
+                    background: "#F5F1E8",
+                    transition: "border-color 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+                  }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#8A8E83"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#D9D2C2"; }}
                 >
@@ -143,6 +186,9 @@ export default function DonationsPage() {
                         src={item.image_url}
                         alt={getItemTypeLabel(item.item_type)}
                         className="w-full h-full object-cover photo-warm"
+                        style={{ transition: "transform 280ms cubic-bezier(0.23, 1, 0.32, 1)" }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.04)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -185,19 +231,21 @@ export default function DonationsPage() {
                       </p>
                     )}
                     <div className="mt-auto">
-                      <a
+                      <motion.a
+                        whileTap={{ scale: 0.97 }}
+                        transition={{ duration: 0.1 }}
                         href={`mailto:${BRAND_EMAIL}?subject=Donation Claim - ${getItemTypeLabel(item.item_type)} (${item.size})&body=Hi, I'd like to claim the donated ${getItemTypeLabel(item.item_type)} (Size ${item.size}, ID: ${item.id}).`}
                         className="w-full block text-center py-2 text-xs font-semibold transition-opacity hover:opacity-80"
                         style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
                       >
                         Request this item
-                      </a>
+                      </motion.a>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </>
+          </AnimatePresence>
         )}
       </div>
     </div>
