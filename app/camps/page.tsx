@@ -2,58 +2,88 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp } from "@/app/lib/supabaseClient";
 import { RequestModal } from "@/components/RequestModal";
 
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 14, scale: 0.97 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.4, delay: i * 0.05, ease: EASE_OUT },
+  }),
+};
+
 function CampCard({ camp, index }: { camp: Camp; index: number }) {
   return (
-    <Link
-      href={`/camps/${camp.slug}`}
-      className="group block overflow-hidden animate-fade-in"
-      style={{
-        border: "1px solid #D9D2C2",
-        animationDelay: `${index * 60}ms`,
-        opacity: 0,
-        animationFillMode: "forwards",
-        borderRadius: "0px",
-      }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#8A8E83"; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#D9D2C2"; }}
+    <motion.div
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.12 }}
     >
-      {/* Camp image */}
-      <div className="relative h-40 overflow-hidden" style={{ background: "#EDE6D3" }}>
-        {camp.main_image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={camp.main_image}
-            alt={camp.name}
-            className="w-full h-full object-cover transition-transform duration-200"
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.03)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-xs" style={{ color: "#8A8E83" }}>No image</span>
-          </div>
-        )}
-      </div>
+      <Link
+        href={`/camps/${camp.slug}`}
+        className="group block overflow-hidden"
+        style={{
+          border: "1px solid #D9D2C2",
+          borderRadius: "0px",
+          transition: "border-color 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#8A8E83"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#D9D2C2"; }}
+      >
+        {/* Camp image */}
+        <div className="relative h-40 overflow-hidden" style={{ background: "#EDE6D3" }}>
+          {camp.main_image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={camp.main_image}
+              alt={camp.name}
+              className="w-full h-full object-cover"
+              style={{ transition: "transform 280ms cubic-bezier(0.23, 1, 0.32, 1)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.04)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-xs" style={{ color: "#8A8E83" }}>No image</span>
+            </div>
+          )}
+        </div>
 
-      <div className="p-4" style={{ borderTop: "1px solid #D9D2C2", background: "#F5F1E8" }}>
-        <h3
-          className="font-medium text-sm leading-tight mb-1"
-          style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
-        >
-          {camp.name}
-        </h3>
-        {camp.location && (
-          <p className="text-xs mb-3" style={{ color: "#8A8E83" }}>{camp.location}</p>
-        )}
-        <span className="text-xs font-medium transition-opacity group-hover:opacity-70" style={{ color: "#2D5A3D" }}>
-          Browse gear →
-        </span>
-      </div>
-    </Link>
+        <div className="p-4" style={{ borderTop: "1px solid #D9D2C2", background: "#F5F1E8" }}>
+          <h3
+            className="font-medium text-sm leading-tight mb-1"
+            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+          >
+            {camp.name}
+          </h3>
+          {camp.location && (
+            <p className="text-xs mb-3" style={{ color: "#8A8E83" }}>{camp.location}</p>
+          )}
+          <span
+            className="inline-flex items-center gap-1 text-xs font-medium"
+            style={{ color: "#2D5A3D", transition: "gap 180ms cubic-bezier(0.23, 1, 0.32, 1)" }}
+          >
+            Browse gear
+            <span
+              className="inline-block group-hover:translate-x-0.5"
+              style={{ transition: "transform 180ms cubic-bezier(0.23, 1, 0.32, 1)" }}
+            >
+              →
+            </span>
+          </span>
+        </div>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -86,10 +116,19 @@ export default function CampsPage() {
       {/* Header */}
       <div className="px-6 py-14" style={{ borderBottom: "1px solid #D9D2C2" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#8A8E83", letterSpacing: "0.12em" }}>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE_OUT }}
+            className="text-xs font-medium uppercase tracking-widest mb-4"
+            style={{ color: "#8A8E83", letterSpacing: "0.12em" }}
+          >
             Marketplace
-          </p>
-          <h1
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 14, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.05, ease: EASE_OUT }}
             className="mb-3"
             style={{
               fontFamily: "var(--font-fraunces)",
@@ -99,10 +138,16 @@ export default function CampsPage() {
             }}
           >
             Camp clothing, organized by camp
-          </h1>
-          <p className="text-sm mb-6 max-w-md" style={{ color: "#8A8E83" }}>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.12, ease: EASE_OUT }}
+            className="text-sm mb-6 max-w-md"
+            style={{ color: "#8A8E83" }}
+          >
             Used gear from {camps.length > 0 ? camps.length : 13} summer camps. Every item reviewed before it goes live.
-          </p>
+          </motion.p>
 
           {/* Search */}
           <div className="relative" style={{ maxWidth: "400px" }}>
@@ -164,13 +209,22 @@ export default function CampsPage() {
               {search ? `No results for "${search}". ` : ""}
               Don't see your camp? Request it.
             </p>
-            <button
+            <motion.button
               onClick={() => setShowRequest(true)}
-              className="px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ background: "#2D5A3D", color: "#F5F1E8", borderRadius: "4px" }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.1 }}
+              className="px-5 py-2.5 text-sm font-medium"
+              style={{
+                background: "#2D5A3D",
+                color: "#F5F1E8",
+                borderRadius: "4px",
+                transition: "opacity 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.82"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
             >
               Request a camp
-            </button>
+            </motion.button>
           </div>
         ) : (
           <>
@@ -178,15 +232,22 @@ export default function CampsPage() {
               <p className="text-sm" style={{ color: "#8A8E83" }}>
                 {filtered.length} camp{filtered.length !== 1 ? "s" : ""}{search ? ` matching "${search}"` : ""}
               </p>
-              <button
+              <motion.button
                 onClick={() => setShowRequest(true)}
-                className="text-sm font-medium px-4 py-2 transition-colors"
-                style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ duration: 0.1 }}
+                className="text-sm font-medium px-4 py-2"
+                style={{
+                  border: "1px solid #D9D2C2",
+                  color: "#4A5247",
+                  borderRadius: "4px",
+                  transition: "background 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
                 Request a camp
-              </button>
+              </motion.button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filtered.map((camp, i) => (

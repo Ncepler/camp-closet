@@ -69,6 +69,9 @@ const FridgeIcon = (props: IconProps) => (
   </svg>
 );
 
+// ─── Easing (Emil Kowalski: strong ease-out for UI, ease-in-out for on-screen) ─
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
+
 // ─── Count-up hook ──────────────────────────────────────────────────────────────
 function useCountUp(target: number, inView: boolean, reducedMotion: boolean | null, duration = 1.8) {
   const [count, setCount] = useState(0);
@@ -94,12 +97,13 @@ function useCountUp(target: number, inView: boolean, reducedMotion: boolean | nu
 function RevealSection({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const reduced = useReducedMotion();
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      initial={reduced ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.98 }}
+      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.5, ease: EASE_OUT }}
       className={className}
     >
       {children}
@@ -176,13 +180,47 @@ export function HomeClient({ itemsResold }: Props) {
     <div className="overflow-x-hidden">
 
       {/* ══ HERO ══════════════════════════════════════════════════════════════ */}
-      <section className="px-6 py-28 sm:py-36" style={{ background: "#F5F1E8" }}>
-        <div className="max-w-4xl mx-auto">
+      <section className="relative overflow-hidden px-6 py-28 sm:py-36" style={{ background: "#F5F1E8" }}>
+        {/* Floating background orb — subtle, reduced-motion safe */}
+        {!reducedMotion && (
+          <>
+            <motion.div
+              aria-hidden="true"
+              className="absolute pointer-events-none"
+              style={{
+                right: "-8%",
+                top: "-15%",
+                width: "640px",
+                height: "640px",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(45,90,61,0.07) 0%, transparent 65%)",
+              }}
+              animate={{ scale: [1, 1.07, 1], y: [0, -18, 0] }}
+              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              aria-hidden="true"
+              className="absolute pointer-events-none"
+              style={{
+                left: "-12%",
+                bottom: "-20%",
+                width: "480px",
+                height: "480px",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(200,147,47,0.05) 0%, transparent 65%)",
+              }}
+              animate={{ scale: [1, 1.05, 1], y: [0, 12, 0] }}
+              transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+            />
+          </>
+        )}
+
+        <div className="relative max-w-4xl mx-auto">
           <motion.h1
             ref={heroRef}
-            initial={{ opacity: 0, y: 16 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 20, scale: 0.97 }}
+            animate={heroInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.05, ease: EASE_OUT }}
             className="mb-8 leading-tight"
             style={{
               fontFamily: "var(--font-fraunces)",
@@ -199,9 +237,9 @@ export function HomeClient({ itemsResold }: Props) {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.6, delay: 0.2, ease: EASE_OUT }}
             className="text-lg max-w-xl mb-12 leading-relaxed"
             style={{ color: "#4A5247" }}
           >
@@ -212,31 +250,46 @@ export function HomeClient({ itemsResold }: Props) {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.55, delay: 0.35, ease: EASE_OUT }}
             className="flex flex-col sm:flex-row items-start gap-3"
           >
-            <Link
-              href="/camps"
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-80"
-              style={{ background: "#C8932F", borderRadius: "4px" }}
-            >
-              Browse the marketplace →
-            </Link>
-            <Link
-              href="/submit"
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-medium transition-colors"
-              style={{ color: "#4A5247", border: "1px solid #D9D2C2", borderRadius: "4px" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-            >
-              or list a trunk →
-            </Link>
+            <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.1 }}>
+              <Link
+                href="/camps"
+                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white"
+                style={{
+                  background: "#C8932F",
+                  borderRadius: "4px",
+                  transition: "opacity 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+              >
+                Browse the marketplace →
+              </Link>
+            </motion.div>
+            <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.1 }}>
+              <Link
+                href="/submit"
+                className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-medium"
+                style={{
+                  color: "#4A5247",
+                  border: "1px solid #D9D2C2",
+                  borderRadius: "4px",
+                  transition: "background 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+              >
+                or list a trunk →
+              </Link>
+            </motion.div>
           </motion.div>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={heroInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.5, delay: 0.55 }}
             className="text-sm italic mt-6"
             style={{ color: "#8A8E83" }}
           >
@@ -263,12 +316,12 @@ export function HomeClient({ itemsResold }: Props) {
                 { count: waterCount, suffix: "L",    label: "liters of water",  Icon: WaterIcon },
                 { count: co2Count,   suffix: " kg",  label: "kg CO2 avoided",   Icon: LeafIcon  },
                 { count: itemCount,  suffix: "",     label: "items resold",     Icon: BoltIcon  },
-              ].map(({ count, suffix, label, Icon }) => (
+              ].map(({ count, suffix, label, Icon }, i) => (
                 <motion.div
                   key={label}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={counterInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.55, delay: 0.1 }}
+                  initial={{ opacity: 0, y: 16, scale: 0.96 }}
+                  animate={counterInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+                  transition={{ duration: 0.5, delay: i * 0.1, ease: EASE_OUT }}
                 >
                   <Icon className="w-5 h-5 mx-auto mb-3" style={{ color: "#2D5A3D" }} />
                   <div
@@ -396,9 +449,9 @@ export function HomeClient({ itemsResold }: Props) {
                     {item.comparisons.map(({ Icon, headline, detail }, i) => (
                       <motion.div
                         key={headline}
-                        initial={{ opacity: 0 }}
-                        animate={inView ? { opacity: 1 } : {}}
-                        transition={{ duration: 0.4, delay: i * 0.08 }}
+                        initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                        animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+                        transition={{ duration: 0.4, delay: i * 0.07, ease: EASE_OUT }}
                         className="flex items-start gap-4 p-5"
                         style={{
                           borderRight:  i % 2 === 0 ? "1px solid #D9D2C2" : "none",
@@ -505,66 +558,70 @@ export function HomeClient({ itemsResold }: Props) {
           </RevealSection>
 
           <div className="grid md:grid-cols-2 gap-0" style={{ border: "1px solid #D9D2C2" }}>
-            <Link
-              href="/camps"
-              className="group block p-10 transition-colors"
-              style={{ borderRight: "1px solid #D9D2C2" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-            >
-              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "#8A8E83" }}>
-                Camp clothing
-              </p>
-              <h3
-                className="mb-3"
-                style={{
-                  fontFamily: "var(--font-fraunces)",
-                  fontVariationSettings: "'opsz' 60, 'soft' 40",
-                  fontWeight: 500,
-                  fontSize: "clamp(20px, 2.5vw, 28px)",
-                  color: "#1F2A20",
-                }}
-              >
-                Browse the marketplace
-              </h3>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: "#4A5247" }}>
-                T-shirts, hats, and hoodies from 13 summer camps. Find gear for your camper
-                or clear out what they&apos;ve outgrown.
-              </p>
-              <span className="text-sm font-semibold transition-colors" style={{ color: "#2D5A3D" }}>
-                Explore camps →
-              </span>
-            </Link>
-
-            <Link
-              href="/submit"
-              className="group block p-10 transition-colors"
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-            >
-              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "#8A8E83" }}>
-                Sell your gear
-              </p>
-              <h3
-                className="mb-3"
-                style={{
-                  fontFamily: "var(--font-fraunces)",
-                  fontVariationSettings: "'opsz' 60, 'soft' 40",
-                  fontWeight: 500,
-                  fontSize: "clamp(20px, 2.5vw, 28px)",
-                  color: "#1F2A20",
-                }}
-              >
-                List an item
-              </h3>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: "#4A5247" }}>
-                Got a camp tee or hoodie collecting dust? List it in under two minutes.
-                Listing is free — you only pay shipping when it sells.
-              </p>
-              <span className="text-sm font-semibold" style={{ color: "#2D5A3D" }}>
-                Start selling →
-              </span>
-            </Link>
+            {[
+              {
+                href: "/camps",
+                eyebrow: "Camp clothing",
+                heading: "Browse the marketplace",
+                body: "T-shirts, hats, and hoodies from 13 summer camps. Find gear for your camper or clear out what they've outgrown.",
+                cta: "Explore camps",
+                borderRight: true,
+              },
+              {
+                href: "/submit",
+                eyebrow: "Sell your gear",
+                heading: "List an item",
+                body: "Got a camp tee or hoodie collecting dust? List it in under two minutes. Listing is free — you only pay shipping when it sells.",
+                cta: "Start selling",
+                borderRight: false,
+              },
+            ].map(({ href, eyebrow, heading, body, cta, borderRight }) => (
+              <motion.div key={href} whileTap={{ scale: 0.99 }} transition={{ duration: 0.12 }}>
+                <Link
+                  href={href}
+                  className="group block p-10"
+                  style={{
+                    borderRight: borderRight ? "1px solid #D9D2C2" : "none",
+                    transition: "background 220ms cubic-bezier(0.23, 1, 0.32, 1)",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "#8A8E83" }}>
+                    {eyebrow}
+                  </p>
+                  <h3
+                    className="mb-3"
+                    style={{
+                      fontFamily: "var(--font-fraunces)",
+                      fontVariationSettings: "'opsz' 60, 'soft' 40",
+                      fontWeight: 500,
+                      fontSize: "clamp(20px, 2.5vw, 28px)",
+                      color: "#1F2A20",
+                    }}
+                  >
+                    {heading}
+                  </h3>
+                  <p className="text-sm leading-relaxed mb-6" style={{ color: "#4A5247" }}>
+                    {body}
+                  </p>
+                  <span
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold"
+                    style={{ color: "#2D5A3D" }}
+                  >
+                    {cta}
+                    <motion.span
+                      className="inline-block"
+                      initial={{ x: 0 }}
+                      whileHover={{ x: 3 }}
+                      transition={{ duration: 0.18, ease: EASE_OUT }}
+                    >
+                      →
+                    </motion.span>
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
