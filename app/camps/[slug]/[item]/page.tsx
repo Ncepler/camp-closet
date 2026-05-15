@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp, Item } from "@/app/lib/supabaseClient";
 import { ItemCard } from "@/components/ItemCard";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 const TYPE_META: Record<string, { label: string; price: number }> = {
   tshirt: { label: "T-Shirts", price: 22 },
@@ -73,16 +76,27 @@ export default function CampItemTypePage() {
       {/* Header */}
       <div className="px-6 py-14" style={{ borderBottom: "1px solid #D9D2C2" }}>
         <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
-          <Link
-            href={`/camps/${slug}`}
-            className="inline-flex items-center gap-1.5 text-xs mb-6 transition-opacity hover:opacity-70"
-            style={{ color: "#8A8E83" }}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            {loading ? "Back" : camp?.name}
-          </Link>
+            <Link
+              href={`/camps/${slug}`}
+              className="inline-flex items-center gap-1.5 text-xs mb-6"
+              style={{
+                color: "#8A8E83",
+                transition: "opacity 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.6"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              {loading ? "Back" : camp?.name}
+            </Link>
+          </motion.div>
 
           {loading ? (
             <div className="space-y-3">
@@ -90,7 +104,12 @@ export default function CampItemTypePage() {
               <div className="skeleton h-4 w-32" style={{ borderRadius: "2px" }} />
             </div>
           ) : (
-            <div className="flex items-end gap-5 flex-wrap">
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.45, delay: 0.06, ease: EASE_OUT }}
+              className="flex items-end gap-5 flex-wrap"
+            >
               <div>
                 <h1
                   className="mb-1"
@@ -109,7 +128,10 @@ export default function CampItemTypePage() {
                   </p>
                 )}
               </div>
-              <span
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.15, ease: EASE_OUT }}
                 className="text-xs font-medium px-2.5 py-1 mb-1"
                 style={{
                   color: totalStock > 0 ? "#2D5A3D" : "#8A8E83",
@@ -119,8 +141,8 @@ export default function CampItemTypePage() {
                 }}
               >
                 {totalStock > 0 ? `${totalStock} in stock` : "Out of stock"}
-              </span>
-            </div>
+              </motion.span>
+            </motion.div>
           )}
         </div>
       </div>
@@ -204,7 +226,14 @@ export default function CampItemTypePage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {displayed.map((it, i) => (
-                <ItemCard key={it.id} item={it} theme="camp" animationDelay={i * 50} />
+                <motion.div
+                  key={it.id}
+                  initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.38, delay: i * 0.06, ease: EASE_OUT }}
+                >
+                  <ItemCard item={it} theme="camp" animationDelay={0} />
+                </motion.div>
               ))}
             </div>
           </>

@@ -3,14 +3,27 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp, Item } from "@/app/lib/supabaseClient";
+
+const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 const TYPE_SECTIONS = [
   { value: "tshirt", label: "T-Shirt", price: 22 },
   { value: "hat",    label: "Hat",     price: 12 },
   { value: "hoodie", label: "Hoodie",  price: 30 },
 ] as const;
+
+const tileVariants = {
+  hidden: { opacity: 0, y: 14, scale: 0.97 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.4, delay: i * 0.09, ease: EASE_OUT },
+  }),
+};
 
 export default function CampPage() {
   const { slug } = useParams() as { slug: string };
@@ -43,7 +56,12 @@ export default function CampPage() {
   if (notFound) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#F5F1E8" }}>
-        <div style={{ maxWidth: "400px" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, ease: EASE_OUT }}
+          style={{ maxWidth: "400px" }}
+        >
           <h1
             className="font-medium mb-2"
             style={{ fontFamily: "var(--font-fraunces)", fontSize: "24px", color: "#1F2A20" }}
@@ -60,7 +78,7 @@ export default function CampPage() {
           >
             ← All camps
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -71,16 +89,27 @@ export default function CampPage() {
       {/* Header */}
       <div className="px-6 py-14" style={{ borderBottom: "1px solid #D9D2C2" }}>
         <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-          <Link
-            href="/camps"
-            className="inline-flex items-center gap-1.5 text-xs mb-6 transition-opacity hover:opacity-70"
-            style={{ color: "#8A8E83" }}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            All camps
-          </Link>
+            <Link
+              href="/camps"
+              className="inline-flex items-center gap-1.5 text-xs mb-6"
+              style={{
+                color: "#8A8E83",
+                transition: "opacity 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.6"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              All camps
+            </Link>
+          </motion.div>
 
           {loading ? (
             <div className="space-y-3">
@@ -89,7 +118,10 @@ export default function CampPage() {
             </div>
           ) : (
             <>
-              <h1
+              <motion.h1
+                initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.48, delay: 0.06, ease: EASE_OUT }}
                 className="mb-2"
                 style={{
                   fontFamily: "var(--font-fraunces)",
@@ -99,9 +131,17 @@ export default function CampPage() {
                 }}
               >
                 {camp?.name}
-              </h1>
+              </motion.h1>
               {camp?.location && (
-                <p className="text-sm" style={{ color: "#8A8E83" }}>{camp.location}</p>
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.16, ease: EASE_OUT }}
+                  className="text-sm"
+                  style={{ color: "#8A8E83" }}
+                >
+                  {camp.location}
+                </motion.p>
               )}
             </>
           )}
@@ -120,64 +160,90 @@ export default function CampPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ border: "1px solid #D9D2C2", background: "#D9D2C2" }}>
-            {TYPE_SECTIONS.map((type) => {
-              const typeItems  = items.filter((i) => i.item_type === type.value);
-              const totalStock = typeItems.reduce((s, i) => s + i.available_count, 0);
+          <div
+            className="grid grid-cols-1 sm:grid-cols-3 gap-px"
+            style={{ border: "1px solid #D9D2C2", background: "#D9D2C2" }}
+          >
+            {TYPE_SECTIONS.map((type, i) => {
+              const typeItems  = items.filter((it) => it.item_type === type.value);
+              const totalStock = typeItems.reduce((s, it) => s + it.available_count, 0);
               const hasStock   = totalStock > 0;
-              const preview    = typeItems.find((i) => i.image_url);
+              const preview    = typeItems.find((it) => it.image_url);
 
               return (
-                <Link
+                <motion.div
                   key={type.value}
-                  href={`/camps/${slug}/${type.value}`}
-                  className="group flex gap-4 p-6 transition-colors"
-                  style={{ background: "#F5F1E8" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#F5F1E8"; }}
+                  custom={i}
+                  variants={tileVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileTap={{ scale: 0.98 }}
+                  style={{ transition: "none" }}
                 >
-                  {/* Preview image */}
-                  <div
-                    className="w-14 h-14 overflow-hidden flex-shrink-0"
-                    style={{ background: "#EDE6D3", borderRadius: "0px" }}
+                  <Link
+                    href={`/camps/${slug}/${type.value}`}
+                    className="group flex gap-4 p-6 h-full"
+                    style={{
+                      background: "#F5F1E8",
+                      display: "flex",
+                      transition: "background 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#F5F1E8"; }}
                   >
-                    {preview?.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={preview.image_url} alt={type.label} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-xs" style={{ color: "#8A8E83" }}>{type.label[0]}</span>
+                    {/* Preview image */}
+                    <div
+                      className="w-14 h-14 overflow-hidden flex-shrink-0"
+                      style={{ background: "#EDE6D3" }}
+                    >
+                      {preview?.image_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={preview.image_url}
+                          alt={type.label}
+                          className="w-full h-full object-cover"
+                          style={{ transition: "transform 280ms cubic-bezier(0.23, 1, 0.32, 1)" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1.07)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-xs" style={{ color: "#8A8E83" }}>{type.label[0]}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="font-medium text-sm mb-1"
+                        style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+                      >
+                        {type.label}
                       </div>
-                    )}
-                  </div>
+                      <div className="text-xs mb-1.5 tabular" style={{ color: "#8A8E83", fontFamily: "var(--font-mono)" }}>
+                        ${type.price} · incl. shipping
+                      </div>
+                      <div
+                        className="text-xs font-medium"
+                        style={{ color: hasStock ? "#2D5A3D" : "#8A8E83" }}
+                      >
+                        {hasStock ? `${totalStock} in stock` : "None available"}
+                      </div>
+                    </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className="font-medium text-sm mb-1"
-                      style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+                    <svg
+                      className="w-4 h-4 flex-shrink-0 self-center group-hover:translate-x-0.5"
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                      style={{
+                        color: "#D9D2C2",
+                        transition: "transform 180ms cubic-bezier(0.23, 1, 0.32, 1)",
+                      }}
                     >
-                      {type.label}
-                    </div>
-                    <div className="text-xs mb-1.5 tabular" style={{ color: "#8A8E83", fontFamily: "var(--font-mono)" }}>
-                      ${type.price} · incl. shipping
-                    </div>
-                    <div
-                      className="text-xs font-medium"
-                      style={{ color: hasStock ? "#2D5A3D" : "#8A8E83" }}
-                    >
-                      {hasStock ? `${totalStock} in stock` : "None available"}
-                    </div>
-                  </div>
-
-                  <svg
-                    className="w-4 h-4 flex-shrink-0 self-center transition-transform group-hover:translate-x-0.5"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    style={{ color: "#D9D2C2" }}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </motion.div>
               );
             })}
           </div>
@@ -185,18 +251,33 @@ export default function CampPage() {
 
         {/* Sell CTA */}
         {!loading && (
-          <div className="mt-10 pt-8" style={{ borderTop: "1px solid #D9D2C2" }}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.38, ease: EASE_OUT }}
+            className="mt-10 pt-8"
+            style={{ borderTop: "1px solid #D9D2C2" }}
+          >
             <p className="text-sm mb-3" style={{ color: "#8A8E83" }}>
               Have {camp?.name ?? "camp"} gear to sell?
             </p>
-            <Link
-              href="/submit"
-              className="inline-block px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ border: "1px solid #D9D2C2", color: "#4A5247", borderRadius: "4px" }}
-            >
-              List an item
-            </Link>
-          </div>
+            <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.1 }}>
+              <Link
+                href="/submit"
+                className="inline-block px-5 py-2.5 text-sm font-medium"
+                style={{
+                  border: "1px solid #D9D2C2",
+                  color: "#4A5247",
+                  borderRadius: "4px",
+                  transition: "background 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#EDE6D3"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+              >
+                List an item
+              </Link>
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </div>
