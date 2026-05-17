@@ -1,4 +1,4 @@
-# Camp Closet Marketplace
+# Another Summer Marketplace
 
 ## What This Is
 
@@ -175,6 +175,26 @@ PAYPAL_PARTNER_ATTRIBUTION_ID=
 PAYPAL_ENVIRONMENT=  # 'sandbox' or 'live'
 ```
 
+## Design Skills
+
+Three design skills live in `.claude/skills/` and should be invoked (via the `Skill` tool) for any UI work. Each covers a different altitude.
+
+| Skill | Invoke for | Slug |
+|-------|-----------|------|
+| **impeccable** | Full design workflow: planning a new page/feature, running a UX critique, polish pass before shipping, or when the design feels generically AI-generated | `impeccable` |
+| **design** (Emil Kowalski) | Animation decisions, interaction micro-details, easing curves, button feel, component-level polish | `design` |
+| **ui ux pro max** | Style/color selection, accessibility audits, form feedback patterns, navigation structure, chart choices | `ui ux pro max` |
+
+**Always invoke at least one skill before writing new UI.** The impeccable skill requires `PRODUCT.md` and `DESIGN.md` in the project root — keep those files current.
+
+### When to use each skill
+- Starting a new page or major component → `/impeccable craft [feature]`
+- Reviewing existing UI for quality → `/impeccable critique` or `/impeccable audit`
+- Any animation work → `/design` first for the easing/duration decision framework
+- Choosing a color scheme, font pairing, or style → `/ui ux pro max`
+- Something looks "fine but flat" → `/impeccable bolder`
+- Pre-ship quality pass → `/impeccable polish`
+
 ## Design Direction
 
 The aesthetic is **modern eco-marketplace**. Think Patagonia meets Depop. Professional and trustworthy, not crunchy or hippie. Parents need to feel safe buying and selling here, and everyone should feel like they're part of something bigger than just saving money on a camp tee.
@@ -191,26 +211,62 @@ The aesthetic is **modern eco-marketplace**. Think Patagonia meets Depop. Profes
 - Muted terracotta: `#C17A5A` (sparingly, CTAs or highlights)
 - Navy blue: `#1E3A5F` (reserved for schools side when built)
 
+**Color implementation:** Use OKLCH when writing new CSS variables. Tint every neutral toward the forest green hue (chroma 0.005–0.01). Never use pure `#000` or `#fff`. The palette above is a **Committed** color strategy: one saturated green carries 30–60% of the surface.
+
 ### Typography
-- Headlines: a slightly softer serif — Fraunces, Lora, or Playfair Display
-- Body/UI: DM Sans, Satoshi, or Geist
+- Headlines: Fraunces (loaded via `--font-fraunces`)
+- Body/UI: Geist (loaded via `--font-sans`)
 - NO Inter, NO Roboto, NO Arial, NO system-ui defaults
+- Body line length: 65–75ch max. Use `max-w-prose` or equivalent.
+- Hierarchy: scale + weight contrast with at least 1.25 ratio between adjacent steps.
 
 ### Motion
-- Framer Motion throughout the home page
-- Stat numbers count up from 0 when they scroll into view
-- Cards stagger-fade in on load
-- Scroll-triggered reveals on every section
-- Subtle floating or pulsing background elements in hero
-- Respect `prefers-reduced-motion`
+
+**Animation decision framework (apply before writing any animation):**
+
+1. **Should this animate at all?** — Actions used 100+ times/day (keyboard shortcuts, nav) get no animation. Occasional UI (modals, drawers) gets standard animation. Rare/first-time moments (onboarding, checkout success) can have delight.
+2. **What is the purpose?** — Valid: spatial continuity, state indication, preventing jarring changes, feedback. Invalid: "it looks cool."
+3. **Easing:** Always use strong custom curves, not CSS built-ins.
+   - Entering/exiting UI: `cubic-bezier(0.23, 1, 0.32, 1)` (ease-out-quart)
+   - On-screen movement: `cubic-bezier(0.77, 0, 0.175, 1)` (ease-in-out)
+   - Never `ease-in` for UI — it starts slow, feels sluggish.
+4. **Duration:** Buttons 100–160ms, tooltips/popovers 125–200ms, dropdowns 150–250ms, modals/drawers 200–400ms. Stay under 300ms for anything frequent.
+
+**Specific patterns:**
+- Framer Motion throughout the home page: stat numbers count up from 0 on scroll, cards stagger-fade in (30–50ms between items), scroll-triggered reveals on every section
+- Buttons: `scale(0.97)` on `:active` / `whileTap` — gives instant press feedback
+- Enter animations: start from `scale(0.95) opacity(0)`, never `scale(0)` — nothing appears from nowhere
+- Stagger delays: 30–80ms between items, short enough that interaction is never blocked
+- Exit animations should be faster than enter (~60–70% of enter duration)
+- Framer Motion hardware acceleration: use `animate={{ transform: "translateX(...)" }}` not `animate={{ x: ... }}` for animations under load
+- Respect `prefers-reduced-motion` — reduce movement, keep opacity/color transitions
 
 ### Hard rules
 - No emojis anywhere, ever
+- No gradient text (`background-clip: text` with gradient) — use solid color
 - No purple gradients
-- No rounded-bubble UI
-- Sharp cards, max 8px border-radius
-- Nature-inspired icons only (water drops, leaves, lightning, CO2 clouds) — use SVG, not emoji
+- No rounded-bubble UI — sharp cards, max 8px border-radius
+- No side-stripe borders (colored `border-left` > 1px as card accents) — rewrite with background tints or nothing
+- No identical card grids (same icon + heading + text repeated endlessly) — vary layout or content
+- No hero-metric template (big number, small label, gradient accent) — find a different pattern
+- No em dashes in copy — use commas, colons, semicolons, or periods
+- Nature-inspired icons only (water drops, leaves, lightning, CO2 clouds) — SVG, not emoji
 - Generous whitespace over cramped density
+- Every word of copy earns its place — no restated headings, no intros that repeat the title
+
+### Accessibility and interaction
+- Minimum touch target: 44×44px for all interactive elements
+- Color contrast: 4.5:1 for normal text, 3:1 for large text (WCAG AA)
+- Visible focus rings on all interactive elements (2–4px)
+- Never convey information by color alone — pair with icon or text
+- Hover states only under `@media (hover: hover) and (pointer: fine)` — touch devices mis-trigger hover on tap
+- Form errors: visible label per field, error placed below the field, focus moved to first invalid field on submit
+
+### The AI slop check
+Before shipping any UI, ask: could someone look at this and say "AI made that"? Category-reflex failures to avoid for this project:
+- Eco/sustainability → don't default to "green with leaf icons and rounded corners everywhere"
+- Resale marketplace → don't default to "card grid with price tag and star rating"
+The design should feel like a specific editorial choice, not the first training-data output for the category.
 
 ## Sustainability Integration
 
@@ -235,12 +291,12 @@ In priority order:
 6. Buyer order tracking page
 7. Auto-refund cron/trigger for missed ship deadlines
 8. Verify approved items appear correctly on public camp shop pages
-9. Lock in domain name (exploring options connecting camp + sustainability + clothing)
+9. Lock in domain name — anothersummer.com is the current working domain
 
 ## Pending Decisions
 
 1. **Refund window** — how many days after purchase before auto-refund if no tracking? Suggested: 7 days.
-2. **Domain name** — TBD.
+2. **Domain name** — anothersummer.com (working assumption).
 3. **Camp/school main image upload UI** — `main_image` column exists in DB, no admin UI yet.
 4. **Resend email templates** — order confirmation, seller sale notification, waitlist restock, refund issued.
 5. **Better admin auth** — currently hardcoded password; should migrate to Supabase Auth with admin role.
@@ -253,3 +309,4 @@ In priority order:
 - Don't create new admin pages unless absolutely necessary; reuse existing ones
 - Keep things simple and ship-able rather than over-engineered
 - The `item_types` table is the source of truth for item names — filter in the UI, don't modify the table
+- Invoke a design skill before writing new UI — don't guess at design decisions

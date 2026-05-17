@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getItemTypeLabel } from "@/app/lib/supabaseClient";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://campcloset.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anothersummer.com";
 
 async function sendDonorEmail(opts: {
   donor_email: string;
@@ -25,7 +25,7 @@ async function sendDonorEmail(opts: {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
     body: JSON.stringify({
-      from: "Camp Closet <noreply@campcloset.com>",
+      from: "Another Summer <noreply@anothersummer.com>",
       to: [opts.donor_email],
       subject: "Your donation found a home.",
       html: `
@@ -36,7 +36,7 @@ async function sendDonorEmail(opts: {
             We'll be in touch with shipping details shortly.
             Thank you for keeping camp gear in circulation.
           </p>
-          <p style="color:#8A8E83;margin-top:32px;font-size:13px;">— Camp Closet</p>
+          <p style="color:#8A8E83;margin-top:32px;font-size:13px;">— Another Summer</p>
         </div>
       `,
     }),
@@ -54,7 +54,7 @@ async function sendClaimerEmail(opts: {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
     body: JSON.stringify({
-      from: "Camp Closet <noreply@campcloset.com>",
+      from: "Another Summer <noreply@anothersummer.com>",
       to: [opts.claimer_email],
       subject: `Your claim is confirmed — ${itemLabel}`,
       html: `
@@ -67,7 +67,7 @@ async function sendClaimerEmail(opts: {
             style="display:inline-block;margin-top:16px;color:#2D5A3D;font-size:14px;">
             View your claim →
           </a>
-          <p style="color:#8A8E83;margin-top:32px;font-size:13px;">— Camp Closet</p>
+          <p style="color:#8A8E83;margin-top:32px;font-size:13px;">— Another Summer</p>
         </div>
       `,
     }),

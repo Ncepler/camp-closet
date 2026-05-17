@@ -90,10 +90,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold"
               style={{ background: "linear-gradient(135deg, #2d5016, #7fb069)" }}>
-              CC
+              AS
             </div>
             <div>
-              <div className="text-white font-semibold text-sm" style={{ fontFamily: "var(--font-fraunces)" }}>Camp Closet</div>
+              <div className="text-white font-semibold text-sm" style={{ fontFamily: "var(--font-fraunces)" }}>Another Summer</div>
               <div className="text-gray-500 text-xs">Admin Panel</div>
             </div>
           </div>

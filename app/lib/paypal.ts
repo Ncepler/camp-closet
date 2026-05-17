@@ -79,7 +79,7 @@ export async function createPayPalOrder(
       payment_source: {
         paypal: {
           experience_context: {
-            brand_name: 'Camp Closet Marketplace',
+            brand_name: 'Another Summer Marketplace',
             locale: 'en-US',
             user_action: 'PAY_NOW',
           },

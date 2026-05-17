@@ -148,7 +148,7 @@ export function ClaimModal({ item, onClose }: ClaimModalProps) {
 
               <div className="space-y-4 text-sm leading-relaxed mb-6" style={{ color: "#4A5247" }}>
                 <p>
-                  Free items on Camp Closet are donated by other camp parents. There's no application — we trust people to take what they need.
+                  Free items on Another Summer are donated by other camp parents. There's no application — we trust people to take what they need.
                 </p>
                 <p>
                   Before you claim this, take a second: would your family be okay buying this gear new or used at full price? If yes, please leave it for someone who'd struggle to. There's plenty here to buy that supports the platform too.

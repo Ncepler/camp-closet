@@ -193,7 +193,7 @@ export default function TheMathPage() {
               If you spend what you saved on a new item elsewhere, the net benefit shrinks.
               <sup className="ml-0.5" style={{ color: "#C8932F" }}>3</sup>
             </>,
-            "Our items don't compete with fast fashion on price — a used Camp Closet hoodie costs $30, not $8 from a fast-fashion retailer. We think that removes most of the rebound risk for this specific category.",
+            "Our items don't compete with fast fashion on price — a used Another Summer hoodie costs $30, not $8 from a fast-fashion retailer. We think that removes most of the rebound risk for this specific category.",
             <>
               Extending a garment&apos;s active life by just nine months reduces its total water, carbon,
               and waste footprint by 20–30%.

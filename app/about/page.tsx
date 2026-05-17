@@ -5,7 +5,7 @@ import { MotionReveal } from "@/components/MotionReveal";
 
 export const metadata: Metadata = {
   title: `About — ${BRAND_NAME}`,
-  description: "Your kid's old camp tee has one more summer in it. Camp Closet is a curated resale marketplace for used summer camp clothing.",
+  description: "Your kid's old camp tee has one more summer in it. Another Summer is a curated resale marketplace for used summer camp clothing.",
 };
 
 const PRINCIPLES = [

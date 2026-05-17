@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
               Authorization: `Bearer ${RESEND_API_KEY}`,
             },
             body: JSON.stringify({
-              from:    "Camp Closet <noreply@campcloset.com>",
+              from:    "Another Summer <noreply@anothersummer.com>",
               to:      [entry.email],
               subject: "Great news — your waitlisted item is back in stock!",
               html: `
@@ -45,14 +45,14 @@ export async function POST(req: NextRequest) {
                     Good news! 🎉
                   </h1>
                   <p style="color: #556b4f; line-height: 1.6; margin-bottom: 24px;">
-                    An item on your waitlist just came back in stock on Camp Closet:
+                    An item on your waitlist just came back in stock on Another Summer:
                   </p>
                   <div style="background: #f8faf6; border: 1px solid #d4e3cc; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
                     <strong style="color: #1a3310;">${item?.item_type ?? "Item"}</strong>
                     ${item?.size ? ` — Size ${item.size}` : ""}
                     ${item?.price ? ` — $${Number(item.price).toFixed(2)}` : ""}
                   </div>
-                  <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? "https://campcloset.com"}"
+                  <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? "https://anothersummer.com"}"
                     style="display: inline-block; background: linear-gradient(135deg, #2d5016, #4a7c2c); color: white; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px;">
                     View &amp; Buy Now
                   </a>

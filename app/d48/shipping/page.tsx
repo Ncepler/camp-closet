@@ -9,32 +9,32 @@ const TEMPLATES = [
   {
     id: "checking_in",
     label: "Checking in",
-    subject: "Quick check-in on your Camp Closet order",
-    body: "Hi,\n\nJust checking in — it looks like your order hasn't shipped yet and we want to make sure everything is on track. Do you have an update on when it might go out?\n\nIf there's anything going on, let us know and we'll help sort it out.\n\n— Camp Closet",
+    subject: "Quick check-in on your Another Summer order",
+    body: "Hi,\n\nJust checking in — it looks like your order hasn't shipped yet and we want to make sure everything is on track. Do you have an update on when it might go out?\n\nIf there's anything going on, let us know and we'll help sort it out.\n\n— Another Summer",
   },
   {
     id: "reminder_7day",
     label: "7-day reminder",
-    subject: "Reminder: 7-day shipping deadline — Camp Closet",
-    body: "Hi,\n\nJust a reminder that sellers have 7 days to ship after a purchase, and it looks like we're getting close to that window for your order.\n\nPlease ship as soon as possible and enter your tracking number at campcloset.com/seller. If you need more time or have a question, just reply here.\n\n— Camp Closet",
+    subject: "Reminder: 7-day shipping deadline — Another Summer",
+    body: "Hi,\n\nJust a reminder that sellers have 7 days to ship after a purchase, and it looks like we're getting close to that window for your order.\n\nPlease ship as soon as possible and enter your tracking number at anothersummer.com/seller. If you need more time or have a question, just reply here.\n\n— Another Summer",
   },
   {
     id: "in_transit_delay",
     label: "In transit delay",
-    subject: "Your Camp Closet package — update?",
-    body: "Hi,\n\nWe noticed your package has been in transit for a while and wanted to check in. Has it arrived? If there's an issue with the delivery, let us know and we'll look into it.\n\n— Camp Closet",
+    subject: "Your Another Summer package — update?",
+    body: "Hi,\n\nWe noticed your package has been in transit for a while and wanted to check in. Has it arrived? If there's an issue with the delivery, let us know and we'll look into it.\n\n— Another Summer",
   },
   {
     id: "refund_warning",
     label: "Refund warning",
-    subject: "Action needed: Camp Closet order at risk of refund",
-    body: "Hi,\n\nWe haven't received a tracking number for your order and the shipping deadline has passed. If you don't ship and add tracking soon, we'll need to issue a refund to the buyer.\n\nPlease ship your item and enter the USPS tracking number at campcloset.com/seller right away. If something has come up, reply here and we'll work with you.\n\n— Camp Closet",
+    subject: "Action needed: Another Summer order at risk of refund",
+    body: "Hi,\n\nWe haven't received a tracking number for your order and the shipping deadline has passed. If you don't ship and add tracking soon, we'll need to issue a refund to the buyer.\n\nPlease ship your item and enter the USPS tracking number at anothersummer.com/seller right away. If something has come up, reply here and we'll work with you.\n\n— Another Summer",
   },
   {
     id: "all_good",
     label: "All good / FYI",
-    subject: "Your Camp Closet order — all set",
-    body: "Hi,\n\nJust wanted to confirm everything looks good on our end. Thanks for being part of Camp Closet!\n\n— Camp Closet",
+    subject: "Your Another Summer order — all set",
+    body: "Hi,\n\nJust wanted to confirm everything looks good on our end. Thanks for being part of Another Summer!\n\n— Another Summer",
   },
 ];
 
