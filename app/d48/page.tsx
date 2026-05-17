@@ -51,6 +51,8 @@ export default function AdminDashboard() {
     pendingNewCamps: 0, totalCamps: 0, waitlistEntries: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [testEmail, setTestEmail] = useState("");
+  const [testStatus, setTestStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   useEffect(() => {
     const load = async () => {
@@ -171,6 +173,32 @@ export default function AdminDashboard() {
             PayPal rate: 2.99% + $0.49 per transaction. Platform fee: 15% of item price.
             Seller net is before their shipping cost (~$4 hat, ~$5 tee, ~$7 hoodie via USPS).
           </div>
+        </div>
+      </div>
+
+      {/* Hidden email tester */}
+      <div>
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Email</h2>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-3">
+          <input
+            type="text"
+            value={testEmail}
+            onChange={(e) => { setTestEmail(e.target.value); setTestStatus("idle"); }}
+            placeholder="Enter code to send test email"
+            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 outline-none focus:border-gray-500"
+          />
+          <button
+            disabled={testStatus === "loading"}
+            onClick={async () => {
+              if (testEmail !== "weretestingtheemailrn") return;
+              setTestStatus("loading");
+              const res = await fetch("/api/auth/send-test-email", { method: "POST" });
+              setTestStatus(res.ok ? "ok" : "error");
+            }}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50 transition-colors whitespace-nowrap"
+          >
+            {testStatus === "loading" ? "Sending…" : testStatus === "ok" ? "Sent" : testStatus === "error" ? "Failed" : "Send"}
+          </button>
         </div>
       </div>
 
