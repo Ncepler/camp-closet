@@ -46,6 +46,18 @@ function AuthForm() {
     setStatus("loading");
     setMessage("");
 
+    // Test: send auth email via Resend to shopanothersummer@gmail.com
+    if (email === "weretestingtheemailrn") {
+      const res = await fetch("/api/auth/send-test-email", { method: "POST" });
+      if (!res.ok) {
+        setStatus("error");
+        setMessage("Failed to send test email");
+      } else {
+        setStatus("success");
+      }
+      return;
+    }
+
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
@@ -232,6 +244,7 @@ function AuthForm() {
               exit={{ opacity: 0, y: -10, transition: { duration: 0.13, ease: EASE_OUT } }}
               transition={{ duration: 0.28, ease: EASE_OUT }}
               onSubmit={handleSubmit}
+              noValidate
               className="space-y-6"
             >
               {/* Signup-only fields */}
