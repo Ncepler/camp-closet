@@ -102,7 +102,7 @@ body {
 
 /* ── Focus ring ── */
 :focus-visible {
-  outline: 1px solid #2D5A3D;
+  outline: 2px solid #2D5A3D;
   outline-offset: 2px;
 }
 
@@ -127,9 +127,9 @@ body {
   to { transform: rotate(360deg); }
 }
 
-.animate-fade-in  { animation: fadeIn  0.4s ease forwards; }
-.animate-slide-in { animation: slideIn 0.3s ease forwards; }
-.animate-scale-in { animation: scaleIn 0.3s ease forwards; }
+.animate-fade-in  { animation: fadeIn  0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+.animate-slide-in { animation: slideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+.animate-scale-in { animation: scaleIn 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 .animate-spin     { animation: spin    1s linear infinite; }
 
 .stagger-1 { animation-delay: 0.05s; }

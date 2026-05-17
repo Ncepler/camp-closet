@@ -286,15 +286,25 @@ export function HomeClient({ itemsResold }: Props) {
             </motion.div>
           </motion.div>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
             animate={heroInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.55 }}
-            className="text-sm italic mt-6"
-            style={{ color: "#8A8E83" }}
+            className="mt-8 pt-6 flex flex-wrap gap-x-6 gap-y-2"
+            style={{ borderTop: "1px solid #D9D2C2" }}
           >
-            Camp gear finds its second summer here.
-          </motion.p>
+            {[
+              { label: "T-Shirt", price: "$22" },
+              { label: "Hat", price: "$12" },
+              { label: "Hoodie", price: "$30" },
+            ].map(({ label, price }) => (
+              <span key={label} className="text-sm" style={{ color: "#8A8E83" }}>
+                <span style={{ fontFamily: "var(--font-mono)", color: "#1F2A20", fontVariantNumeric: "tabular-nums" }}>{price}</span>
+                {" "}{label}
+              </span>
+            ))}
+            <span className="text-sm" style={{ color: "#8A8E83" }}>Shipping included.</span>
+          </motion.div>
         </div>
       </section>
 
@@ -347,7 +357,7 @@ export function HomeClient({ itemsResold }: Props) {
       {/* ══ THE STORY OF A CAMP TEE ═══════════════════════════════════════════ */}
       <section
         className="py-24 px-6"
-        style={{ background: "#EDE6D3", borderTop: "1px solid #D9D2C2" }}
+        style={{ background: "#F5F1E8", borderTop: "1px solid #D9D2C2" }}
       >
         <div className="max-w-4xl mx-auto">
           <RevealSection className="max-w-3xl mb-14">
@@ -553,7 +563,7 @@ export function HomeClient({ itemsResold }: Props) {
                 color: "#1F2A20",
               }}
             >
-              Your kid&apos;s old camp tee has another summer in it.
+              Used gear from the camps that matter to your family.
             </h2>
           </RevealSection>
 

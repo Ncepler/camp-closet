@@ -99,8 +99,8 @@ export default function AboutPage() {
       >
         <MotionReveal>
           <h2
-            className="text-base font-medium mb-6"
-            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+            className="font-medium mb-6"
+            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 48, 'soft' 30", fontSize: "clamp(20px, 2.5vw, 28px)" }}
           >
             Why this exists
           </h2>
@@ -122,8 +122,8 @@ export default function AboutPage() {
         <div style={{ maxWidth: "720px", margin: "0 auto" }}>
           <MotionReveal>
             <h2
-              className="text-base font-medium mb-8"
-              style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+              className="font-medium mb-8"
+              style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 48, 'soft' 30", fontSize: "clamp(20px, 2.5vw, 28px)" }}
             >
               How we operate
             </h2>
@@ -133,7 +133,7 @@ export default function AboutPage() {
               <MotionReveal key={p.title} delay={i * 0.08}>
                 <div className="p-6 h-full" style={{ background: "#F5F1E8" }}>
                   <h3 className="text-sm font-medium mb-2" style={{ color: "#1F2A20" }}>{p.title}</h3>
-                  <p className="text-xs leading-relaxed" style={{ color: "#4A5247" }}>{p.desc}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: "#4A5247" }}>{p.desc}</p>
                 </div>
               </MotionReveal>
             ))}
@@ -148,8 +148,8 @@ export default function AboutPage() {
       >
         <MotionReveal>
           <h2
-            className="text-base font-medium mb-10"
-            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 36, 'soft' 30" }}
+            className="font-medium mb-10"
+            style={{ fontFamily: "var(--font-fraunces)", color: "#1F2A20", fontVariationSettings: "'opsz' 48, 'soft' 30", fontSize: "clamp(20px, 2.5vw, 28px)" }}
           >
             The process
           </h2>
