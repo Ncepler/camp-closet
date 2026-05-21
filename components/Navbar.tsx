@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import { BRAND_NAME } from "@/lib/brand";
+import { Drawer } from "./Drawer";
 import type { User } from "@supabase/supabase-js";
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
@@ -180,58 +181,75 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu — AnimatePresence for smooth entry/exit */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22, ease: EASE_OUT }}
-            className="md:hidden overflow-hidden"
-            style={{ borderTop: "1px solid #D9D2C2", background: "#F5F1E8" }}
-          >
-            <div className="px-4 py-3 space-y-1">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2, delay: i * 0.04, ease: EASE_OUT }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-3 py-2 text-sm font-medium"
-                    style={{
-                      color: isActive(link.href) ? "#2D5A3D" : "#1F2A20",
-                      transition: "color 150ms cubic-bezier(0.23, 1, 0.32, 1)",
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-              {user && (
-                <motion.div
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2, delay: navLinks.length * 0.04, ease: EASE_OUT }}
-                >
-                  <Link
-                    href="/seller"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-3 py-2 text-sm font-medium"
-                    style={{ color: "#4A5247" }}
-                  >
-                    My Sales
-                  </Link>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile drawer */}
+      <Drawer open={menuOpen} onClose={() => setMenuOpen(false)} side="right">
+        <nav className="px-5 py-2">
+          {navLinks.map((link, i) => (
+            <motion.div
+              key={link.href}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, delay: i * 0.04, ease: EASE_OUT }}
+            >
+              <Link
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-between py-3.5 text-sm font-medium"
+                style={{
+                  color: isActive(link.href) ? "#2D5A3D" : "#1F2A20",
+                  borderBottom: "1px solid #D9D2C2",
+                  transition: "color 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
+                onMouseEnter={(e) => { if (!isActive(link.href)) (e.currentTarget as HTMLElement).style.color = "#4A5247"; }}
+                onMouseLeave={(e) => { if (!isActive(link.href)) (e.currentTarget as HTMLElement).style.color = "#1F2A20"; }}
+              >
+                {link.label}
+                {isActive(link.href) && (
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#2D5A3D" }} />
+                )}
+              </Link>
+            </motion.div>
+          ))}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, delay: navLinks.length * 0.04, ease: EASE_OUT }}
+            >
+              <Link
+                href="/seller"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-between py-3.5 text-sm font-medium"
+                style={{
+                  color: isActive("/seller") ? "#2D5A3D" : "#4A5247",
+                  borderBottom: "1px solid #D9D2C2",
+                  transition: "color 150ms cubic-bezier(0.23, 1, 0.32, 1)",
+                }}
+              >
+                My Sales
+                {isActive("/seller") && (
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#2D5A3D" }} />
+                )}
+              </Link>
+            </motion.div>
+          )}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, delay: (navLinks.length + 1) * 0.04, ease: EASE_OUT }}
+            >
+              <button
+                onClick={() => { handleSignOut(); setMenuOpen(false); }}
+                className="flex w-full items-center py-3.5 text-sm font-medium"
+                style={{ color: "#8A8E83" }}
+              >
+                Sign out
+              </button>
+            </motion.div>
+          )}
+        </nav>
+      </Drawer>
     </header>
   );
 }

@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
 import type { Camp, Item } from "@/app/lib/supabaseClient";
 import { ItemCard } from "@/components/ItemCard";
+import { ItemCardSkeleton } from "@/components/Skeleton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
@@ -76,27 +78,13 @@ export default function CampItemTypePage() {
       {/* Header */}
       <div className="px-6 py-14" style={{ borderBottom: "1px solid #D9D2C2" }}>
         <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.35, ease: EASE_OUT }}
-          >
-            <Link
-              href={`/camps/${slug}`}
-              className="inline-flex items-center gap-1.5 text-xs mb-6"
-              style={{
-                color: "#8A8E83",
-                transition: "opacity 150ms cubic-bezier(0.23, 1, 0.32, 1)",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.6"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              {loading ? "Back" : camp?.name}
-            </Link>
-          </motion.div>
+          <div className="mb-6">
+            <Breadcrumbs items={[
+              { label: "Camps", href: "/camps" },
+              { label: camp?.name ?? (loading ? "..." : slug), href: `/camps/${slug}` },
+              { label: meta?.label ?? item },
+            ]} />
+          </div>
 
           {loading ? (
             <div className="space-y-3">
@@ -152,14 +140,7 @@ export default function CampItemTypePage() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} style={{ border: "1px solid #D9D2C2" }}>
-                <div className="skeleton aspect-square" />
-                <div className="p-3 space-y-2" style={{ borderTop: "1px solid #D9D2C2" }}>
-                  <div className="skeleton h-4 w-3/4" style={{ borderRadius: "2px" }} />
-                  <div className="skeleton h-3 w-1/2" style={{ borderRadius: "2px" }} />
-                  <div className="skeleton h-8 w-full mt-2" style={{ borderRadius: "4px" }} />
-                </div>
-              </div>
+              <ItemCardSkeleton key={i} />
             ))}
           </div>
         ) : displayed.length === 0 && donatedOnly ? (
