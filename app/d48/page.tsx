@@ -52,6 +52,7 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [testStatus, setTestStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [testError, setTestError]   = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -192,13 +193,25 @@ export default function AdminDashboard() {
             disabled={testStatus === "loading"}
             onClick={async () => {
               setTestStatus("loading");
+              setTestError(null);
               const res = await fetch("/api/auth/send-test-email", { method: "POST" });
-              setTestStatus(res.ok ? "ok" : "error");
+              if (res.ok) {
+                setTestStatus("ok");
+              } else {
+                const json = await res.json().catch(() => null);
+                setTestError(json?.detail ?? json?.error ?? `HTTP ${res.status}`);
+                setTestStatus("error");
+              }
             }}
             className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 transition-colors"
           >
             {testStatus === "loading" ? "Sending…" : testStatus === "ok" ? "Email sent" : testStatus === "error" ? "Send failed" : "Send signup email"}
           </button>
+          {testError && (
+            <p className="mt-2 text-xs font-mono break-all" style={{ color: "#ef4444", maxWidth: "360px" }}>
+              {testError}
+            </p>
+          )}
         </div>
       </div>
     </div>
